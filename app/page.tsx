@@ -2265,11 +2265,6 @@ export default function Home() {
 
   // Update language for existing messages when language changes
   useEffect(() => {
-    console.log('Language:', language)
-    const messages = placeholderMessages[language] || placeholderMessages.English
-    console.log('Current messages:', messages)
-    console.log('All placeholder messages:', placeholderMessages)
-    
     // Update language for existing messages
     setChatMessages(prev => prev.map(msg => ({...msg, language: language})))
   }, [language]);
