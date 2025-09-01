@@ -22,19 +22,21 @@ export default function InspirationalWidget() {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     
     const interval = setInterval(() => {
       setCurrentQuote((prev) => (prev + 1) % QUOTES.length);
     }, 6000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [mounted]);
 
   if (!mounted || !isVisible) {
     return null;
   }
-
-  const currentQuoteObj = QUOTES[currentQuote];
 
   return (
     <div
@@ -51,9 +53,6 @@ export default function InspirationalWidget() {
         backdropFilter: "blur(10px)",
         border: "1px solid rgba(255,255,255,0.1)",
         zIndex: 1000,
-        transform: "translateZ(0)",
-        backfaceVisibility: "hidden",
-        perspective: "1000px",
       }}
     >
       <div 
@@ -97,7 +96,7 @@ export default function InspirationalWidget() {
           paddingTop: "8px",
         }}
       >
-        {currentQuoteObj?.text || ""}
+        {QUOTES[currentQuote]?.text || ""}
       </div>
 
       <div
