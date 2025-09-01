@@ -222,6 +222,224 @@ const playCompletionSound = () => {
   }
 };
 
+// Supabase Client Initialization
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Supabase URL and Anon Key must be provided.");
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Auth Modal Component (Assuming it's in components/AuthModal.tsx)
+// It should handle sign-up/sign-in with email, Google, and LinkedIn
+const AuthModal = ({ isOpen, onClose, onSuccess }) => {
+  const [isSignIn, setIsSignIn] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+
+  const handleGoogleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+    });
+    if (error) setError(error.message);
+  };
+
+  const handleLinkedInSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'linkedin',
+    });
+    if (error) setError(error.message);
+  };
+
+  const handleEmailSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    if (isSignIn) {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) setError(error.message);
+      else onSuccess();
+    } else {
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) setError(error.message);
+      else {
+        // Typically, you'd send a confirmation email here and maybe auto-login
+        // For simplicity, we'll just show a success message and let the user sign in
+        alert('Check your email for confirmation!');
+        setIsSignIn(true); // Switch to sign in form
+      }
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: "rgba(0,0,0,0.7)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000,
+    }} onClick={onClose}>
+      <div style={{
+        background: "linear-gradient(135deg, #1e293b, #334155)",
+        borderRadius: "16px",
+        padding: "32px",
+        width: "400px",
+        maxWidth: "90%",
+        color: "white",
+        border: "1px solid rgba(255,255,255,0.1)",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
+      }} onClick={(e) => e.stopPropagation()}>
+        <h2 style={{ textAlign: "center", fontSize: "24px", fontWeight: "700", marginBottom: "24px" }}>
+          {isSignIn ? "Sign In" : "Sign Up"}
+        </h2>
+
+        <form onSubmit={handleEmailSubmit}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={{
+              width: "100%",
+              padding: "12px",
+              marginBottom: "16px",
+              background: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              borderRadius: "8px",
+              color: "white",
+              fontSize: "14px",
+              outline: "none",
+            }}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={{
+              width: "100%",
+              padding: "12px",
+              marginBottom: "16px",
+              background: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              borderRadius: "8px",
+              color: "white",
+              fontSize: "14px",
+              outline: "none",
+            }}
+          />
+          {error && <p style={{ color: "#f87171", fontSize: "12px", marginBottom: "16px" }}>{error}</p>}
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              padding: "12px",
+              background: "linear-gradient(135deg, #10B981, #059669)",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "16px",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "opacity 0.3s",
+            }}
+          >
+            {isSignIn ? "Sign In" : "Sign Up"}
+          </button>
+        </form>
+
+        <div style={{ textAlign: "center", margin: "20px 0", position: "relative", borderTop: "1px solid rgba(255,255,255,0.2)" }}>
+          <span style={{ position: "absolute", top: "-10px", left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #1e293b, #334155)", padding: "0 10px", fontSize: "12px", color: "rgba(255,255,255,0.6)" }}>OR</span>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <button onClick={handleGoogleSignIn} style={{
+            width: "100%",
+            padding: "12px",
+            background: "rgba(255,255,255,0.1)",
+            color: "white",
+            border: "1px solid rgba(255,255,255,0.2)",
+            borderRadius: "8px",
+            fontSize: "14px",
+            fontWeight: "500",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            transition: "background 0.3s"
+          }}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.37l0-.02H18l.02.01c1.76.15 3.05-.85 3.74-2.48l.01-.01c.56-1.09.87-2.3.87-3.67zM12 23c2.47 0 4.53-.81 6.02-2.19l-1.71-1.32c-.7.48-1.64.78-2.65.78-.79 0-1.53-.27-2.12-.75l-.02.01c-1.07-.7-1.79-1.73-1.79-2.94v-.02c0-1.15.72-2.17 1.79-2.94l.02-.01h-.02C8.77 14.51 12 15.09 12 15v4.77zM6.87 13.54c-.16.37-.25.77-.25 1.19s.09.82.25 1.19h11.49l-.02.01c-1.18.79-1.99 1.8-1.99 2.94v.02c0 1.11.81 2.12 1.99 2.94h-.02l-.01.01C13.51 22.97 12 23 12 23c-2.47 0-4.53-.81-6.02-2.19l1.71-1.32c.7.48 1.64.78 2.65.78.69 0 1.35-.23 1.87-.65l.01-.01H7.74l-.01.01C6.28 18.99 6 17.98 6 16.77v-.02c0-1.11.81-2.12 1.99-2.94h-.02l-.01.01C6.98 13.54 6.92 13.54 6.87 13.54zM12 6.38c-1.49 0-2.72-.95-3.17-2.24l-.01-.01h3.17v-3.17h.02C13.29 0 14 1.07 14 2.27v.02c0 1.33-1.15 2.48-2.65 2.48z"/></svg>
+            <span>Continue with Google</span>
+          </button>
+
+          <button onClick={handleLinkedInSignIn} style={{
+            width: "100%",
+            padding: "12px",
+            background: "rgba(255,255,255,0.1)",
+            color: "white",
+            border: "1px solid rgba(255,255,255,0.2)",
+            borderRadius: "8px",
+            fontSize: "14px",
+            fontWeight: "500",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            transition: "background 0.3s"
+          }}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M21,0H3C1.343,0,0,1.343,0,3v18c0,1.657,1.343,3,3,3h18c1.657,0,3-1.343,3-3V3C24,1.343,22.657,0,21,0zM7.9,16.934h-2.525V7.247h2.525V16.934zM5.762,5.934c-1.469,0-2.669-1.196-2.669-2.669c0-1.473,1.2-2.673,2.669-2.673s2.673,1.2,2.673,2.673C8.435,4.738,7.235,5.934,5.762,5.934zM18.161,16.934h-2.526V11.43c0-1.325-0.982-2.275-2.267-2.275c-1.285,0-2.147,0.95-2.147,2.275v5.504h-2.527V7.247h2.527v1.648c0.743-1.182,1.913-1.84,3.164-1.84c1.376,0,2.668,0.733,2.854,2.104v5.983H18.161z"/></svg>
+            <span>Continue with LinkedIn</span>
+          </button>
+        </div>
+
+        <button
+          onClick={() => setIsSignIn(!isSignIn)}
+          style={{
+            marginTop: "24px",
+            background: "none",
+            border: "none",
+            color: "#67e8f9",
+            textDecoration: "underline",
+            cursor: "pointer",
+            width: "100%",
+            fontSize: "14px",
+          }}
+        >
+          {isSignIn ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
+        </button>
+        <button
+          onClick={onClose}
+          style={{
+            position: "absolute",
+            top: "16px",
+            right: "16px",
+            background: "none",
+            border: "none",
+            color: "rgba(255,255,255,0.5)",
+            fontSize: "24px",
+            cursor: "pointer",
+          }}
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export default function Home() {
   const [text, setText] = useState("");
   const [language, setLanguage] = useState<Language>("English");
@@ -243,6 +461,11 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<"chat" | "code">("chat");
   const [showPricing, setShowPricing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Auth states
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
 
   const fileInputRef = useRef(null);
@@ -464,6 +687,21 @@ export default function Home() {
           </section>
       </body>
       </html>`;
+
+  // Load prompts from local storage
+  const loadPrompts = useCallback(async () => {
+    const storedPrompts = localStorage.getItem('adorrable-prompts');
+    if (storedPrompts) {
+      setPrompts(JSON.parse(storedPrompts));
+    } else {
+      setPrompts([]); // Initialize with empty array if nothing is stored
+    }
+  }, []);
+
+  // Save prompts to local storage
+  const savePrompts = useCallback((currentPrompts: ChatMessage[]) => {
+    localStorage.setItem('adorrable-prompts', JSON.stringify(currentPrompts));
+  }, []);
 
   // Generate function with real API integration
   const handleGenerate = useCallback(async () => {
@@ -777,6 +1015,24 @@ export default function Home() {
     }
   }, [chatMessages]);
 
+  // Auth state management
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setUser(session?.user || null)
+    }
+
+    checkUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user || null)
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [])
+
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     const newImages = files.map((file) => ({
@@ -867,6 +1123,17 @@ export default function Home() {
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isResizing]);
+
+  const handleUpgrade = () => {
+    setShowUpgrade(true)
+  }
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    setShowDropdown(false)
+    setUser(null) // Clear user state
+    setCredits(0) // Reset credits on sign out
+  }
 
   if (!mounted) {
     return (
@@ -2268,8 +2535,6 @@ export default function Home() {
     </div>
   );
 
-  
-
 
   return (
     <div
@@ -2376,10 +2641,128 @@ export default function Home() {
         }
       `}</style>
 
+      {/* Header Section */}
+      <header style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "80px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 40px",
+        background: "rgba(15, 23, 42, 0.5)",
+        backdropFilter: "blur(15px)",
+        borderBottom: "1px solid rgba(255,255,255,0.1)",
+        zIndex: 50,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <h1
+            style={{
+              fontSize: "28px",
+              fontWeight: "800",
+              background: "linear-gradient(135deg, #6EE7B7, #67E8F9)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Adorrable
+          </h1>
+
+          <nav style={{ display: "flex", gap: "24px", marginLeft: "40px" }}>
+            <a href="#" style={{ color: "white", textDecoration: "none", fontWeight: "500", fontSize: "14px" }}>Features</a>
+            <a href="#" style={{ color: "white", textDecoration: "none", fontWeight: "500", fontSize: "14px" }}>Templates</a>
+            <a href="#" style={{ color: "white", textDecoration: "none", fontWeight: "500", fontSize: "14px" }}>Pricing</a>
+            <a href="#" style={{ color: "white", textDecoration: "none", fontWeight: "500", fontSize: "14px" }}>Docs</a>
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {user && (
+            <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-full">
+              <Zap className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-700">{credits} credits</span>
+            </div>
+          )}
+
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="flex items-center gap-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+              >
+                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                  {user.user_metadata?.avatar_url ? (
+                    <img
+                      src={user.user_metadata.avatar_url}
+                      alt="Avatar"
+                      className="w-8 h-8 rounded-full"
+                    />
+                  ) : (
+                    <User className="w-4 h-4 text-white" />
+                  )}
+                </div>
+                <ChevronDown className="w-4 h-4 text-gray-400" />
+              </button>
+
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 py-1 z-10">
+                  <div className="px-4 py-2 text-sm text-gray-300 border-b border-gray-700">
+                    {user.email}
+                  </div>
+                  <button className="w-full px-4 py-2 text-left hover:bg-gray-700 flex items-center gap-2 text-gray-300">
+                    <Settings className="w-4 h-4 text-gray-400" />
+                    Settings
+                  </button>
+                  <button className="w-full px-4 py-2 text-left hover:bg-gray-700 flex items-center gap-2 text-gray-300">
+                    <MessageSquare className="w-4 h-4 text-gray-400" />
+                    Support
+                  </button>
+                  <hr className="my-1 border-gray-700" />
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full px-4 py-2 text-left hover:bg-gray-700 flex items-center gap-2 text-red-500"
+                  >
+                    <LogOut className="w-4 h-4 text-red-500" />
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              Sign In
+            </button>
+          )}
+        </div>
+      </header>
+
+
       {renderContent()}
 
       {/* Pricing Modal */}
       {showPricing && <PricingModal />}
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={() => {
+          setShowAuthModal(false);
+          // Fetch user data or update state after successful auth
+          const fetchUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user || null);
+            // Optionally fetch initial credits here
+            setCredits(4); // Resetting credits for demo purposes
+          };
+          fetchUser();
+        }}
+      />
 
       {/* Crisp Chat */}
       <CrispChat />
