@@ -2073,8 +2073,10 @@ export default function Home() {
               }
             ].map((template, index) => (
               <div
-                key={index}
-                onClick={() => {
+                key={`${template.title}-${index}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   setSelectedCommunityTemplate(template);
                   setShowCommunityModal(true);
                 }}
@@ -2084,7 +2086,8 @@ export default function Home() {
                   overflow: "hidden",
                   border: "1px solid rgba(255,255,255,0.1)",
                   cursor: "pointer",
-                  transition: "all 0.3s ease"
+                  transition: "all 0.3s ease",
+                  userSelect: "none"
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "translateY(-4px)";
@@ -2710,15 +2713,7 @@ export default function Home() {
 
   // Community Template Modal Component
   const CommunityTemplateModal = () => {
-    // Prevent body scroll when modal is open
-    useEffect(() => {
-      if (showCommunityModal) {
-        document.body.style.overflow = 'hidden';
-        return () => {
-          document.body.style.overflow = 'unset';
-        };
-      }
-    }, [showCommunityModal]);
+    if (!showCommunityModal || !selectedCommunityTemplate) return null;
 
     return (
       <div
@@ -2728,17 +2723,18 @@ export default function Home() {
           left: 0,
           right: 0,
           bottom: 0,
-          background: "rgba(0,0,0,0.85)",
+          background: "rgba(0,0,0,0.9)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          zIndex: 1000,
-          backdropFilter: "blur(8px)",
+          zIndex: 9999,
+          backdropFilter: "blur(12px)",
           padding: "20px"
         }}
         onClick={(e) => {
           if (e.target === e.currentTarget) {
             setShowCommunityModal(false);
+            setSelectedCommunityTemplate(null);
           }
         }}
       >
@@ -2746,20 +2742,16 @@ export default function Home() {
           style={{
             background: "linear-gradient(135deg, #1e293b, #334155)",
             borderRadius: "20px",
-            padding: "0",
-            width: "75vw",
-            height: "75vh",
-            minWidth: "800px",
-            minHeight: "600px",
-            maxWidth: "1200px",
+            width: "90vw",
+            height: "85vh",
+            maxWidth: "1400px",
             maxHeight: "900px",
             border: "1px solid rgba(255,255,255,0.1)",
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
             boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
-            transform: "scale(1)",
-            animation: "modalAppear 0.3s ease-out"
+            animation: "modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -2771,7 +2763,7 @@ export default function Home() {
             justifyContent: "space-between",
             alignItems: "center",
             flexShrink: 0,
-            background: "rgba(15, 23, 42, 0.5)"
+            background: "rgba(15, 23, 42, 0.8)"
           }}>
             <div>
               <h2 style={{
@@ -2780,7 +2772,7 @@ export default function Home() {
                 fontWeight: "700",
                 margin: "0 0 4px 0"
               }}>
-                {selectedCommunityTemplate?.title}
+                {selectedCommunityTemplate.title}
               </h2>
               <p style={{
                 color: "rgba(255,255,255,0.6)",
@@ -2796,7 +2788,7 @@ export default function Home() {
                 onClick={() => {
                   setGeneratedCode(selectedCommunityTemplate.code);
                   setGeneratedTemplate({
-                    id: `community-${selectedCommunityTemplate.title}`,
+                    id: `community-${selectedCommunityTemplate.title.replace(/\s+/g, '-').toLowerCase()}`,
                     title: selectedCommunityTemplate.title,
                     language: 'English',
                     code: selectedCommunityTemplate.code,
@@ -2804,6 +2796,7 @@ export default function Home() {
                   });
                   setViewMode("split");
                   setShowCommunityModal(false);
+                  setSelectedCommunityTemplate(null);
                 }}
                 style={{
                   padding: "12px 24px",
@@ -2816,21 +2809,20 @@ export default function Home() {
                   cursor: "pointer",
                   transition: "all 0.2s ease"
                 }}
-                onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
-                onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
               >
                 Open Project
               </button>
               
               <button
-                onClick={() => {
+                onClick={(e) => {
                   navigator.clipboard.writeText(selectedCommunityTemplate.code);
-                  // Show a brief feedback
-                  const btn = event.target;
+                  const btn = e.target;
                   const originalText = btn.textContent;
                   btn.textContent = "Copied!";
+                  btn.style.background = "rgba(16, 185, 129, 0.3)";
                   setTimeout(() => {
                     btn.textContent = originalText;
+                    btn.style.background = "rgba(255,255,255,0.1)";
                   }, 1500);
                 }}
                 style={{
@@ -2844,36 +2836,29 @@ export default function Home() {
                   cursor: "pointer",
                   transition: "all 0.2s ease"
                 }}
-                onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
-                onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.1)"}
               >
                 Remix
               </button>
 
               <button
-                onClick={() => setShowCommunityModal(false)}
+                onClick={() => {
+                  setShowCommunityModal(false);
+                  setSelectedCommunityTemplate(null);
+                }}
                 style={{
-                  background: "none",
-                  border: "none",
-                  color: "rgba(255,255,255,0.5)",
-                  fontSize: "28px",
+                  background: "rgba(239, 68, 68, 0.1)",
+                  border: "1px solid rgba(239, 68, 68, 0.3)",
+                  color: "#EF4444",
+                  fontSize: "20px",
                   cursor: "pointer",
-                  padding: "8px",
+                  padding: "10px",
                   borderRadius: "50%",
-                  width: "44px",
-                  height: "44px",
+                  width: "40px",
+                  height: "40px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   transition: "all 0.2s ease"
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = "rgba(255,255,255,0.1)";
-                  e.target.style.color = "rgba(255,255,255,0.8)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = "none";
-                  e.target.style.color = "rgba(255,255,255,0.5)";
                 }}
               >
                 ×
@@ -2895,18 +2880,18 @@ export default function Home() {
                 border: "none",
                 background: "white"
               }}
-              srcDoc={selectedCommunityTemplate?.code}
+              srcDoc={selectedCommunityTemplate.code}
               title="Community Template Preview"
+              sandbox="allow-scripts allow-same-origin"
             />
           </div>
         </div>
 
-        {/* CSS for modal animation */}
         <style jsx>{`
-          @keyframes modalAppear {
+          @keyframes modalSlideIn {
             from {
               opacity: 0;
-              transform: scale(0.9) translateY(20px);
+              transform: scale(0.95) translateY(-20px);
             }
             to {
               opacity: 1;
