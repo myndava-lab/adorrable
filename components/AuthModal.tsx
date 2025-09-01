@@ -226,7 +226,29 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                border: "1px solid #d1d5db",
+                borderRadius: "8px",
+                fontSize: "14px",
+                lineHeight: "1.5",
+                color: "#374151",
+                background: "white",
+                boxSizing: "border-box",
+                outline: "none",
+                fontFamily: "ui-sans-serif, system-ui, sans-serif",
+                textAlign: "left",
+                verticalAlign: "top"
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#3B82F6";
+                e.target.style.boxShadow = "0 0 0 2px rgba(59, 130, 246, 0.2)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#d1d5db";
+                e.target.style.boxShadow = "none";
+              }}
               placeholder="Enter your email"
             />
           </div>
@@ -241,7 +263,29 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                border: "1px solid #d1d5db",
+                borderRadius: "8px",
+                fontSize: "14px",
+                lineHeight: "1.5",
+                color: "#374151",
+                background: "white",
+                boxSizing: "border-box",
+                outline: "none",
+                fontFamily: "ui-sans-serif, system-ui, sans-serif",
+                textAlign: "left",
+                verticalAlign: "top"
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#3B82F6";
+                e.target.style.boxShadow = "0 0 0 2px rgba(59, 130, 246, 0.2)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#d1d5db";
+                e.target.style.boxShadow = "none";
+              }}
               placeholder="Enter your password"
               minLength={6}
             />
@@ -250,7 +294,34 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              width: "100%",
+              padding: "12px 16px",
+              background: loading ? "#94a3b8" : "#3B82F6",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "16px",
+              fontWeight: "600",
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "all 0.2s ease",
+              opacity: loading ? 0.7 : 1,
+              boxSizing: "border-box",
+              textAlign: "center",
+              outline: "none"
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.target.style.background = "#1D4ED8";
+                e.target.style.transform = "translateY(-1px)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) {
+                e.target.style.background = "#3B82F6";
+                e.target.style.transform = "translateY(0)";
+              }
+            }}
           >
             {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Sign Up')}
           </button>

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { createClient } from '@supabase/supabase-js';
 import CrispChat from "../components/CrispChat";
+import AuthModal from "../components/AuthModal";
 
 // Dynamically import Monaco Editor to avoid SSR issues
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
@@ -223,261 +224,77 @@ const playCompletionSound = () => {
   }
 };
 
-// Supabase Client Initialization - Client-side only
-const initializeSupabase = () => {
-  if (typeof window === 'undefined') {
-    // Return mock client for server-side rendering
-    return {
-      auth: {
-        signInWithOAuth: () => Promise.resolve({ error: { message: "Server-side rendering" } }),
-        signInWithPassword: () => Promise.resolve({ error: { message: "Server-side rendering" } }),
-        signUp: () => Promise.resolve({ error: { message: "Server-side rendering" } }),
-        signOut: () => Promise.resolve({ error: null }),
-        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
-      }
-    };
-  }
+// Initialize Supabase client with proper error handling
+let supabase: any;
 
+if (typeof window !== 'undefined') {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (supabaseUrl && supabaseAnonKey) {
-    return createClient(supabaseUrl, supabaseAnonKey);
+    try {
+      supabase = createClient(supabaseUrl, supabaseAnonKey);
+    } catch (error) {
+      console.error("Supabase initialization error:", error);
+      supabase = createMockClient();
+    }
   } else {
     console.warn("Supabase environment variables missing. Using mock client.");
-    return {
-      auth: {
-        signInWithOAuth: () => Promise.resolve({ error: { message: "Environment not configured" } }),
-        signInWithPassword: () => Promise.resolve({ error: { message: "Environment not configured" } }),
-        signUp: () => Promise.resolve({ error: { message: "Environment not configured" } }),
-        signOut: () => Promise.resolve({ error: null }),
-        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
-      }
-    };
+    supabase = createMockClient();
   }
-};
+} else {
+  supabase = createMockClient();
+}
 
-const supabase = initializeSupabase();
-
-// Auth Modal Component (Assuming it's in components/AuthModal.tsx)
-// It should handle sign-up/sign-in with email, Google, and LinkedIn
-const AuthModal = ({ isOpen, onClose, onSuccess }) => {
-  const [isSignIn, setIsSignIn] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
-
-  const handleGoogleSignIn = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-      });
-      if (error) setError(error.message);
-    } catch (err) {
-      setError("Authentication service not configured. Please try again later.");
+// Mock client for SSR and error cases
+function createMockClient() {
+  return {
+    auth: {
+      signInWithOAuth: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
+      signInWithPassword: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
+      signUp: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
+      signOut: () => Promise.resolve({ error: null }),
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
     }
   };
+}
 
-  const handleLinkedInSignIn = async () => {
+// Initialize Supabase client with proper error handling
+let supabase: any;
+
+if (typeof window !== 'undefined') {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (supabaseUrl && supabaseAnonKey) {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'linkedin',
-      });
-      if (error) setError(error.message);
-    } catch (err) {
-      setError("Authentication service not configured. Please try again later.");
+      supabase = createClient(supabaseUrl, supabaseAnonKey);
+    } catch (error) {
+      console.error("Supabase initialization error:", error);
+      supabase = createMockClient();
+    }
+  } else {
+    console.warn("Supabase environment variables missing. Using mock client.");
+    supabase = createMockClient();
+  }
+} else {
+  supabase = createMockClient();
+}
+
+// Mock client for SSR and error cases
+function createMockClient() {
+  return {
+    auth: {
+      signInWithOAuth: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
+      signInWithPassword: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
+      signUp: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
+      signOut: () => Promise.resolve({ error: null }),
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
     }
   };
-
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    try {
-      if (isSignIn) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) setError(error.message);
-        else onSuccess();
-      } else {
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) setError(error.message);
-        else {
-          alert('Check your email for confirmation!');
-          setIsSignIn(true);
-        }
-      }
-    } catch (err) {
-      setError("Authentication service not configured. Please try again later.");
-    }
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: "rgba(0,0,0,0.7)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 1000,
-    }} onClick={onClose}>
-      <div style={{
-        background: "linear-gradient(135deg, #1e293b, #334155)",
-        borderRadius: "16px",
-        padding: "32px",
-        width: "400px",
-        maxWidth: "90%",
-        color: "white",
-        border: "1px solid rgba(255,255,255,0.1)",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
-      }} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ textAlign: "center", fontSize: "24px", fontWeight: "700", marginBottom: "24px" }}>
-          {isSignIn ? "Sign In" : "Sign Up"}
-        </h2>
-
-        <form onSubmit={handleEmailSubmit}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              padding: "12px",
-              marginBottom: "16px",
-              background: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: "8px",
-              color: "white",
-              fontSize: "14px",
-              outline: "none",
-            }}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              padding: "12px",
-              marginBottom: "16px",
-              background: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: "8px",
-              color: "white",
-              fontSize: "14px",
-              outline: "none",
-            }}
-          />
-          {error && <p style={{ color: "#f87171", fontSize: "12px", marginBottom: "16px" }}>{error}</p>}
-          <button
-            type="submit"
-            style={{
-              width: "100%",
-              padding: "12px",
-              background: "linear-gradient(135deg, #10B981, #059669)",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "16px",
-              fontWeight: "600",
-              cursor: "pointer",
-              transition: "opacity 0.3s",
-            }}
-          >
-            {isSignIn ? "Sign In" : "Sign Up"}
-          </button>
-        </form>
-
-        <div style={{ textAlign: "center", margin: "20px 0", position: "relative", borderTop: "1px solid rgba(255,255,255,0.2)" }}>
-          <span style={{ position: "absolute", top: "-10px", left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #1e293b, #334155)", padding: "0 10px", fontSize: "12px", color: "rgba(255,255,255,0.6)" }}>OR</span>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          <button onClick={handleGoogleSignIn} style={{
-            width: "100%",
-            padding: "12px",
-            background: "rgba(255,255,255,0.1)",
-            color: "white",
-            border: "1px solid rgba(255,255,255,0.2)",
-            borderRadius: "8px",
-            fontSize: "14px",
-            fontWeight: "500",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px",
-            transition: "background 0.3s"
-          }}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.37l0-.02H18l.02.01c1.76.15 3.05-.85 3.74-2.48l.01-.01c.56-1.09.87-2.3.87-3.67zM12 23c2.47 0 4.53-.81 6.02-2.19l-1.71-1.32c-.7.48-1.64.78-2.65.78-.79 0-1.53-.27-2.12-.75l-.02.01c-1.07-.7-1.79-1.73-1.79-2.94v-.02c0-1.15.72-2.17 1.79-2.94l.02-.01h-.02C8.77 14.51 12 15.09 12 15v4.77zM6.87 13.54c-.16.37-.25.77-.25 1.19s.09.82.25 1.19h11.49l-.02.01c-1.18.79-1.99 1.8-1.99 2.94v.02c0 1.11.81 2.12 1.99 2.94h-.02l-.01.01C13.51 22.97 12 23 12 23c-2.47 0-4.53-.81-6.02-2.19l1.71-1.32c.7.48 1.64.78 2.65.78.69 0 1.35-.23 1.87-.65l.01-.01H7.74l-.01.01C6.28 18.99 6 17.98 6 16.77v-.02c0-1.11.81-2.12 1.99-2.94h-.02l-.01.01C6.98 13.54 6.92 13.54 6.87 13.54zM12 6.38c-1.49 0-2.72-.95-3.17-2.24l-.01-.01h3.17v-3.17h.02C13.29 0 14 1.07 14 2.27v.02c0 1.33-1.15 2.48-2.65 2.48z"/></svg>
-            <span>Continue with Google</span>
-          </button>
-
-          <button onClick={handleLinkedInSignIn} style={{
-            width: "100%",
-            padding: "12px",
-            background: "rgba(255,255,255,0.1)",
-            color: "white",
-            border: "1px solid rgba(255,255,255,0.2)",
-            borderRadius: "8px",
-            fontSize: "14px",
-            fontWeight: "500",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px",
-            transition: "background 0.3s"
-          }}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M21,0H3C1.343,0,0,1.343,0,3v18c0,1.657,1.343,3,3,3h18c1.657,0,3-1.343,3-3V3C24,1.343,22.657,0,21,0zM7.9,16.934h-2.525V7.247h2.525V16.934zM5.762,5.934c-1.469,0-2.669-1.196-2.669-2.669c0-1.473,1.2-2.673,2.669-2.673s2.673,1.2,2.673,2.669C8.435,4.738,7.235,5.934,5.762,5.934zM18.161,16.934h-2.526V11.43c0-1.325-0.982-2.275-2.267-2.275c-1.285,0-2.147,0.95-2.147,2.275v5.504h-2.527V7.247h2.527v1.648c0.743-1.182,1.913-1.84,3.164-1.84c1.376,0,2.668,0.733,2.854,2.104v5.983H18.161z"/></svg>
-            <span>Continue with LinkedIn</span>
-          </button>
-        </div>
-
-        <button
-          onClick={() => setIsSignIn(!isSignIn)}
-          style={{
-            marginTop: "24px",
-            background: "none",
-            border: "none",
-            color: "#67e8f9",
-            textDecoration: "underline",
-            cursor: "pointer",
-            width: "100%",
-            fontSize: "14px",
-          }}
-        >
-          {isSignIn ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
-        </button>
-        <button
-          onClick={onClose}
-          style={{
-            position: "absolute",
-            top: "16px",
-            right: "16px",
-            background: "none",
-            border: "none",
-            color: "rgba(255,255,255,0.5)",
-            fontSize: "24px",
-            cursor: "pointer",
-          }}
-        >
-          ×
-        </button>
-      </div>
-    </div>
-  );
-};
+}
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -2281,19 +2098,23 @@ export default function Home() {
               width: "100%",
               minHeight: compact ? "32px" : "40px",
               maxHeight: compact ? "64px" : "80px",
-              padding: compact ? "6px 8px" : "8px 12px",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: compact ? "6px" : "8px",
-              background: "rgba(255,255,255,0.05)",
+              padding: compact ? "8px 10px" : "12px 16px",
+              border: "1px solid rgba(255,255,255,0.15)",
+              borderRadius: compact ? "8px" : "12px",
+              background: "rgba(255,255,255,0.08)",
               color: "white",
-              fontSize: compact ? "12px" : "14px",
+              fontSize: compact ? "13px" : "15px",
               outline: "none",
-              fontFamily: "inherit",
-              lineHeight: "1.4",
+              fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+              lineHeight: "1.5",
               wordWrap: "break-word",
               overflowWrap: "break-word",
               whiteSpace: "pre-wrap",
               overflow: "hidden",
+              resize: "none",
+              boxSizing: "border-box",
+              verticalAlign: "top",
+              textAlign: "left",
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -2310,18 +2131,19 @@ export default function Home() {
             <div
               style={{
                 position: "absolute",
-                top: "16px",
-                left: "16px",
-                right: "16px",
+                top: "28px",
+                left: "28px",
+                right: "28px",
                 pointerEvents: "none",
-                color: "rgba(255,255,255,0.4)",
-                fontSize: "16px",
+                color: "rgba(255,255,255,0.45)",
+                fontSize: "15px",
                 lineHeight: "1.5",
-                fontFamily: "inherit",
-                minHeight: "24px",
+                fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                minHeight: "23px",
                 display: "flex",
                 alignItems: "flex-start",
                 overflow: "hidden",
+                boxSizing: "border-box",
               }}
             >
               <span 
@@ -2329,8 +2151,9 @@ export default function Home() {
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
-                  maxWidth: "calc(100% - 10px)",
-                  display: "block"
+                  maxWidth: "calc(100% - 8px)",
+                  display: "inline-block",
+                  verticalAlign: "top",
                 }}
               >
                 {placeholderText}
@@ -2346,6 +2169,7 @@ export default function Home() {
                   transition: "opacity 0.1s ease",
                   borderRadius: "1px",
                   flexShrink: 0,
+                  verticalAlign: "top",
                 }}
               />
             </div>
