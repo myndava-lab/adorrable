@@ -439,7 +439,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
             gap: "10px",
             transition: "background 0.3s"
           }}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M21,0H3C1.343,0,0,1.343,0,3v18c0,1.657,1.343,3,3,3h18c1.657,0,3-1.343,3-3V3C24,1.343,22.657,0,21,0zM7.9,16.934h-2.525V7.247h2.525V16.934zM5.762,5.934c-1.469,0-2.669-1.196-2.669-2.669c0-1.473,1.2-2.673,2.669-2.673s2.673,1.2,2.673,2.673C8.435,4.738,7.235,5.934,5.762,5.934zM18.161,16.934h-2.526V11.43c0-1.325-0.982-2.275-2.267-2.275c-1.285,0-2.147,0.95-2.147,2.275v5.504h-2.527V7.247h2.527v1.648c0.743-1.182,1.913-1.84,3.164-1.84c1.376,0,2.668,0.733,2.854,2.104v5.983H18.161z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M21,0H3C1.343,0,0,1.343,0,3v18c0,1.657,1.343,3,3,3h18c1.657,0,3-1.343,3-3V3C24,1.343,22.657,0,21,0zM7.9,16.934h-2.525V7.247h2.525V16.934zM5.762,5.934c-1.469,0-2.669-1.196-2.669-2.669c0-1.473,1.2-2.673,2.669-2.673s2.673,1.2,2.673,2.669C8.435,4.738,7.235,5.934,5.762,5.934zM18.161,16.934h-2.526V11.43c0-1.325-0.982-2.275-2.267-2.275c-1.285,0-2.147,0.95-2.147,2.275v5.504h-2.527V7.247h2.527v1.648c0.743-1.182,1.913-1.84,3.164-1.84c1.376,0,2.668,0.733,2.854,2.104v5.983H18.161z"/></svg>
             <span>Continue with LinkedIn</span>
           </button>
         </div>
@@ -2279,16 +2279,30 @@ export default function Home() {
             disabled={isGenerating}
             style={{
               width: "100%",
-              resize: "none",
-              background: "transparent",
+              minHeight: compact ? "32px" : "40px",
+              maxHeight: compact ? "64px" : "80px",
+              padding: compact ? "6px 8px" : "8px 12px",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: compact ? "6px" : "8px",
+              background: "rgba(255,255,255,0.05)",
+              color: "white",
+              fontSize: compact ? "12px" : "14px",
               outline: "none",
-              border: "none",
-              color: "rgba(255,255,255,0.9)",
-              fontSize: compact ? "14px" : "16px",
-              transition: "height 0.2s ease",
-              lineHeight: "1.5",
+              fontFamily: "inherit",
+              lineHeight: "1.4",
+              wordWrap: "break-word",
+              overflowWrap: "break-word",
+              whiteSpace: "pre-wrap",
+              overflow: "hidden",
             }}
-            placeholder=""
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (text.trim() && credits > 0 && !isGenerating) {
+                  handleGenerate();
+                }
+              }
+            }}
           />
 
           {/* Custom animated placeholder */}
