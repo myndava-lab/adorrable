@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server'
 
 // Rate limiting store (in production, use Redis or database)
@@ -28,7 +27,7 @@ export function middleware(request: NextRequest) {
   const maxRequests = 30
 
   const current = rateLimitStore.get(ip)
-  
+
   if (!current || now > current.resetTime) {
     rateLimitStore.set(ip, { count: 1, resetTime: now + windowMs })
   } else if (current.count >= maxRequests) {

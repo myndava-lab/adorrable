@@ -1,6 +1,11 @@
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./app/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
       colors: {
@@ -12,6 +17,8 @@ module.exports = {
           mid: "#101827", // UI surface
           light: "#F9FAFB", // light text/surfaces
         },
+        offwhite: "#F9FAFB",
+        charcoal: "#111827",
       },
       boxShadow: {
         card: "0 8px 30px rgba(0,0,0,0.15)",

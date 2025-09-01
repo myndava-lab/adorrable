@@ -9,7 +9,7 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
 });
 
-type Language = "English" | "French" | "Swahili" | "Pidgin";
+type Language = "English" | "French" | "Swahili" | "Nigerian Pidgin";
 type ViewMode = "chat" | "split" | "code" | "preview";
 
 interface ChatMessage {
@@ -103,7 +103,7 @@ const SuccessQuotes = () => {
       }}>
         What Our Creators Say
       </h2>
-      
+
       <div style={{
         position: "relative",
         height: "200px",
@@ -254,7 +254,7 @@ export default function Home() {
     "English",
     "French",
     "Swahili",
-    "Pidgin",
+    "Nigerian Pidgin",
   ];
   const fullText = "Build something with Adorrable";
 
@@ -281,7 +281,7 @@ export default function Home() {
       "Fanya tovuti ya portfolio kwa mpiga picha wa Nigeria",
       "Unda tovuti ya biashara kwa sanaa za Afrika",
     ],
-    Pidgin: [
+    "Nigerian Pidgin": [
       "Make landing page for Lagos fashion brand wey get product grid",
       "Build modern restaurant website wey get online menu",
       "Design tech startup homepage wey get testimonials",
@@ -1014,10 +1014,10 @@ export default function Home() {
         </div>
       )}
       {renderInputSection()}
-      
+
       {/* Success Quotes Section */}
       <SuccessQuotes />
-      
+
       {/* Simple Footer */}
       <div
         style={{
@@ -2223,7 +2223,7 @@ export default function Home() {
 
       {/* Pricing Modal */}
       {showPricing && <PricingModal />}
-      
+
       {/* Crisp Chat */}
       <CrispChat />
     </div>
