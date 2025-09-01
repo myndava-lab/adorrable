@@ -17,7 +17,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-type Language = "English" | "French" | "Swahili";
+type Language = "English" | "French" | "Swahili" | "Pidgin";
 
 interface Template {
   id: string;
@@ -396,14 +396,15 @@ export default function Home() {
       >
         <div
           style={{
-            backgroundColor: "#1a1a1a",
-            borderRadius: "12px",
+            background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+            borderRadius: "20px",
             padding: "0",
             maxWidth: "900px",
             width: "100%",
             maxHeight: "90vh",
             overflow: "hidden",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
+            border: "1px solid rgba(148, 163, 184, 0.2)",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -411,10 +412,11 @@ export default function Home() {
           <div
             style={{
               padding: "24px",
-              borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+              borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "flex-start",
+              background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)",
             }}
           >
             <div style={{ flex: 1 }}>
@@ -430,7 +432,7 @@ export default function Home() {
               </h2>
               <p
                 style={{
-                  color: "rgba(255, 255, 255, 0.7)",
+                  color: "rgba(148, 163, 184, 0.8)",
                   fontSize: "14px",
                   marginBottom: "12px",
                 }}
@@ -442,11 +444,12 @@ export default function Home() {
                   <span
                     key={tag}
                     style={{
-                      backgroundColor: "rgba(59, 130, 246, 0.2)",
+                      background: "linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(147, 51, 234, 0.3) 100%)",
                       color: "#60a5fa",
-                      padding: "4px 8px",
-                      borderRadius: "6px",
+                      padding: "4px 12px",
+                      borderRadius: "12px",
                       fontSize: "12px",
+                      border: "1px solid rgba(59, 130, 246, 0.3)",
                     }}
                   >
                     {tag}
@@ -459,11 +462,13 @@ export default function Home() {
               style={{
                 background: "none",
                 border: "none",
-                color: "rgba(255, 255, 255, 0.6)",
+                color: "rgba(148, 163, 184, 0.6)",
                 fontSize: "24px",
                 cursor: "pointer",
                 padding: "4px",
                 marginLeft: "16px",
+                borderRadius: "6px",
+                transition: "all 0.2s",
               }}
             >
               ×
@@ -480,7 +485,7 @@ export default function Home() {
           >
             <p
               style={{
-                color: "rgba(255, 255, 255, 0.8)",
+                color: "rgba(148, 163, 184, 0.9)",
                 lineHeight: "1.6",
                 marginBottom: "24px",
               }}
@@ -491,11 +496,11 @@ export default function Home() {
             {/* Preview */}
             <div
               style={{
-                backgroundColor: "#0a0a0a",
-                borderRadius: "8px",
+                background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+                borderRadius: "12px",
                 padding: "16px",
                 marginBottom: "24px",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
+                border: "1px solid rgba(148, 163, 184, 0.2)",
               }}
             >
               <h4
@@ -511,14 +516,15 @@ export default function Home() {
                 style={{
                   backgroundColor: "#000",
                   padding: "12px",
-                  borderRadius: "6px",
+                  borderRadius: "8px",
                   overflow: "auto",
                   maxHeight: "200px",
+                  border: "1px solid rgba(148, 163, 184, 0.1)",
                 }}
               >
                 <pre
                   style={{
-                    color: "#e5e7eb",
+                    color: "#e2e8f0",
                     fontSize: "12px",
                     fontFamily: "monospace",
                     margin: 0,
@@ -542,7 +548,7 @@ export default function Home() {
               <div>
                 <div
                   style={{
-                    color: "rgba(255, 255, 255, 0.6)",
+                    color: "rgba(148, 163, 184, 0.6)",
                     fontSize: "12px",
                     marginBottom: "4px",
                   }}
@@ -556,7 +562,7 @@ export default function Home() {
               <div>
                 <div
                   style={{
-                    color: "rgba(255, 255, 255, 0.6)",
+                    color: "rgba(148, 163, 184, 0.6)",
                     fontSize: "12px",
                     marginBottom: "4px",
                   }}
@@ -570,7 +576,7 @@ export default function Home() {
               <div>
                 <div
                   style={{
-                    color: "rgba(255, 255, 255, 0.6)",
+                    color: "rgba(148, 163, 184, 0.6)",
                     fontSize: "12px",
                     marginBottom: "4px",
                   }}
@@ -588,20 +594,21 @@ export default function Home() {
           <div
             style={{
               padding: "24px",
-              borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+              borderTop: "1px solid rgba(148, 163, 184, 0.2)",
               display: "flex",
               gap: "12px",
               justifyContent: "flex-end",
+              background: "linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 51, 234, 0.05) 100%)",
             }}
           >
             <button
               onClick={handleDownloadTemplate}
               style={{
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                background: "linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(148, 163, 184, 0.1) 100%)",
                 color: "white",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
+                border: "1px solid rgba(148, 163, 184, 0.3)",
                 padding: "12px 24px",
-                borderRadius: "8px",
+                borderRadius: "10px",
                 cursor: "pointer",
                 fontSize: "14px",
                 transition: "all 0.2s",
@@ -612,14 +619,15 @@ export default function Home() {
             <button
               onClick={handleUseTemplate}
               style={{
-                backgroundColor: "#3b82f6",
+                background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
                 color: "white",
                 border: "none",
                 padding: "12px 24px",
-                borderRadius: "8px",
+                borderRadius: "10px",
                 cursor: "pointer",
                 fontSize: "14px",
                 transition: "all 0.2s",
+                boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
               }}
             >
               Use Template
@@ -650,12 +658,13 @@ export default function Home() {
     >
       <div
         style={{
-          backgroundColor: "#1a1a1a",
-          borderRadius: "12px",
+          background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+          borderRadius: "20px",
           padding: "32px",
           maxWidth: "500px",
           width: "100%",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
+          border: "1px solid rgba(148, 163, 184, 0.2)",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -670,7 +679,7 @@ export default function Home() {
           >
             Get More Credits
           </h2>
-          <p style={{ color: "rgba(255, 255, 255, 0.7)", fontSize: "16px" }}>
+          <p style={{ color: "rgba(148, 163, 184, 0.8)", fontSize: "16px" }}>
             Choose a plan that works for you
           </p>
         </div>
@@ -678,10 +687,10 @@ export default function Home() {
         <div style={{ marginBottom: "32px" }}>
           <div
             style={{
-              backgroundColor: "#0a0a0a",
-              borderRadius: "8px",
+              background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+              borderRadius: "12px",
               padding: "24px",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
+              border: "1px solid rgba(148, 163, 184, 0.2)",
               marginBottom: "16px",
             }}
           >
@@ -696,7 +705,7 @@ export default function Home() {
             </h3>
             <p
               style={{
-                color: "rgba(255, 255, 255, 0.7)",
+                color: "rgba(148, 163, 184, 0.8)",
                 fontSize: "14px",
                 marginBottom: "16px",
               }}
@@ -721,7 +730,7 @@ export default function Home() {
               </span>
               <span
                 style={{
-                  color: "rgba(255, 255, 255, 0.7)",
+                  color: "rgba(148, 163, 184, 0.8)",
                   fontSize: "16px",
                   marginLeft: "8px",
                 }}
@@ -731,14 +740,16 @@ export default function Home() {
             </div>
             <button
               style={{
-                backgroundColor: "#3b82f6",
+                background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
                 color: "white",
                 border: "none",
                 padding: "12px 24px",
-                borderRadius: "8px",
+                borderRadius: "10px",
                 cursor: "pointer",
                 fontSize: "14px",
                 width: "100%",
+                transition: "all 0.2s",
+                boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
               }}
             >
               Buy Now
@@ -747,11 +758,12 @@ export default function Home() {
 
           <div
             style={{
-              backgroundColor: "#0a0a0a",
-              borderRadius: "8px",
+              background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+              borderRadius: "12px",
               padding: "24px",
               border: "2px solid #3b82f6",
               position: "relative",
+              boxShadow: "0 4px 20px rgba(59, 130, 246, 0.3)",
             }}
           >
             <div
@@ -760,12 +772,13 @@ export default function Home() {
                 top: "-10px",
                 left: "50%",
                 transform: "translateX(-50%)",
-                backgroundColor: "#3b82f6",
+                background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
                 color: "white",
-                padding: "4px 12px",
-                borderRadius: "12px",
+                padding: "6px 16px",
+                borderRadius: "20px",
                 fontSize: "12px",
                 fontWeight: "600",
+                boxShadow: "0 4px 15px rgba(59, 130, 246, 0.4)",
               }}
             >
               BEST VALUE
@@ -781,7 +794,7 @@ export default function Home() {
             </h3>
             <p
               style={{
-                color: "rgba(255, 255, 255, 0.7)",
+                color: "rgba(148, 163, 184, 0.8)",
                 fontSize: "14px",
                 marginBottom: "16px",
               }}
@@ -806,7 +819,7 @@ export default function Home() {
               </span>
               <span
                 style={{
-                  color: "rgba(255, 255, 255, 0.7)",
+                  color: "rgba(148, 163, 184, 0.8)",
                   fontSize: "16px",
                   marginLeft: "8px",
                 }}
@@ -816,14 +829,16 @@ export default function Home() {
             </div>
             <button
               style={{
-                backgroundColor: "#3b82f6",
+                background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
                 color: "white",
                 border: "none",
                 padding: "12px 24px",
-                borderRadius: "8px",
+                borderRadius: "10px",
                 cursor: "pointer",
                 fontSize: "14px",
                 width: "100%",
+                transition: "all 0.2s",
+                boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
               }}
             >
               Buy Now
@@ -835,13 +850,14 @@ export default function Home() {
           onClick={() => setShowPricing(false)}
           style={{
             background: "none",
-            border: "1px solid rgba(255, 255, 255, 0.2)",
-            color: "rgba(255, 255, 255, 0.7)",
+            border: "1px solid rgba(148, 163, 184, 0.3)",
+            color: "rgba(148, 163, 184, 0.8)",
             padding: "12px 24px",
-            borderRadius: "8px",
+            borderRadius: "10px",
             cursor: "pointer",
             fontSize: "14px",
             width: "100%",
+            transition: "all 0.2s",
           }}
         >
           Maybe Later
@@ -850,451 +866,747 @@ export default function Home() {
     </div>
   );
 
-  const renderInputSection = () => (
-    <div
-      style={{
-        backgroundColor: "#0a0a0a",
-        borderRadius: "12px",
-        border: "1px solid rgba(255, 255, 255, 0.1)",
-        padding: "24px",
-        marginBottom: "24px",
-      }}
-    >
-      <textarea
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Describe what you want to build... (e.g., 'A modern portfolio website with dark theme and animations')"
-        style={{
-          width: "100%",
-          minHeight: "120px",
-          backgroundColor: "#000",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
-          borderRadius: "8px",
-          color: "white",
-          padding: "16px",
-          fontSize: "16px",
-          lineHeight: "1.5",
-          resize: "vertical",
-          fontFamily: "inherit",
-        }}
-      />
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginTop: "16px",
-          flexWrap: "wrap",
-          gap: "12px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <label
-            style={{
-              color: "rgba(255, 255, 255, 0.7)",
-              fontSize: "14px",
-            }}
-          >
-            Language:
-          </label>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value as Language)}
-            style={{
-              backgroundColor: "#1a1a1a",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
-              borderRadius: "6px",
-              color: "white",
-              padding: "8px 12px",
-              fontSize: "14px",
-            }}
-          >
-            <option value="English">English</option>
-            <option value="French">French</option>
-            <option value="Swahili">Swahili</option>
-          </select>
-        </div>
-
-        <button
-          onClick={handleGenerate}
-          disabled={isLoading || !prompt.trim()}
-          style={{
-            backgroundColor: isLoading || !prompt.trim() ? "#374151" : "#3b82f6",
-            color: "white",
-            border: "none",
-            padding: "12px 24px",
-            borderRadius: "8px",
-            fontSize: "16px",
-            fontWeight: "500",
-            cursor: isLoading || !prompt.trim() ? "not-allowed" : "pointer",
-            transition: "all 0.2s",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
-          {isLoading ? "Generating..." : "Generate"}
-          {!isLoading && <span>⚡</span>}
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderPreview = () => {
-    if (!showPreview || !generatedCode) return null;
-
-    return (
-      <div
-        style={{
-          backgroundColor: "#0a0a0a",
-          borderRadius: "12px",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          overflow: "hidden",
-          marginBottom: "24px",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "16px 20px",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-          }}
-        >
-          <h3 style={{ color: "white", fontSize: "18px", fontWeight: "500" }}>
-            Preview
-          </h3>
-          <div style={{ display: "flex", gap: "12px" }}>
-            <button
-              onClick={handleExport}
-              style={{
-                backgroundColor: "#10b981",
-                color: "white",
-                border: "none",
-                padding: "8px 16px",
-                borderRadius: "6px",
-                fontSize: "14px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-              }}
-            >
-              <span>📁</span>
-              Export
-            </button>
-            <button
-              onClick={() => setShowPreview(false)}
-              style={{
-                backgroundColor: "#ef4444",
-                color: "white",
-                border: "none",
-                padding: "8px 16px",
-                borderRadius: "6px",
-                fontSize: "14px",
-                cursor: "pointer",
-              }}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-        <div style={{ height: "500px" }}>
-          <iframe
-            ref={previewRef}
-            srcDoc={generatedCode}
-            style={{
-              width: "100%",
-              height: "100%",
-              border: "none",
-              backgroundColor: "white",
-            }}
-            title="Generated Website Preview"
-          />
-        </div>
-      </div>
-    );
-  };
-
-  const renderCommunityTemplates = () => (
-    <div
-      style={{
-        backgroundColor: "#0a0a0a",
-        borderRadius: "12px",
-        border: "1px solid rgba(255, 255, 255, 0.1)",
-        padding: "24px",
-        marginBottom: "24px",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
-        <h3 style={{ color: "white", fontSize: "20px", fontWeight: "500" }}>
-          From the Community
-        </h3>
-        <span
-          style={{
-            color: "rgba(255, 255, 255, 0.6)",
-            fontSize: "14px",
-          }}
-        >
-          {communityTemplates.length} templates
-        </span>
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-          gap: "16px",
-        }}
-      >
-        {communityTemplates.map((template) => (
-          <div
-            key={template.id}
-            onClick={() => openCommunityTemplate(template)}
-            style={{
-              backgroundColor: "#1a1a1a",
-              borderRadius: "8px",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              padding: "16px",
-              cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "rgba(59, 130, 246, 0.5)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.1)";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            <div
-              style={{
-                width: "100%",
-                height: "150px",
-                backgroundColor: "#000",
-                borderRadius: "6px",
-                marginBottom: "12px",
-                backgroundImage: `url(${template.preview})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            />
-            <h4
-              style={{
-                color: "white",
-                fontSize: "16px",
-                fontWeight: "500",
-                marginBottom: "6px",
-                display: "-webkit-box",
-                WebkitLineClamp: 1,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-              }}
-            >
-              {template.title}
-            </h4>
-            <p
-              style={{
-                color: "rgba(255, 255, 255, 0.7)",
-                fontSize: "14px",
-                lineHeight: "1.4",
-                marginBottom: "12px",
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-              }}
-            >
-              {template.description}
-            </p>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                fontSize: "12px",
-              }}
-            >
-              <span style={{ color: "rgba(255, 255, 255, 0.6)" }}>
-                by {template.author}
-              </span>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ color: "rgba(255, 255, 255, 0.6)" }}>
-                  ⭐ {template.rating}
-                </span>
-                <span style={{ color: "rgba(255, 255, 255, 0.6)" }}>
-                  📁 {template.downloads.toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderUserSection = () => {
-    if (!user) {
-      return (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "24px",
-          }}
-        >
-          <div>
-            <h1
-              style={{
-                color: "white",
-                fontSize: "32px",
-                fontWeight: "600",
-                marginBottom: "8px",
-              }}
-            >
-              Welcome to Adorrable.dev
-            </h1>
-            <p style={{ color: "rgba(255, 255, 255, 0.7)", fontSize: "16px" }}>
-              Generate beautiful websites with AI
-            </p>
-          </div>
-          <button
-            onClick={() => setShowAuthModal(true)}
-            style={{
-              backgroundColor: "#3b82f6",
-              color: "white",
-              border: "none",
-              padding: "12px 24px",
-              borderRadius: "8px",
-              fontSize: "16px",
-              cursor: "pointer",
-            }}
-          >
-            Sign In
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "24px",
-          flexWrap: "wrap",
-          gap: "16px",
-        }}
-      >
-        <div>
-          <h1
-            style={{
-              color: "white",
-              fontSize: "32px",
-              fontWeight: "600",
-              marginBottom: "8px",
-            }}
-          >
-            Welcome back!
-          </h1>
-          <p style={{ color: "rgba(255, 255, 255, 0.7)", fontSize: "16px" }}>
-            Ready to create something amazing?
-          </p>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <div
-            style={{
-              backgroundColor: "#0a0a0a",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              borderRadius: "8px",
-              padding: "12px 16px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <span style={{ color: "#10b981", fontSize: "16px" }}>⚡</span>
-            <span style={{ color: "white", fontSize: "16px", fontWeight: "500" }}>
-              {isLoadingCredits ? "..." : credits} credits
-            </span>
-            <button
-              onClick={() => setShowPricing(true)}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#3b82f6",
-                fontSize: "14px",
-                cursor: "pointer",
-                textDecoration: "underline",
-              }}
-            >
-              Get more
-            </button>
-          </div>
-          <button
-            onClick={handleSignOut}
-            style={{
-              backgroundColor: "#1a1a1a",
-              color: "rgba(255, 255, 255, 0.7)",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
-              padding: "12px 16px",
-              borderRadius: "8px",
-              fontSize: "14px",
-              cursor: "pointer",
-            }}
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
-    );
-  };
-
   if (!mounted) {
     return (
       <div
         style={{
           minHeight: "100vh",
-          backgroundColor: "#000",
+          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <div style={{ color: "white", fontSize: "18px" }}>Loading...</div>
+        <div
+          style={{
+            color: "white",
+            fontSize: "18px",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              border: "3px solid rgba(59, 130, 246, 0.3)",
+              borderTop: "3px solid #3b82f6",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+              margin: "0 auto 16px",
+            }}
+          />
+          Loading Adorrable...
+        </div>
       </div>
     );
   }
 
   return (
     <>
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+          }
+        `}
+      </style>
+      
       <main
         style={{
           minHeight: "100vh",
-          backgroundColor: "#000",
+          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
           color: "white",
-          padding: "24px",
-          fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         }}
       >
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          {renderUserSection()}
-          {renderInputSection()}
-          {renderPreview()}
-          {renderCommunityTemplates()}
-        </div>
+        {/* Header */}
+        <header
+          style={{
+            padding: "20px 24px",
+            borderBottom: "1px solid rgba(148, 163, 184, 0.1)",
+            background: "rgba(15, 23, 42, 0.8)",
+            backdropFilter: "blur(10px)",
+            position: "sticky",
+            top: 0,
+            zIndex: 100,
+          }}
+        >
+          <div
+            style={{
+              maxWidth: "1200px",
+              margin: "0 auto",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "32px",
+              }}
+            >
+              <h1
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "700",
+                  background: "linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                Adorrable
+              </h1>
+              <nav style={{ display: "flex", gap: "24px", alignItems: "center" }}>
+                <a
+                  href="#features"
+                  style={{
+                    color: "rgba(148, 163, 184, 0.8)",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    transition: "color 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.target.style.color = "white")}
+                  onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.8)")}
+                >
+                  Features
+                </a>
+                <a
+                  href="#templates"
+                  style={{
+                    color: "rgba(148, 163, 184, 0.8)",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    transition: "color 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.target.style.color = "white")}
+                  onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.8)")}
+                >
+                  Templates
+                </a>
+                <button
+                  onClick={() => setShowPricing(true)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "rgba(148, 163, 184, 0.8)",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    transition: "color 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.target.style.color = "white")}
+                  onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.8)")}
+                >
+                  Pricing
+                </button>
+                <a
+                  href="#docs"
+                  style={{
+                    color: "rgba(148, 163, 184, 0.8)",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    transition: "color 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.target.style.color = "white")}
+                  onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.8)")}
+                >
+                  Docs
+                </a>
+              </nav>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              {user ? (
+                <>
+                  <div
+                    style={{
+                      background: "linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)",
+                      border: "1px solid rgba(16, 185, 129, 0.3)",
+                      borderRadius: "12px",
+                      padding: "8px 16px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <span style={{ fontSize: "16px" }}>⚡</span>
+                    <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                      {isLoadingCredits ? "..." : credits} credits
+                    </span>
+                    <button
+                      onClick={() => setShowPricing(true)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#10b981",
+                        fontSize: "12px",
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                      }}
+                    >
+                      Get more
+                    </button>
+                  </div>
+                  <button
+                    onClick={handleSignOut}
+                    style={{
+                      background: "rgba(148, 163, 184, 0.1)",
+                      color: "rgba(148, 163, 184, 0.8)",
+                      border: "1px solid rgba(148, 163, 184, 0.2)",
+                      padding: "8px 16px",
+                      borderRadius: "10px",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  style={{
+                    background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
+                    color: "white",
+                    border: "none",
+                    padding: "10px 20px",
+                    borderRadius: "12px",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
+                  }}
+                >
+                  Sign In
+                </button>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* Hero Section */}
+        <section
+          style={{
+            padding: "80px 24px 60px",
+            textAlign: "center",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.3), transparent 70%)",
+              pointerEvents: "none",
+            }}
+          />
+          <div
+            style={{
+              maxWidth: "800px",
+              margin: "0 auto",
+              position: "relative",
+              zIndex: 1,
+            }}
+            className="animate-fade-in-up"
+          >
+            <h1
+              style={{
+                fontSize: "clamp(2.5rem, 5vw, 4rem)",
+                fontWeight: "700",
+                lineHeight: "1.1",
+                marginBottom: "24px",
+                background: "linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              Build something with Adorrable
+            </h1>
+            <p
+              style={{
+                fontSize: "clamp(1rem, 2.5vw, 1.25rem)",
+                color: "rgba(148, 163, 184, 0.8)",
+                lineHeight: "1.6",
+                marginBottom: "40px",
+                maxWidth: "600px",
+                margin: "0 auto 40px",
+              }}
+            >
+              Create apps and culturally intelligent websites by chatting with AI
+            </p>
+
+            {/* Main Input Section */}
+            <div
+              style={{
+                background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)",
+                border: "1px solid rgba(148, 163, 184, 0.2)",
+                borderRadius: "24px",
+                padding: "32px",
+                marginBottom: "40px",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 10px 40px rgba(0, 0, 0, 0.3)",
+              }}
+            >
+              <p
+                style={{
+                  color: "rgba(148, 163, 184, 0.7)",
+                  fontSize: "16px",
+                  marginBottom: "20px",
+                  textAlign: "left",
+                }}
+              >
+                Ask Adorrable to create a business website...
+              </p>
+
+              <div
+                style={{
+                  background: "rgba(15, 23, 42, 0.8)",
+                  borderRadius: "16px",
+                  padding: "20px",
+                  marginBottom: "20px",
+                  border: "1px solid rgba(148, 163, 184, 0.2)",
+                }}
+              >
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Design a tech startup homepage with testimonials and pricing..."
+                  style={{
+                    width: "100%",
+                    minHeight: "80px",
+                    backgroundColor: "transparent",
+                    border: "none",
+                    color: "white",
+                    fontSize: "16px",
+                    lineHeight: "1.5",
+                    resize: "none",
+                    outline: "none",
+                    fontFamily: "inherit",
+                    "::placeholder": {
+                      color: "rgba(148, 163, 184, 0.5)",
+                    },
+                  }}
+                />
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "16px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <span style={{ fontSize: "20px" }}>🪄</span>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      backgroundColor: "rgba(15, 23, 42, 0.8)",
+                      padding: "8px",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(148, 163, 184, 0.2)",
+                    }}
+                  >
+                    {(["English", "French", "Swahili", "Pidgin"] as Language[]).map((lang) => (
+                      <button
+                        key={lang}
+                        onClick={() => setLanguage(lang)}
+                        style={{
+                          background: language === lang
+                            ? "linear-gradient(135deg, #10b981 0%, #3b82f6 100%)"
+                            : "transparent",
+                          color: language === lang ? "white" : "rgba(148, 163, 184, 0.7)",
+                          border: "none",
+                          padding: "8px 16px",
+                          borderRadius: "8px",
+                          fontSize: "14px",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          fontWeight: language === lang ? "500" : "400",
+                        }}
+                      >
+                        {lang}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleGenerate}
+                  disabled={isLoading || !prompt.trim()}
+                  style={{
+                    background: isLoading || !prompt.trim()
+                      ? "rgba(148, 163, 184, 0.3)"
+                      : "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
+                    color: "white",
+                    border: "none",
+                    padding: "12px 24px",
+                    borderRadius: "12px",
+                    fontSize: "16px",
+                    fontWeight: "500",
+                    cursor: isLoading || !prompt.trim() ? "not-allowed" : "pointer",
+                    transition: "all 0.2s",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    boxShadow: isLoading || !prompt.trim()
+                      ? "none"
+                      : "0 4px 15px rgba(59, 130, 246, 0.3)",
+                  }}
+                >
+                  {isLoading ? "Generating..." : "Generate"}
+                  {!isLoading && <span>🚀</span>}
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Preview Section */}
+        {showPreview && generatedCode && (
+          <section
+            style={{
+              padding: "0 24px 40px",
+              maxWidth: "1200px",
+              margin: "0 auto",
+            }}
+          >
+            <div
+              style={{
+                background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)",
+                borderRadius: "20px",
+                border: "1px solid rgba(148, 163, 184, 0.2)",
+                overflow: "hidden",
+                boxShadow: "0 10px 40px rgba(0, 0, 0, 0.3)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "20px 24px",
+                  borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
+                  background: "rgba(15, 23, 42, 0.5)",
+                }}
+              >
+                <h3 style={{ fontSize: "18px", fontWeight: "600", color: "white" }}>
+                  Preview
+                </h3>
+                <div style={{ display: "flex", gap: "12px" }}>
+                  <button
+                    onClick={handleExport}
+                    style={{
+                      background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                      color: "white",
+                      border: "none",
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      transition: "all 0.2s",
+                      boxShadow: "0 4px 15px rgba(16, 185, 129, 0.3)",
+                    }}
+                  >
+                    <span>📁</span>
+                    Export
+                  </button>
+                  <button
+                    onClick={() => setShowPreview(false)}
+                    style={{
+                      background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                      color: "white",
+                      border: "none",
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      boxShadow: "0 4px 15px rgba(239, 68, 68, 0.3)",
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+              <div style={{ height: "600px" }}>
+                <iframe
+                  ref={previewRef}
+                  srcDoc={generatedCode}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    border: "none",
+                    backgroundColor: "white",
+                  }}
+                  title="Generated Website Preview"
+                />
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Community Templates Section */}
+        <section
+          style={{
+            padding: "40px 24px 80px",
+            maxWidth: "1200px",
+            margin: "0 auto",
+          }}
+          id="templates"
+        >
+          <div
+            style={{
+              background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)",
+              borderRadius: "20px",
+              border: "1px solid rgba(148, 163, 184, 0.2)",
+              padding: "32px",
+              boxShadow: "0 10px 40px rgba(0, 0, 0, 0.3)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "32px",
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "600",
+                  color: "white",
+                }}
+              >
+                From the Community
+              </h3>
+              <span
+                style={{
+                  color: "rgba(148, 163, 184, 0.6)",
+                  fontSize: "14px",
+                }}
+              >
+                {communityTemplates.length} templates
+              </span>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                gap: "24px",
+              }}
+            >
+              {communityTemplates.map((template) => (
+                <div
+                  key={template.id}
+                  onClick={() => openCommunityTemplate(template)}
+                  style={{
+                    background: "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%)",
+                    borderRadius: "16px",
+                    border: "1px solid rgba(148, 163, 184, 0.2)",
+                    padding: "20px",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    overflow: "hidden",
+                    position: "relative",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(59, 130, 246, 0.5)";
+                    e.currentTarget.style.transform = "translateY(-4px)";
+                    e.currentTarget.style.boxShadow = "0 20px 40px rgba(0, 0, 0, 0.4)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(148, 163, 184, 0.2)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "180px",
+                      backgroundColor: "#000",
+                      borderRadius: "12px",
+                      marginBottom: "16px",
+                      backgroundImage: `url(${template.preview})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      border: "1px solid rgba(148, 163, 184, 0.1)",
+                    }}
+                  />
+                  <h4
+                    style={{
+                      color: "white",
+                      fontSize: "18px",
+                      fontWeight: "600",
+                      marginBottom: "8px",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 1,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {template.title}
+                  </h4>
+                  <p
+                    style={{
+                      color: "rgba(148, 163, 184, 0.8)",
+                      fontSize: "14px",
+                      lineHeight: "1.5",
+                      marginBottom: "16px",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {template.description}
+                  </p>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      fontSize: "12px",
+                    }}
+                  >
+                    <span style={{ color: "rgba(148, 163, 184, 0.6)" }}>
+                      by {template.author}
+                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <span style={{ color: "rgba(148, 163, 184, 0.6)" }}>
+                        ⭐ {template.rating}
+                      </span>
+                      <span style={{ color: "rgba(148, 163, 184, 0.6)" }}>
+                        📁 {template.downloads.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Simple Footer */}
+        <footer
+          style={{
+            borderTop: "1px solid rgba(148, 163, 184, 0.1)",
+            padding: "40px 24px",
+            textAlign: "center",
+            background: "rgba(15, 23, 42, 0.5)",
+          }}
+        >
+          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+            <div style={{ marginBottom: "24px" }}>
+              <a
+                href="#about"
+                style={{
+                  color: "rgba(148, 163, 184, 0.7)",
+                  textDecoration: "none",
+                  margin: "0 20px",
+                  fontSize: "14px",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => (e.target.style.color = "white")}
+                onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.7)")}
+              >
+                About
+              </a>
+              <button
+                onClick={() => setShowPricing(true)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "rgba(148, 163, 184, 0.7)",
+                  textDecoration: "none",
+                  margin: "0 20px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => (e.target.style.color = "white")}
+                onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.7)")}
+              >
+                Pricing
+              </button>
+              <a
+                href="#templates"
+                style={{
+                  color: "rgba(148, 163, 184, 0.7)",
+                  textDecoration: "none",
+                  margin: "0 20px",
+                  fontSize: "14px",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => (e.target.style.color = "white")}
+                onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.7)")}
+              >
+                Templates
+              </a>
+              <a
+                href="#support"
+                style={{
+                  color: "rgba(148, 163, 184, 0.7)",
+                  textDecoration: "none",
+                  margin: "0 20px",
+                  fontSize: "14px",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => (e.target.style.color = "white")}
+                onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.7)")}
+              >
+                Support
+              </a>
+            </div>
+            <div
+              style={{
+                color: "rgba(148, 163, 184, 0.5)",
+                fontSize: "14px",
+              }}
+            >
+              © 2025 Adorrable.dev - Made for everyone with a touch of Africa 🌍
+            </div>
+          </div>
+        </footer>
 
         {/* Inspirational Widget */}
         <InspirationalWidget />
@@ -1309,68 +1621,6 @@ export default function Home() {
         )}
         {showPricing && <PricingModal />}
         {CommunityTemplateModal}
-
-        {/* Simple Footer */}
-        <div
-          style={{
-            marginTop: "60px",
-            textAlign: "center",
-            padding: "40px 24px",
-            borderTop: "1px solid rgba(255,255,255,0.1)",
-            color: "rgba(255,255,255,0.6)",
-            fontSize: "14px",
-          }}
-        >
-          <div style={{ marginBottom: "20px" }}>
-            <a
-              href="#"
-              style={{
-                color: "inherit",
-                textDecoration: "none",
-                margin: "0 16px",
-              }}
-            >
-              About
-            </a>
-            <button
-              onClick={() => setShowPricing(true)}
-              style={{
-                background: "none",
-                border: "none",
-                color: "inherit",
-                textDecoration: "none",
-                margin: "0 16px",
-                cursor: "pointer",
-                fontSize: "14px",
-              }}
-            >
-              Pricing
-            </button>
-            <a
-              href="#"
-              style={{
-                color: "inherit",
-                textDecoration: "none",
-                margin: "0 16px",
-              }}
-            >
-              Templates
-            </a>
-            <a
-              href="#"
-              style={{
-                color: "inherit",
-                textDecoration: "none",
-                margin: "0 16px",
-              }}
-            >
-              Support
-            </a>
-          </div>
-          <div>
-            © 2025 Adorrable.dev - Made for everyone with a touch of Africa 🌍
-          </div>
-        </div>
       </main>
       <CrispChat />
     </>
