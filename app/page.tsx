@@ -224,28 +224,6 @@ const playCompletionSound = () => {
   }
 };
 
-// Initialize Supabase client with proper error handling
-let supabase: any;
-
-if (typeof window !== 'undefined') {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (supabaseUrl && supabaseAnonKey) {
-    try {
-      supabase = createClient(supabaseUrl, supabaseAnonKey);
-    } catch (error) {
-      console.error("Supabase initialization error:", error);
-      supabase = createMockClient();
-    }
-  } else {
-    console.warn("Supabase environment variables missing. Using mock client.");
-    supabase = createMockClient();
-  }
-} else {
-  supabase = createMockClient();
-}
-
 // Mock client for SSR and error cases
 function createMockClient() {
   return {
@@ -280,20 +258,6 @@ if (typeof window !== 'undefined') {
   }
 } else {
   supabase = createMockClient();
-}
-
-// Mock client for SSR and error cases
-function createMockClient() {
-  return {
-    auth: {
-      signInWithOAuth: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
-      signInWithPassword: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
-      signUp: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
-      signOut: () => Promise.resolve({ error: null }),
-      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
-    }
-  };
 }
 
 export default function Home() {
@@ -2144,16 +2108,20 @@ export default function Home() {
                 alignItems: "flex-start",
                 overflow: "hidden",
                 boxSizing: "border-box",
+                maxHeight: "60px",
+                wordWrap: "break-word",
+                hyphens: "auto",
               }}
             >
               <span 
                 style={{ 
                   overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
+                  display: "-webkit-box",
+                  WebkitBoxOrient: "vertical",
+                  WebkitLineClamp: 3,
                   maxWidth: "calc(100% - 8px)",
-                  display: "inline-block",
-                  verticalAlign: "top",
+                  wordBreak: "break-word",
+                  hyphens: "auto",
                 }}
               >
                 {placeholderText}
@@ -2169,7 +2137,7 @@ export default function Home() {
                   transition: "opacity 0.1s ease",
                   borderRadius: "1px",
                   flexShrink: 0,
-                  verticalAlign: "top",
+                  alignSelf: "flex-start",
                 }}
               />
             </div>
