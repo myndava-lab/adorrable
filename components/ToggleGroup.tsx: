@@ -1,0 +1,26 @@
+'use client'
+
+interface ToggleGroupProps {
+  options: string[];
+  selected: string;
+  onChange: (value: string) => void;
+  name: string;
+}
+
+export default function ToggleGroup({ options, selected, onChange, name }: ToggleGroupProps) {
+  return (
+    <div className="flex flex-wrap gap-2 mt-2" role="group" aria-label={`${name} selection`}>
+      {options.map((option) => (
+        <button
+          key={option}
+          type="button"
+          onClick={() => onChange(option)}
+          aria-pressed={selected === option}
+          className="inline-flex items-center rounded-full px-3 py-1 text-sm border border-gray-700/60 hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 aria-[pressed=true]:bg-green-600 aria-[pressed=true]:text-white aria-[pressed=true]:border-green-600 text-gray-300 hover:text-white"
+        >
+          {option}
+        </button>
+      ))}
+    </div>
+  );
+}

@@ -1,0 +1,54 @@
+Update our Next.js (App Router) landing page UI for Adorrable.dev using Tailwind CSS.
+
+Goals
+
+Remove the gear/settings icon from the question box entirely.
+
+Keep Select Industry and Select Region visible at all times as standard dropdowns.
+
+Add two language toggle groups (button-style toggles):
+
+One toggle group sits directly under Select Industry.
+
+Another toggle group sits directly under Select Region.
+Each toggle group should include: English, French, Swahili, Pidgin. Only one can be active at a time per group.
+
+Maintain the current hero and gradient branding, but use Adorrable colors:
+
+Primary: #22C55E (green-500), Accent: #A78BFA (violet-400), Surface: #0B1220 (near black), Card: #111827 (gray-900).
+
+Inputs should be rounded-xl, dark UI, soft inner shadows, and clear focus rings.
+
+Mobile-first responsive: stack elements on small screens; show two columns for the controls on ≥ md.
+
+Accessible: proper labels, aria-pressed on toggle buttons, keyboard focus states.
+
+Implementation details
+• Files to touch: app/page.tsx, app/globals.css (if needed), and a small reusable components/ToggleGroup.tsx.
+• Replace the settings icon area with a controls section:
+
+Row 1: the text input (“Ask Adorrable…”) with submit button (arrow).
+
+Row 2 (visible always):
+
+Col A: Select Industry (select) + Language toggle group A (buttons).
+
+Col B: Select Region (select) + Language toggle group B (buttons).
+• Toggles are pill buttons with Tailwind classes like:
+inline-flex items-center rounded-full px-3 py-1 text-sm border border-gray-700/60 hover:border-gray-500 transition aria-[pressed=true]:bg-green-600 aria-[pressed=true]:text-white
+• Use React state to manage selected industry, region, and each group’s language.
+• No external UI libs; only Tailwind.
+
+Acceptance criteria
+
+No gear icon anywhere.
+
+“Select Industry” + its language toggles are always visible.
+
+“Select Region” + its language toggles are always visible.
+
+Works on mobile and desktop, visually matches Adorrable brand, and passes keyboard navigation (Tab/Enter/Space) for toggles.
+
+The existing “Generate” flow still works (button disabled until industry & region chosen).
+
+After implementing, show me the updated page.tsx JSX for the controls section and the ToggleGroup component.

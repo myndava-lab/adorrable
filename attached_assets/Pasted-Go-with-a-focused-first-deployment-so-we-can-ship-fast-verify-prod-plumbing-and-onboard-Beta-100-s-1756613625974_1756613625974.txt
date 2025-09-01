@@ -1,0 +1,68 @@
+Go with a focused first deployment so we can ship fast, verify prod plumbing, and onboard Beta-100 safely. Prioritize these in order:
+	1.	Core scaffold (prod-ready)
+
+	•	Next.js 14 + TS + Tailwind, ESLint clean
+	•	/app/layout.tsx, /app/page.tsx (split-screen builder + “Thinking…” overlay styled like lovable.dev/base44.com)
+	•	middleware.ts CSP (Supabase, Paystack, NOWPayments/Triple-A, Clarity, TikTok, Crisp, hCaptcha)
+	•	Health route: /api/health → { ok: true }
+	•	Error boundary & 404
+
+	2.	Auth + DB (RLS ON)
+
+	•	Supabase Auth (email/password magic link)
+	•	Tables: profiles, credits, templates (RLS owner-only)
+	•	Seed admin user path (env-guarded)
+
+	3.	Credits + Free tier guard
+
+	•	4 free credits/day/user (counter + RLS)
+	•	Credit check middleware/util used by “Generate” action
+
+	4.	Payments v1 (stubs but production-safe)
+
+	•	Paystack init route + webhook handlers (verify sig; no secrets logged)
+	•	Crypto primary/backup init routes + webhook handlers (NOWPayments/Triple-A placeholders)
+	•	Local transfer page /payments/local + upload to Supabase Storage
+	•	Price table + plan constants
+
+	5.	Compliance & UX
+
+	•	Cookie banner (Clarity/TikTok only after consent)
+	•	/privacy & /refunds (MDX placeholders with tagline)
+	•	Delete account: /api/delete-account (Bearer required)
+
+	6.	Observability & Ops
+
+	•	Minimal request logging (non-PII)
+	•	Feature flag for “Beta-100 cap” (deny signup >100 with friendly waitlist)
+
+Acceptance for Phase 1
+	•	npm run build passes locally & Vercel (Ready)
+	•	Domain live: adorrable.dev shows split UI + footer + cookie banner
+	•	GET /api/health → 200 { ok: true }
+	•	Sign-up/sign-in works; free credits enforced
+	•	Payments routes reachable, validate input, and return safe JSON (webhooks verify signatures)
+	•	No CSP violations in console
+
+Env required (read from Vercel/Supabase, not hardcoded)
+
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+PAYSTACK_PUBLIC_KEY
+PAYSTACK_SECRET_KEY
+PAYSTACK_WEBHOOK_SECRET
+CRYPTO_PRIMARY_API_KEY
+CRYPTO_PRIMARY_WEBHOOK_SECRET
+CRYPTO_BACKUP_API_KEY
+CRYPTO_BACKUP_WEBHOOK_SECRET
+NEXT_PUBLIC_TIKTOK_PIXEL_ID
+NEXT_PUBLIC_CLARITY_PROJECT_ID
+CRISP_WEBSITE_ID
+HCAPTCHA_SITEKEY
+HCAPTCHA_SECRET
+COMPANY_BILLING_DESCRIPTOR=MYNDAVA*ADORRABLE
+
+Proceed with Phase 1 only, in this order: scaffold → auth/DB with RLS → credits + free tier guard → payments v1 (Paystack + crypto stubs + local) → compliance pages + cookie consent → delete-account route → CSP middleware → deploy to Vercel (adorrable.dev). 
+UI style: match lovable.dev/base44.com (clean SaaS, Tailwind, responsive). 
+Acceptance criteria and env list as stated. Report build status and deployed URLs when done.

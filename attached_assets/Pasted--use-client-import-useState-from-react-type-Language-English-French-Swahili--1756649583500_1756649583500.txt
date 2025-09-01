@@ -1,0 +1,92 @@
+'use client';
+
+import { useState } from 'react';
+type Language = 'English' | 'French' | 'Swahili' | 'Pidgin';
+
+export default function LandingSection() {
+  const [language, setLanguage] = useState<Language>('English');
+  const [prompt, setPrompt] = useState('');
+  const languages: Language[] = ['English', 'French', 'Swahili', 'Pidgin'];
+
+  return (
+    <section className="relative overflow-hidden">
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(1200px_600px_at_10%_10%,#7C3AED22,transparent),radial-gradient(900px_600px_at_90%_10%,#10B98122,transparent)]" />
+
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 text-white">
+        <h1 className="text-center font-extrabold leading-[1.05] tracking-tight text-4xl md:text-6xl lg:text-7xl bg-clip-text text-transparent bg-gradient-to-r from-emerald-300 via-teal-200 to-indigo-300 drop-shadow-sm">
+          Build something Adorrable
+        </h1>
+
+        {/* NEW subheadline */}
+        <p className="mx-auto mt-6 max-w-3xl text-center text-lg md:text-xl text-white/80">
+          Create apps and culturally intelligent websites by chatting with AI.
+        </p>
+
+        {/* Prompt + Language only */}
+        <div className="mx-auto mt-10 w-full max-w-4xl rounded-[28px] border border-white/10 bg-white/5 p-5 md:p-7 shadow-[0_10px_50px_-10px_rgba(0,0,0,0.45)] backdrop-blur">
+          <label className="block text-sm font-medium text-white/70 mb-2">
+            Ask Adorrable to create a business website…
+          </label>
+
+          <div className="rounded-2xl border border-white/15 bg-slate-900/60 p-4 text-white/90 focus-within:ring-2 focus-within:ring-emerald-400/60">
+            <textarea
+              rows={3}
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="w-full resize-none bg-transparent outline-none placeholder:text-white/40"
+              placeholder="e.g., Create a landing page for a Lagos fashion brand with a product grid"
+            />
+          </div>
+
+          {/* Language toggles */}
+          <div className="mt-6">
+            <label className="mb-2 block text-sm font-medium text-white/70">Language</label>
+            <div className="flex flex-wrap gap-3">
+              {languages.map((lng) => {
+                const active = language === lng;
+                return (
+                  <button
+                    key={lng}
+                    type="button"
+                    onClick={() => setLanguage(lng)}
+                    aria-pressed={active}
+                    className={[
+                      'rounded-full px-4 py-2 text-sm transition border backdrop-blur',
+                      active
+                        ? 'border-emerald-400/50 bg-emerald-400/20 text-emerald-100'
+                        : 'border-white/15 bg-white/5 text-white/85 hover:bg-white/10',
+                    ].join(' ')}
+                  >
+                    {lng}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-7 flex justify-end">
+            <button
+              disabled={prompt.trim().length === 0}
+              className={[
+                'rounded-xl px-5 py-3 font-medium transition shadow',
+                prompt.trim().length === 0
+                  ? 'cursor-not-allowed bg-white/10 text-white/50'
+                  : 'bg-emerald-500 text-slate-900 hover:bg-emerald-400',
+              ].join(' ')}
+            >
+              Generate
+            </button>
+          </div>
+
+          <p className="mt-6 text-sm italic text-white/50">
+            💡 Try: “Create a landing page for a Lagos fashion brand with a product grid”
+          </p>
+        </div>
+
+        <p className="mx-auto mt-10 flex items-center justify-center gap-2 text-sm text-white/60">
+          🌍 Made for everyone, with a touch of Africa.
+        </p>
+      </div>
+    </section>
+  );
+}

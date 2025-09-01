@@ -1,0 +1,1925 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+import dynamic from "next/dynamic";
+
+// Dynamically import Monaco Editor to avoid SSR issues
+const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
+  ssr: false,
+});
+
+type Language = "English" | "French" | "Swahili" | "Pidgin";
+type ViewMode = "chat" | "split" | "code" | "preview";
+
+interface ChatMessage {
+  id: string;
+  type: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+  language?: Language;
+  images?: any[];
+}
+
+// Thinking Animation Component
+const ThinkingAnimation = () => {
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const steps = [
+    "🤔 Thinking...",
+    "🎨 Designing layout...",
+    "📝 Writing code...",
+    "🎯 Adding your content...",
+    "✨ Finishing touches...",
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentStep((prev) => (prev + 1) % steps.length);
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return <span>{steps[currentStep]}</span>;
+};
+
+// Completion Sound Function
+const playCompletionSound = () => {
+  try {
+    // Create a success sound using Web Audio API
+    const audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
+
+    // Create a pleasant completion sound (C major chord)
+    const notes = [261.63, 329.63, 392.0]; // C4, E4, G4
+
+    notes.forEach((frequency, index) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+      oscillator.type = "sine";
+
+      // Envelope for smooth sound
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(
+        0.1,
+        audioContext.currentTime + 0.01,
+      );
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioContext.currentTime + 0.5,
+      );
+
+      oscillator.start(audioContext.currentTime + index * 0.1);
+      oscillator.stop(audioContext.currentTime + 0.6 + index * 0.1);
+    });
+  } catch (error) {
+    console.log("Audio not available:", error);
+  }
+};
+
+export default function Home() {
+  const [text, setText] = useState("");
+  const [language, setLanguage] = useState<Language>("English");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedTemplate, setGeneratedTemplate] = useState(null);
+  const [credits, setCredits] = useState(4);
+  const [mounted, setMounted] = useState(false);
+  const [displayedText, setDisplayedText] = useState("");
+  const [textareaRows, setTextareaRows] = useState(3);
+  const [placeholderText, setPlaceholderText] = useState("");
+  const [showCursor, setShowCursor] = useState(true);
+  const [attachedImages, setAttachedImages] = useState([]);
+  const [titleComplete, setTitleComplete] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("chat");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [generatedCode, setGeneratedCode] = useState("");
+  const [leftPanelWidth, setLeftPanelWidth] = useState(50);
+  const [isResizing, setIsResizing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"chat" | "code">("chat");
+
+  const fileInputRef = useRef(null);
+  const textareaRef = useRef(null);
+  const placeholderTimerRef = useRef(null);
+  const cursorTimerRef = useRef(null);
+  const chatContainerRef = useRef(null);
+  const previewRef = useRef(null);
+
+  const languages: Language[] = [
+    "English",
+    "French",
+    "Swahili",
+    "Pidgin English",
+  ];
+  const fullText = "Build something with Adorrable";
+
+  // Multi-language placeholder messages
+  const placeholderMessages = {
+    English: [
+      "Create a landing page for a Lagos fashion brand with a product grid",
+      "Build a modern restaurant website with online menu and reservations",
+      "Design a tech startup homepage with testimonials and pricing",
+      "Make a portfolio website for a Nigerian photographer",
+      "Create an e-commerce site for handmade African crafts",
+    ],
+    French: [
+      "Créer une page d'accueil pour une marque de mode de Lagos",
+      "Construire un site web de restaurant moderne avec menu en ligne",
+      "Concevoir une page d'accueil de startup tech avec témoignages",
+      "Faire un site portfolio pour un photographe nigérian",
+      "Créer un site e-commerce pour l'artisanat africain fait main",
+    ],
+    Swahili: [
+      "Unda ukurasa wa kwanza wa biashara ya mavazi ya Lagos",
+      "Jenga tovuti ya kisasa ya mgahawa na menyu ya mtandaoni",
+      "Buni ukurasa wa kwanza wa kampuni ya teknolojia",
+      "Fanya tovuti ya portfolio kwa mpiga picha wa Nigeria",
+      "Unda tovuti ya biashara kwa sanaa za Afrika",
+    ],
+    Pidgin: [
+      "Make landing page for Lagos fashion brand wey get product grid",
+      "Build modern restaurant website wey get online menu",
+      "Design tech startup homepage wey get testimonials",
+      "Make portfolio website for Nigerian photographer",
+      "Create e-commerce site for handmade African crafts",
+    ],
+  };
+
+  // Sample generated code for initial demo
+  const sampleCode = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Lagos Fashion Brand</title>
+          <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { 
+                  font-family: 'Inter', sans-serif; 
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  color: #333;
+              }
+              .hero { 
+                  min-height: 100vh; 
+                  display: flex; 
+                  align-items: center; 
+                  justify-content: center;
+                  text-align: center;
+                  padding: 2rem;
+              }
+              .hero h1 { 
+                  font-size: clamp(2rem, 5vw, 4rem); 
+                  color: white; 
+                  margin-bottom: 1rem;
+                  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+              }
+              .hero p { 
+                  font-size: 1.2rem; 
+                  color: rgba(255,255,255,0.9); 
+                  max-width: 600px;
+                  margin: 0 auto 2rem;
+              }
+              .cta-button {
+                  background: linear-gradient(135deg, #10B981, #059669);
+                  color: white;
+                  padding: 16px 32px;
+                  border: none;
+                  border-radius: 12px;
+                  font-size: 18px;
+                  font-weight: 600;
+                  cursor: pointer;
+                  transition: all 0.3s ease;
+                  text-decoration: none;
+                  display: inline-block;
+              }
+              .cta-button:hover {
+                  transform: translateY(-2px);
+                  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+              }
+              .products { 
+                  padding: 4rem 2rem; 
+                  background: white;
+              }
+              .product-grid { 
+                  display: grid; 
+                  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+                  gap: 2rem; 
+                  max-width: 1200px; 
+                  margin: 0 auto;
+              }
+              .product-card { 
+                  background: #f8f9fa; 
+                  border-radius: 16px; 
+                  overflow: hidden; 
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                  transition: transform 0.3s ease;
+              }
+              .product-card:hover { 
+                  transform: translateY(-5px); 
+              }
+              .product-image { 
+                  height: 250px; 
+                  background: linear-gradient(45deg, #667eea, #764ba2); 
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: white;
+                  font-size: 18px;
+              }
+              .product-info { 
+                  padding: 1.5rem; 
+              }
+              .product-title { 
+                  font-size: 1.2rem; 
+                  font-weight: 600; 
+                  margin-bottom: 0.5rem;
+              }
+              .product-price { 
+                  color: #10B981; 
+                  font-size: 1.1rem; 
+                  font-weight: 600;
+              }
+          </style>
+      </head>
+      <body>
+          <section class="hero">
+              <div>
+                  <h1>Lagos Fashion Brand</h1>
+                  <p>Discover the latest trends in African fashion. Premium quality, modern designs, cultural heritage.</p>
+                  <a href="#products" class="cta-button">Shop Collection</a>
+              </div>
+          </section>
+
+          <section class="products" id="products">
+              <div class="product-grid">
+                  <div class="product-card">
+                      <div class="product-image">Premium Ankara Dress</div>
+                      <div class="product-info">
+                          <div class="product-title">Traditional Ankara Maxi Dress</div>
+                          <div class="product-price">₦25,000</div>
+                      </div>
+                  </div>
+                  <div class="product-card">
+                      <div class="product-image">Modern Agbada</div>
+                      <div class="product-info">
+                          <div class="product-title">Contemporary Agbada Set</div>
+                          <div class="product-price">₦45,000</div>
+                      </div>
+                  </div>
+                  <div class="product-card">
+                      <div class="product-image">Designer Headwrap</div>
+                      <div class="product-info">
+                          <div class="product-title">Luxury Gele Collection</div>
+                          <div class="product-price">₦15,000</div>
+                      </div>
+                  </div>
+              </div>
+          </section>
+      </body>
+      </html>`;
+
+  // Generate function with real API integration
+  const handleGenerate = useCallback(async () => {
+    if (!text.trim() || credits <= 0 || isGenerating) {
+      return;
+    }
+
+    // Add user message to chat
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: "user",
+      content: text,
+      timestamp: new Date(),
+      language: language,
+      images: attachedImages,
+    };
+
+    setChatMessages((prev) => [...prev, userMessage]);
+    setIsGenerating(true);
+    setGeneratedTemplate(null);
+
+    try {
+      // Upload images if any
+      let uploadedImages = [];
+      if (attachedImages.length > 0) {
+        const formData = new FormData();
+        attachedImages.forEach((img) => {
+          formData.append("images", img.file);
+        });
+
+        const uploadResponse = await fetch("/api/images/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (uploadResponse.ok) {
+          const uploadResult = await uploadResponse.json();
+          uploadedImages = uploadResult.images;
+        }
+      }
+
+      // Generate template with AI
+      const response = await fetch("/api/ai/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: text,
+          language: language,
+          images: uploadedImages,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate template");
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Play completion sound
+        playCompletionSound();
+
+        // Add assistant response to chat
+        const assistantMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          type: "assistant",
+          content: `✨ Template generated successfully!\n\n🎯 **${result.template.title}**\n🗣️ Language: ${result.template.language}\n📄 Ready for editing and preview`,
+          timestamp: new Date(),
+          language: language,
+        };
+
+        setChatMessages((prev) => [...prev, assistantMessage]);
+        setGeneratedCode(result.template.code);
+        setGeneratedTemplate(result.template);
+        setViewMode("split"); // Switch to split view after generation
+        setCredits((prev) => prev - 1);
+      } else {
+        throw new Error(result.message || "Generation failed");
+      }
+    } catch (error) {
+      console.error("Generation error:", error);
+
+      // Add error message to chat
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 2).toString(),
+        type: "assistant",
+        content: `❌ Sorry, there was an error generating your template. Please try again.\n\nError: ${error.message}`,
+        timestamp: new Date(),
+        language: language,
+      };
+
+      setChatMessages((prev) => [...prev, errorMessage]);
+
+      // Fallback to sample code for demo
+      setGeneratedCode(sampleCode);
+      setViewMode("split");
+      playCompletionSound(); // Still play sound for demo
+    } finally {
+      setIsGenerating(false);
+      setText("");
+      setAttachedImages([]);
+    }
+  }, [text, credits, isGenerating, language, attachedImages]);
+
+  // Update preview when code changes
+  useEffect(() => {
+    if (previewRef.current && generatedCode) {
+      const iframe = previewRef.current;
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open();
+      doc.write(generatedCode);
+      doc.close();
+    }
+  }, [generatedCode]);
+
+  // Initial title typewriter effect
+  useEffect(() => {
+    setMounted(true);
+
+    let currentIndex = 0;
+    const typeWriter = () => {
+      if (currentIndex < fullText.length) {
+        setDisplayedText(fullText.slice(0, currentIndex + 1));
+        currentIndex++;
+        setTimeout(typeWriter, 100);
+      } else {
+        setTitleComplete(true);
+      }
+    };
+
+    setTimeout(typeWriter, 500);
+  }, []);
+
+  // Stable placeholder typewriter effect
+  useEffect(() => {
+    if (!mounted) return;
+
+    if (placeholderTimerRef.current) {
+      clearTimeout(placeholderTimerRef.current);
+    }
+    if (cursorTimerRef.current) {
+      clearInterval(cursorTimerRef.current);
+    }
+    const currentMessages = placeholderMessages[language];
+    console.log("Language:", language);
+    console.log("Current messages:", currentMessages);
+    console.log("All placeholder messages:", placeholderMessages);
+    let messageIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let currentMessage =
+      currentMessages && currentMessages.length > 0
+        ? currentMessages[messageIndex % currentMessages.length]
+        : "Create something amazing";
+
+    setPlaceholderText("");
+
+    const typePlaceholder = () => {
+      if (!isDeleting) {
+        if (charIndex < currentMessage.length) {
+          setPlaceholderText(currentMessage.slice(0, charIndex + 1));
+          charIndex++;
+          placeholderTimerRef.current = setTimeout(typePlaceholder, 80);
+        } else {
+          placeholderTimerRef.current = setTimeout(() => {
+            isDeleting = true;
+            typePlaceholder();
+          }, 3000);
+        }
+      } else {
+        if (charIndex > 0) {
+          setPlaceholderText(currentMessage.slice(0, charIndex - 1));
+          charIndex--;
+          placeholderTimerRef.current = setTimeout(typePlaceholder, 40);
+        } else {
+          isDeleting = false;
+          messageIndex = (messageIndex + 1) % currentMessages.length;
+          currentMessage = currentMessages[messageIndex];
+          placeholderTimerRef.current = setTimeout(typePlaceholder, 500);
+        }
+      }
+    };
+
+    placeholderTimerRef.current = setTimeout(typePlaceholder, 500);
+
+    cursorTimerRef.current = setInterval(() => {
+      setShowCursor((prev) => !prev);
+    }, 530);
+
+    return () => {
+      if (placeholderTimerRef.current) {
+        clearTimeout(placeholderTimerRef.current);
+      }
+      if (cursorTimerRef.current) {
+        clearInterval(cursorTimerRef.current);
+      }
+    };
+  }, [mounted, language]);
+
+  // Enter key handler
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleGenerate();
+      }
+    };
+
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.addEventListener("keydown", handleKeyDown);
+      return () => textarea.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [handleGenerate]);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    const lines = text.split("\n").length;
+    const wordsPerLine = 60;
+    const words = text.split(" ").length;
+    const estimatedLines = Math.max(lines, Math.ceil(words / wordsPerLine));
+    setTextareaRows(Math.max(3, Math.min(estimatedLines, 12)));
+  }, [text]);
+
+  // Auto-scroll chat to bottom
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [chatMessages]);
+
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const newImages = files.map((file) => ({
+      id: Date.now() + Math.random(),
+      file,
+      url: URL.createObjectURL(file),
+      name: file.name,
+    }));
+    setAttachedImages((prev) => [...prev, ...newImages]);
+  };
+
+  const removeImage = (id) => {
+    setAttachedImages((prev) => {
+      const imgToRemove = prev.find((img) => img.id === id);
+      if (imgToRemove) {
+        URL.revokeObjectURL(imgToRemove.url);
+      }
+      return prev.filter((img) => img.id !== id);
+    });
+  };
+
+  const handleNewTemplate = () => {
+    setGeneratedTemplate(null);
+    setText("");
+    setAttachedImages([]);
+    setViewMode("chat");
+    setChatMessages([]);
+    setGeneratedCode("");
+  };
+
+  const handleExportTemplate = async () => {
+    if (!generatedTemplate) return;
+
+    try {
+      // Save template first
+      await fetch("/api/templates", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(generatedTemplate),
+      });
+
+      // Then export
+      const response = await fetch(
+        `/api/templates/${generatedTemplate.id}/export`,
+      );
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${generatedTemplate.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.html`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error("Export failed:", error);
+    }
+  };
+
+  // Handle panel resizing
+  const handleMouseDown = (e) => {
+    setIsResizing(true);
+    e.preventDefault();
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isResizing) return;
+
+      const containerWidth = window.innerWidth;
+      const newWidth = (e.clientX / containerWidth) * 100;
+      setLeftPanelWidth(Math.max(20, Math.min(80, newWidth)));
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing]);
+
+  if (!mounted) return null;
+
+  // Render different views based on mode
+  const renderContent = () => {
+    if (viewMode === "chat") {
+      return renderChatView();
+    } else if (viewMode === "split") {
+      return renderSplitView();
+    } else if (viewMode === "code") {
+      return renderCodeView();
+    } else if (viewMode === "preview") {
+      return renderPreviewView();
+    }
+  };
+
+  const renderChatView = () => (
+    <main
+      style={{
+        maxWidth: "1200px",
+        margin: "0 auto",
+        padding: "80px 24px 0",
+        textAlign: "center",
+        position: "relative",
+        zIndex: 10,
+      }}
+    >
+      {/* Hero Section with Typewriter Effect */}
+      <div
+        style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? "translateY(0)" : "translateY(40px)",
+          transition: "all 1s cubic-bezier(0.4, 0, 0.2, 1) 0.2s",
+        }}
+      >
+        <h1
+          style={{
+            fontSize: "clamp(48px, 8vw, 96px)",
+            fontWeight: "800",
+            marginBottom: "24px",
+            background: "linear-gradient(135deg, #6EE7B7, #67E8F9, #A78BFA)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            lineHeight: "1.05",
+            letterSpacing: "-0.04em",
+            textShadow: "0 1px 3px rgba(0,0,0,0.3)",
+            minHeight: "120px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {displayedText}
+          {!titleComplete && (
+            <span
+              style={{
+                display: "inline-block",
+                width: "4px",
+                height: "0.8em",
+                background: "linear-gradient(135deg, #6EE7B7, #67E8F9)",
+                marginLeft: "8px",
+                animation: "blink 1s infinite",
+                borderRadius: "2px",
+              }}
+            />
+          )}
+        </h1>
+
+        <p
+          style={{
+            fontSize: "24px",
+            color: "rgba(255,255,255,0.8)",
+            lineHeight: "1.5",
+            maxWidth: "800px",
+            margin: "0 auto 48px",
+            fontWeight: "400",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Create apps and culturally intelligent websites by chatting with AI
+        </p>
+      </div>
+
+      {/* Chat Messages */}
+      {chatMessages.length > 0 && (
+        <div
+          ref={chatContainerRef}
+          style={{
+            maxWidth: "800px",
+            margin: "0 auto 32px",
+            maxHeight: "400px",
+            overflowY: "auto",
+            background: "rgba(255,255,255,0.05)",
+            borderRadius: "20px",
+            padding: "20px",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255,255,255,0.1)",
+          }}
+        >
+          {chatMessages.map((message) => (
+            <div
+              key={message.id}
+              style={{
+                display: "flex",
+                gap: "12px",
+                marginBottom: "16px",
+                justifyContent:
+                  message.type === "user" ? "flex-end" : "flex-start",
+              }}
+            >
+              {message.type === "assistant" && (
+                <div
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    background: "linear-gradient(135deg, #10B981, #8B5CF6)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    style={{ color: "white" }}
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M12 21s-6.7-4.2-9.5-7C-0.6 11.1 1 6.8 4.8 6.3c2-.3 3.5.7 4.3 2 0 0 1.2-2.5 4.3-2 3.8.5 5.4 4.8 2.3 7.7C18.7 16.8 12 21 12 21z"
+                    />
+                  </svg>
+                </div>
+              )}
+
+              <div
+                style={{
+                  maxWidth: "70%",
+                  padding: "12px 16px",
+                  borderRadius: "16px",
+                  background:
+                    message.type === "user"
+                      ? "linear-gradient(135deg, #10B981, #059669)"
+                      : "rgba(255,255,255,0.1)",
+                  color: "white",
+                  fontSize: "14px",
+                  lineHeight: "1.5",
+                  whiteSpace: "pre-wrap",
+                  textAlign: "left",
+                }}
+              >
+                {message.content}
+                {message.images && message.images.length > 0 && (
+                  <div
+                    style={{
+                      marginTop: "8px",
+                      display: "flex",
+                      gap: "4px",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {message.images.map((img) => (
+                      <img
+                        key={img.id}
+                        src={img.url}
+                        alt={img.name}
+                        style={{
+                          width: "40px",
+                          height: "40px",
+                          borderRadius: "6px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {message.type === "user" && (
+                <div
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    background: "rgba(255,255,255,0.2)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    style={{ color: "white" }}
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                    />
+                  </svg>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Enhanced Thinking Animation */}
+          {isGenerating && (
+            <div
+              style={{
+                display: "flex",
+                gap: "12px",
+                marginBottom: "16px",
+                justifyContent: "flex-start",
+              }}
+            >
+              <div
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #10B981, #8B5CF6)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  animation: "float 2s ease-in-out infinite",
+                }}
+              >
+                <div
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    border: "2px solid rgba(255,255,255,0.3)",
+                    borderTop: "2px solid white",
+                    borderRadius: "50%",
+                    animation: "spin 1s linear infinite",
+                  }}
+                />
+              </div>
+
+              <div
+                style={{
+                  padding: "12px 16px",
+                  borderRadius: "16px",
+                  background: "rgba(255,255,255,0.1)",
+                  color: "white",
+                  fontSize: "14px",
+                  lineHeight: "1.5",
+                  minWidth: "200px",
+                }}
+              >
+                <ThinkingAnimation />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      {renderInputSection()}
+      {/* Simple Footer */}
+      <div
+        style={{
+          marginTop: "60px",
+          textAlign: "center",
+          padding: "40px 24px",
+          borderTop: "1px solid rgba(255,255,255,0.1)",
+          color: "rgba(255,255,255,0.6)",
+          fontSize: "14px",
+        }}
+      >
+        <div style={{ marginBottom: "20px" }}>
+          <a
+            href="#"
+            style={{
+              color: "inherit",
+              textDecoration: "none",
+              margin: "0 16px",
+            }}
+          >
+            About
+          </a>
+          <a
+            href="#"
+            style={{
+              color: "inherit",
+              textDecoration: "none",
+              margin: "0 16px",
+            }}
+          >
+            Pricing
+          </a>
+          <a
+            href="#"
+            style={{
+              color: "inherit",
+              textDecoration: "none",
+              margin: "0 16px",
+            }}
+          >
+            Templates
+          </a>
+          <a
+            href="#"
+            style={{
+              color: "inherit",
+              textDecoration: "none",
+              margin: "0 16px",
+            }}
+          >
+            Support
+          </a>
+        </div>
+        <div>
+          © 2025 Adorrable.dev - Made for everyone with a touch of Africa 🌍
+        </div>
+      </div>
+    </main>
+  );
+
+  const renderSplitView = () => (
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        background:
+          "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)",
+      }}
+    >
+      {/* Top Toolbar */}
+      <div
+        style={{
+          height: "60px",
+          background: "rgba(255,255,255,0.05)",
+          backdropFilter: "blur(10px)",
+          borderBottom: "1px solid rgba(255,255,255,0.1)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 20px",
+          zIndex: 20,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <h2
+            style={{
+              color: "white",
+              fontSize: "18px",
+              fontWeight: "600",
+              background: "linear-gradient(135deg, #10B981, #8B5CF6)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Adorrable
+          </h2>
+
+          {/* View Mode Buttons */}
+          <div
+            style={{
+              display: "flex",
+              background: "rgba(255,255,255,0.1)",
+              borderRadius: "8px",
+              padding: "4px",
+            }}
+          >
+            {["chat", "split", "code", "preview"].map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode as ViewMode)}
+                style={{
+                  padding: "8px 12px",
+                  border: "none",
+                  background:
+                    viewMode === mode
+                      ? "rgba(16, 185, 129, 0.2)"
+                      : "transparent",
+                  color:
+                    viewMode === mode ? "#10B981" : "rgba(255,255,255,0.7)",
+                  borderRadius: "6px",
+                  fontSize: "12px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  textTransform: "capitalize",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <button
+            onClick={handleExportTemplate}
+            disabled={!generatedTemplate}
+            style={{
+              padding: "8px 16px",
+              background: generatedTemplate
+                ? "linear-gradient(135deg, #10B981, #059669)"
+                : "rgba(255,255,255,0.1)",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "14px",
+              fontWeight: "500",
+              cursor: generatedTemplate ? "pointer" : "not-allowed",
+              opacity: generatedTemplate ? 1 : 0.5,
+              transition: "all 0.2s ease",
+            }}
+          >
+            Export HTML
+          </button>
+
+          <button
+            onClick={handleNewTemplate}
+            style={{
+              padding: "8px 16px",
+              background: "rgba(255,255,255,0.1)",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "14px",
+              fontWeight: "500",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+          >
+            New Template
+          </button>
+        </div>
+      </div>
+
+      {/* Split Panel Container */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          position: "relative",
+        }}
+      >
+        {/* Left Panel */}
+        <div
+          style={{
+            width: `${leftPanelWidth}%`,
+            display: "flex",
+            flexDirection: "column",
+            background: "rgba(15, 23, 42, 0.8)",
+            borderRight: "1px solid rgba(255,255,255,0.1)",
+          }}
+        >
+          {/* Tab Headers */}
+          <div
+            style={{
+              height: "40px",
+              display: "flex",
+              background: "rgba(255,255,255,0.05)",
+              borderBottom: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            {["chat", "code"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab as "chat" | "code")}
+                style={{
+                  flex: 1,
+                  border: "none",
+                  background:
+                    activeTab === tab
+                      ? "rgba(16, 185, 129, 0.1)"
+                      : "transparent",
+                  color:
+                    activeTab === tab ? "#10B981" : "rgba(255,255,255,0.7)",
+                  fontSize: "12px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  textTransform: "capitalize",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Content */}
+          <div style={{ flex: 1, overflow: "hidden" }}>
+            {activeTab === "chat" ? (
+              <div
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                {/* Chat Messages */}
+                <div
+                  ref={chatContainerRef}
+                  style={{
+                    flex: 1,
+                    overflowY: "auto",
+                    padding: "20px",
+                  }}
+                >
+                  {chatMessages.map((message) => (
+                    <div
+                      key={message.id}
+                      style={{
+                        display: "flex",
+                        gap: "12px",
+                        marginBottom: "16px",
+                        justifyContent:
+                          message.type === "user" ? "flex-end" : "flex-start",
+                      }}
+                    >
+                      {message.type === "assistant" && (
+                        <div
+                          style={{
+                            width: "24px",
+                            height: "24px",
+                            borderRadius: "50%",
+                            background:
+                              "linear-gradient(135deg, #10B981, #8B5CF6)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            style={{ color: "white" }}
+                          >
+                            <path
+                              fill="currentColor"
+                              d="M12 21s-6.7-4.2-9.5-7C-0.6 11.1 1 6.8 4.8 6.3c2-.3 3.5.7 4.3 2 0 0 1.2-2.5 4.3-2 3.8.5 5.4 4.8 2.3 7.7C18.7 16.8 12 21 12 21z"
+                            />
+                          </svg>
+                        </div>
+                      )}
+
+                      <div
+                        style={{
+                          maxWidth: "70%",
+                          padding: "8px 12px",
+                          borderRadius: "12px",
+                          background:
+                            message.type === "user"
+                              ? "linear-gradient(135deg, #10B981, #059669)"
+                              : "rgba(255,255,255,0.1)",
+                          color: "white",
+                          fontSize: "12px",
+                          lineHeight: "1.4",
+                          whiteSpace: "pre-wrap",
+                          textAlign: "left",
+                        }}
+                      >
+                        {message.content}
+                      </div>
+
+                      {message.type === "user" && (
+                        <div
+                          style={{
+                            width: "24px",
+                            height: "24px",
+                            borderRadius: "50%",
+                            background: "rgba(255,255,255,0.2)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            style={{ color: "white" }}
+                          >
+                            <path
+                              fill="currentColor"
+                              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Enhanced Thinking Animation for Split View */}
+                  {isGenerating && (
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "12px",
+                        marginBottom: "16px",
+                        justifyContent: "flex-start",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "24px",
+                          height: "24px",
+                          borderRadius: "50%",
+                          background:
+                            "linear-gradient(135deg, #10B981, #8B5CF6)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                          animation: "float 2s ease-in-out infinite",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "8px",
+                            height: "8px",
+                            border: "1px solid rgba(255,255,255,0.3)",
+                            borderTop: "1px solid white",
+                            borderRadius: "50%",
+                            animation: "spin 1s linear infinite",
+                          }}
+                        />
+                      </div>
+
+                      <div
+                        style={{
+                          padding: "8px 12px",
+                          borderRadius: "12px",
+                          background: "rgba(255,255,255,0.1)",
+                          color: "white",
+                          fontSize: "12px",
+                          lineHeight: "1.4",
+                          minWidth: "150px",
+                        }}
+                      >
+                        <ThinkingAnimation />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Input Section for Split View */}
+                <div
+                  style={{
+                    padding: "16px",
+                    borderTop: "1px solid rgba(255,255,255,0.1)",
+                    background: "rgba(15, 23, 42, 0.6)",
+                  }}
+                >
+                  {renderInputSection(true)}
+                </div>
+              </div>
+            ) : (
+              /* Code Editor */
+              <div style={{ height: "100%", background: "#1e1e1e" }}>
+                <MonacoEditor
+                  height="100%"
+                  defaultLanguage="html"
+                  value={generatedCode}
+                  onChange={(value) => setGeneratedCode(value || "")}
+                  theme="vs-dark"
+                  options={{
+                    fontSize: 14,
+                    lineNumbers: "on",
+                    wordWrap: "on",
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                    tabSize: 2,
+                    insertSpaces: true,
+                  }}
+                />
+                =
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Resize Handle */}
+        <div
+          onMouseDown={handleMouseDown}
+          style={{
+            width: "4px",
+            background: isResizing ? "#10B981" : "rgba(255,255,255,0.1)",
+            cursor: "col-resize",
+            position: "relative",
+            zIndex: 10,
+            transition: "background 0.2s ease",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "20px",
+              height: "40px",
+              background: "rgba(255,255,255,0.1)",
+              borderRadius: "10px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              style={{
+                width: "2px",
+                height: "16px",
+                background: "rgba(255,255,255,0.3)",
+                marginRight: "2px",
+              }}
+            />
+            <div
+              style={{
+                width: "2px",
+                height: "16px",
+                background: "rgba(255,255,255,0.3)",
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Right Panel - Preview */}
+        <div
+          style={{
+            width: `${100 - leftPanelWidth}%`,
+            background: "white",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div
+            style={{
+              height: "40px",
+              background: "rgba(0,0,0,0.05)",
+              borderBottom: "1px solid rgba(0,0,0,0.1)",
+              display: "flex",
+              alignItems: "center",
+              padding: "0 16px",
+              fontSize: "12px",
+              color: "#666",
+              fontWeight: "500",
+            }}
+          >
+            Live Preview
+          </div>
+
+          <iframe
+            ref={previewRef}
+            style={{
+              flex: 1,
+              border: "none",
+              width: "100%",
+              background: "white",
+            }}
+            title="Template Preview"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCodeView = () => (
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        background: "#1e1e1e",
+      }}
+    >
+      <div
+        style={{
+          height: "60px",
+          background: "rgba(255,255,255,0.05)",
+          borderBottom: "1px solid rgba(255,255,255,0.1)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 20px",
+        }}
+      >
+        <h3 style={{ color: "white", fontSize: "16px", fontWeight: "600" }}>
+          Code Editor
+        </h3>
+        <button
+          onClick={() => setViewMode("split")}
+          style={{
+            padding: "8px 16px",
+            background: "linear-gradient(135deg, #10B981, #059669)",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "14px",
+            fontWeight: "500",
+            cursor: "pointer",
+          }}
+        >
+          Back to Split View
+        </button>
+      </div>
+
+      <MonacoEditor
+        height="calc(100vh - 60px)"
+        defaultLanguage="html"
+        value={generatedCode}
+        onChange={(value) => setGeneratedCode(value || "")}
+        theme="vs-dark"
+        options={{
+          fontSize: 16,
+          lineNumbers: "on",
+          wordWrap: "on",
+          minimap: { enabled: true },
+          scrollBeyondLastLine: false,
+          automaticLayout: true,
+          tabSize: 2,
+          insertSpaces: true,
+        }}
+      />
+    </div>
+  );
+
+  const renderPreviewView = () => (
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        background: "white",
+      }}
+    >
+      <div
+        style={{
+          height: "60px",
+          background: "rgba(0,0,0,0.05)",
+          borderBottom: "1px solid rgba(0,0,0,0.1)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 20px",
+        }}
+      >
+        <h3 style={{ color: "#333", fontSize: "16px", fontWeight: "600" }}>
+          Template Preview
+        </h3>
+        <button
+          onClick={() => setViewMode("split")}
+          style={{
+            padding: "8px 16px",
+            background: "linear-gradient(135deg, #10B981, #059669)",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "14px",
+            fontWeight: "500",
+            cursor: "pointer",
+          }}
+        >
+          Back to Split View
+        </button>
+      </div>
+
+      <iframe
+        ref={previewRef}
+        style={{
+          flex: 1,
+          border: "none",
+          width: "100%",
+          background: "white",
+        }}
+        title="Template Preview"
+      />
+    </div>
+  );
+
+  const renderInputSection = (compact = false) => (
+    <div
+      style={{
+        margin: compact ? "0" : "0 auto",
+        width: "100%",
+        maxWidth: compact ? "100%" : "800px",
+        borderRadius: compact ? "12px" : "28px",
+        border: "1px solid rgba(255, 255, 255, 0.1)",
+        background: "rgba(255,255,255,0.05)",
+        padding: compact ? "16px" : "40px",
+        boxShadow: compact
+          ? "0 4px 20px -4px rgba(0,0,0,0.3)"
+          : "0 10px 50px -10px rgba(0,0,0,0.45)",
+        backdropFilter: "blur(20px)",
+        marginBottom: compact ? "0" : "20px",
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? "translateY(0)" : "translateY(30px)",
+        transition: "all 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.6s",
+      }}
+    >
+      {!compact && (
+        <label
+          style={{
+            display: "block",
+            fontSize: "14px",
+            fontWeight: "500",
+            color: "rgba(255,255,255,0.7)",
+            marginBottom: "8px",
+            textAlign: "left",
+          }}
+        >
+          Ask Adorrable to create a business website…
+        </label>
+      )}
+
+      {/* Main Input Box with Inline Controls */}
+      <div
+        style={{
+          borderRadius: compact ? "8px" : "16px",
+          border: "1px solid rgba(255,255,255,0.15)",
+          background: "rgba(15, 23, 42, 0.6)",
+          position: "relative",
+          transition: "all 0.3s ease",
+        }}
+      >
+        {/* Textarea */}
+        <div
+          style={{
+            padding: compact ? "12px" : "16px",
+            paddingBottom: compact ? "48px" : "60px",
+          }}
+        >
+          <textarea
+            ref={textareaRef}
+            rows={compact ? 2 : textareaRows}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            disabled={isGenerating}
+            style={{
+              width: "100%",
+              resize: "none",
+              background: "transparent",
+              outline: "none",
+              border: "none",
+              color: "rgba(255,255,255,0.9)",
+              fontSize: compact ? "14px" : "16px",
+              transition: "height 0.2s ease",
+              lineHeight: "1.5",
+            }}
+            placeholder=""
+          />
+
+          {/* Custom animated placeholder */}
+          {!text && !compact && (
+            <div
+              style={{
+                position: "absolute",
+                top: "16px",
+                left: "16px",
+                pointerEvents: "none",
+                color: "rgba(255,255,255,0.4)",
+                fontSize: "16px",
+                lineHeight: "1.5",
+                fontFamily: "inherit",
+                minHeight: "24px",
+                display: "flex",
+                alignItems: "flex-start",
+              }}
+            >
+              <span style={{ whiteSpace: "nowrap", overflow: "hidden" }}>
+                {placeholderText}
+              </span>
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "2px",
+                  height: "1.2em",
+                  background: "rgba(16, 185, 129, 0.7)",
+                  marginLeft: "2px",
+                  opacity: showCursor ? 1 : 0,
+                  transition: "opacity 0.1s ease",
+                  borderRadius: "1px",
+                  flexShrink: 0,
+                }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Attached Images */}
+        {attachedImages.length > 0 && (
+          <div
+            style={{
+              padding: compact ? "0 12px 12px" : "0 16px 16px",
+              display: "flex",
+              gap: "8px",
+              flexWrap: "wrap",
+            }}
+          >
+            {attachedImages.map((img) => (
+              <div
+                key={img.id}
+                style={{
+                  position: "relative",
+                  width: compact ? "40px" : "60px",
+                  height: compact ? "40px" : "60px",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                }}
+              >
+                <img
+                  src={img.url}
+                  alt={img.name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+                <button
+                  onClick={() => removeImage(img.id)}
+                  style={{
+                    position: "absolute",
+                    top: "-6px",
+                    right: "-6px",
+                    width: "20px",
+                    height: "20px",
+                    borderRadius: "50%",
+                    background: "#EF4444",
+                    color: "white",
+                    border: "none",
+                    fontSize: "12px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Bottom Controls Bar */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "0",
+            left: "0",
+            right: "0",
+            padding: compact ? "8px 12px" : "12px 16px",
+            borderTop: "1px solid rgba(255,255,255,0.1)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            background: "rgba(15, 23, 42, 0.3)",
+            borderRadius: compact ? "0 0 8px 8px" : "0 0 16px 16px",
+          }}
+        >
+          {/* Left: Image Attachment */}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: "none" }}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isGenerating}
+              style={{
+                background: "none",
+                border: "none",
+                color: "rgba(255,255,255,0.6)",
+                cursor: isGenerating ? "not-allowed" : "pointer",
+                padding: "4px",
+                borderRadius: "4px",
+                transition: "color 0.2s ease",
+                opacity: isGenerating ? 0.5 : 1,
+              }}
+              title="Attach images"
+            >
+              <svg
+                width={compact ? "16" : "20"}
+                height={compact ? "16" : "20"}
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.64 16.2a2 2 0 0 1-2.83-2.83l8.49-8.49" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Center: Language Selection */}
+          <div
+            style={{
+              display: "flex",
+              gap: compact ? "4px" : "6px",
+              background: "rgba(255,255,255,0.1)",
+              borderRadius: compact ? "6px" : "8px",
+              padding: compact ? "2px" : "4px",
+            }}
+          >
+            {languages.map((lang) => (
+              <button
+                key={lang}
+                onClick={() => setLanguage(lang)}
+                disabled={isGenerating}
+                style={{
+                  padding: compact ? "4px 6px" : "6px 8px",
+                  border: "none",
+                  background:
+                    language === lang
+                      ? "rgba(16, 185, 129, 0.3)"
+                      : "transparent",
+                  color:
+                    language === lang ? "#10B981" : "rgba(255,255,255,0.6)",
+                  borderRadius: compact ? "4px" : "6px",
+                  fontSize: compact ? "10px" : "11px",
+                  fontWeight: "500",
+                  cursor: isGenerating ? "not-allowed" : "pointer",
+                  transition: "all 0.2s ease",
+                  opacity: isGenerating ? 0.5 : 1,
+                }}
+              >
+                {lang.slice(0, 2).toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          {/* Right: Submit Button */}
+          <button
+            onClick={handleGenerate}
+            disabled={!text.trim() || credits <= 0 || isGenerating}
+            style={{
+              background:
+                text.trim() && credits > 0 && !isGenerating
+                  ? "linear-gradient(135deg, #10B981, #059669)"
+                  : "rgba(255,255,255,0.1)",
+              border: "none",
+              borderRadius: compact ? "6px" : "8px",
+              width: compact ? "32px" : "40px",
+              height: compact ? "32px" : "40px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor:
+                text.trim() && credits > 0 && !isGenerating
+                  ? "pointer"
+                  : "not-allowed",
+              transition: "all 0.2s ease",
+              opacity: text.trim() && credits > 0 && !isGenerating ? 1 : 0.4,
+            }}
+            title={
+              !text.trim()
+                ? "Enter a prompt"
+                : credits <= 0
+                  ? "No credits remaining"
+                  : "Generate template"
+            }
+          >
+            {isGenerating ? (
+              <div
+                style={{
+                  width: compact ? "12px" : "16px",
+                  height: compact ? "12px" : "16px",
+                  border: "2px solid rgba(255,255,255,0.3)",
+                  borderTop: "2px solid white",
+                  borderRadius: "50%",
+                  animation: "spin 1s linear infinite",
+                }}
+              />
+            ) : (
+              <svg
+                width={compact ? "16" : "20"}
+                height={compact ? "16" : "20"}
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M22 2L11 13"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M22 2L15 22L11 13L2 9L22 2Z"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Credits Display */}
+      {!compact && (
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: "16px",
+            color: "rgba(255,255,255,0.5)",
+            fontSize: "12px",
+          }}
+        >
+          {credits} credits remaining
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background:
+          "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)",
+        position: "relative",
+        overflow: viewMode === "chat" ? "auto" : "hidden",
+      }}
+    >
+      {/* Background Effects */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `
+                radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.1) 0%, transparent 50%)
+              `,
+          pointerEvents: "none",
+          zIndex: 1,
+        }}
+      />
+
+      {/* Animated Background Particles */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `
+                repeating-linear-gradient(
+                  90deg,
+                  transparent,
+                  transparent 100px,
+                  rgba(255,255,255,0.01) 100px,
+                  rgba(255,255,255,0.01) 101px
+                ),
+                repeating-linear-gradient(
+                  0deg,
+                  transparent,
+                  transparent 100px,
+                  rgba(255,255,255,0.01) 100px,
+                  rgba(255,255,255,0.01) 101px
+                )
+              `,
+          pointerEvents: "none",
+          zIndex: 1,
+        }}
+      />
+
+      {/* CSS Animations */}
+      <style jsx>{`
+        @keyframes blink {
+          0%,
+          50% {
+            opacity: 1;
+          }
+          51%,
+          100% {
+            opacity: 0;
+          }
+        }
+
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-5px);
+          }
+        }
+      `}</style>
+
+      {renderContent()}
+    </div>
+  );
+}

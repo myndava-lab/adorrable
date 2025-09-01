@@ -1,0 +1,61 @@
+We’re proceeding with Phase 1 — Production Bootstrap for Adorrable.dev. Treat this as a production SaaS, not a prototype. Do these tasks in order and report each item with links, commit IDs, and file diffs.
+
+A) Repo & Push Verification
+	1.	Create/ensure these files exist and are committed on main:
+
+	•	package.json (Next 14.2.x, TS 5.4.x, ESLint)
+	•	next.config.js
+	•	tsconfig.json
+	•	.gitignore
+	•	next-env.d.ts
+	•	app/layout.tsx
+	•	app/page.tsx (split-screen + “Thinking…” overlay)
+	•	middleware.ts (strict CSP header)
+	•	lib/supabaseServer.ts (server client with cookies)
+	•	.env.example (all required keys)
+
+Output required:
+	•	The latest commit SHA on main.
+	•	A git ls-files list (or a file tree) showing the files above.
+	•	GitHub links to the commit and each file.
+
+B) Health & API stubs
+	2.	Add a minimal health endpoint and account deletion stub:
+
+	•	app/api/health/route.ts → returns { ok: true }
+	•	app/api/delete-account/route.ts → returns 401 without Bearer token
+
+Output required: show the code snippets and commit SHA.
+
+C) Build Quality Gate
+	3.	Run locally in the workspace:
+
+	•	npm ci
+	•	npm run lint
+	•	npm run build
+
+Output required: copy/paste the terminal summaries for lint/build (must be green).
+
+D) Vercel Wire-up (Production)
+	4.	Confirm Vercel project is connected to this GitHub repo and uses Production env.
+	5.	Set adorrable.dev as the production domain (SSL ready).
+	6.	Trigger a deployment from main.
+
+Output required:
+	•	Vercel deployment URL + status Ready
+	•	Build logs link
+	•	Screenshot or log excerpt of “Ready” status
+
+E) Supabase Check
+	7.	Confirm Supabase project is reachable with NEXT_PUBLIC_SUPABASE_URL in .env.example.
+	8.	Do not push real secrets—only .env.example. Verify RLS is ON.
+
+Output required: short note confirming .env.example updated and RLS status.
+
+Acceptance for Phase 1
+	•	adorrable.dev loads with layout, footer tagline, cookie banner.
+	•	GET /api/health → 200 { ok: true }
+	•	POST /api/delete-account (no token) → 401
+	•	Vercel build: Ready, no TypeScript errors (or explicitly ignored in next.config.js with reason).
+
+Important: If any step fails, stop and list the exact error + fix plan. Do not proceed silently.

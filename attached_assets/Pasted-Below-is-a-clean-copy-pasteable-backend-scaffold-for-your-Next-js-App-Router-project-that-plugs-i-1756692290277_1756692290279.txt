@@ -1,0 +1,199 @@
+Below is a clean, copy-pasteable backend scaffold for your Next.js (App Router) project that plugs in OpenAI, auto-detects region, supports language toggles, and exposes a single /api/generate endpoint you can evolve (landing page, culturally intelligent site, etc.).
+
+1) Env vars (.env.local)
+# OpenAI
+OPENAI_API_KEY=your_openai_key
+
+# App
+APP_NAME=Adorrable
+DEFAULT_MODEL=gpt-4o-mini
+MAX_TOKENS=2000
+TEMPERATURE=0.7
+
+2) OpenAI client (lib/ai.ts)
+// lib/ai.ts
+import OpenAI from "openai";
+
+export const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
+
+export const model = process.env.DEFAULT_MODEL ?? "gpt-4o-mini";
+export const temperature = Number(process.env.TEMPERATURE ?? 0.7);
+export const maxTokens = Number(process.env.MAX_TOKENS ?? 2000);
+
+3) Region + language helpers (lib/locale.ts)
+// lib/locale.ts
+export function detectLanguage(req: Request): string {
+  // prefer explicit client selection passed in header/query/body
+  const forced = (req.headers.get("x-lang") ?? "").trim();
+  if (forced) return forced;
+
+  // fallback to Accept-Language
+  const accept = req.headers.get("accept-language") ?? "";
+  // simple best-match
+  const lang = accept.split(",")[0]?.split("-")[0] ?? "en";
+  return mapToSupported(lang);
+}
+
+export function mapToSupported(lang: string) {
+  const supported = ["en", "fr", "sw", "pcm"]; // english, french, swahili, pidgin
+  if (supported.includes(lang)) return lang;
+  // map common tags
+  if (lang === "sw-ke" || lang === "sw-tz") return "sw";
+  if (lang === "yo" || lang === "ha" || lang === "ig") return "pcm"; // pidgin fallback
+  return "en";
+}
+
+export function detectRegion(req: Request) {
+  // Phase 1: derive from Accept-Language country tag if present
+  // Phase 2: swap to a geo-IP header (x-vercel-ip-country, cf-ipcountry, etc.)
+  const accept = req.headers.get("accept-language") ?? "";
+  const tag = accept.split(",")[0];
+  const country = tag?.split("-")[1]?.toUpperCase();
+  return country || "INTL";
+}
+
+4) Minimal rate-limit (dev) (lib/ratelimit.ts)
+// lib/ratelimit.ts
+const hits = new Map<string, { count: number; ts: number }>();
+const WINDOW_MS = 60_000; // 1 min
+const LIMIT = 15;
+
+export function rateLimit(key: string) {
+  const now = Date.now();
+  const item = hits.get(key);
+  if (!item || now - item.ts > WINDOW_MS) {
+    hits.set(key, { count: 1, ts: now });
+    return { ok: true, remaining: LIMIT - 1 };
+  }
+  if (item.count >= LIMIT) return { ok: false, remaining: 0 };
+  item.count++;
+  return { ok: true, remaining: LIMIT - item.count };
+}
+
+5) Types (lib/types.ts)
+// lib/types.ts
+export type GeneratePayload = {
+  intent: "landing" | "website";
+  prompt: string;           // freeform request from user
+  language?: "en" | "fr" | "sw" | "pcm";
+};
+
+6) The generation route (app/api/generate/route.ts)
+// app/api/generate/route.ts
+import { NextResponse } from "next/server";
+import { openai, model, temperature, maxTokens } from "@/lib/ai";
+import { detectLanguage, detectRegion } from "@/lib/locale";
+import { rateLimit } from "@/lib/ratelimit";
+import type { GeneratePayload } from "@/lib/types";
+
+export const runtime = "nodejs"; // change to "edge" later if you like
+
+export async function OPTIONS() {
+  return NextResponse.json({}, {
+    headers: cors(),
+  });
+}
+
+export async function POST(req: Request) {
+  try {
+    const ip = req.headers.get("x-forwarded-for") ?? "local";
+    const rl = rateLimit(ip);
+    if (!rl.ok) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429, headers: cors() });
+    }
+
+    const body = (await req.json()) as GeneratePayload;
+    const language = body.language ?? detectLanguage(req);
+    const region = detectRegion(req);
+
+    const intent = body.intent ?? "landing";
+    const userPrompt = (body.prompt ?? "").trim();
+    if (!userPrompt) {
+      return NextResponse.json({ error: "prompt is required" }, { status: 400, headers: cors() });
+    }
+
+    // System prompt focuses on cultural intelligence + Adorrable brand
+    const system = `
+You are Adorrable's creative AI. Generate ${intent === "landing" ? "a single-page landing section" : "a multi-section website outline"} 
+with **culturally intelligent** defaults tailored to the user's region = ${region} and language = ${language}. 
+Style tone: optimistic, inclusive, modern African-inspired accents, yet globally appealing.
+Return JSON with fields: "title", "sections" (array with {id, heading, subtext, cta?}), "seo" (title, description, keywords[]), "notes".
+Write copy in the requested language code: ${language}.
+`;
+
+    const completion = await openai.chat.completions.create({
+      model,
+      temperature,
+      max_tokens: maxTokens,
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: userPrompt }
+      ]
+    });
+
+    const text = completion.choices[0]?.message?.content ?? "{}";
+
+    // Try to parse JSON if the model returned JSON; otherwise wrap it
+    let data: any;
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
+    return NextResponse.json(
+      {
+        ok: true,
+        language,
+        region,
+        data,
+      },
+      { headers: { ...cors(), "X-RateLimit-Remaining": String(rl.remaining) } }
+    );
+  } catch (e: any) {
+    console.error(e);
+    return NextResponse.json({ error: e?.message ?? "Server error" }, { status: 500, headers: cors() });
+  }
+}
+
+function cors() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type, x-lang",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  };
+}
+
+7) Healthcheck (app/api/health/route.ts)
+// app/api/health/route.ts
+import { NextResponse } from "next/server";
+export async function GET() {
+  return NextResponse.json({ ok: true, ts: Date.now() });
+}
+
+8) Frontend hook-up (example handler)
+
+Use this in your page component where the user clicks “Generate”.
+
+// example in a client component
+async function handleGenerate(intent: "landing" | "website", prompt: string, lang: "en"|"fr"|"sw"|"pcm") {
+  const res = await fetch("/api/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-lang": lang },
+    body: JSON.stringify({ intent, prompt, language: lang }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || "Failed to generate");
+  // TODO: render json.data into your preview panel
+  console.log(json);
+}
+
+What this gives you now
+
+✅ Single, safe /api/generate endpoint
+
+✅ Language toggle respected (English, French, Swahili, Pidgin – easy to add more)
+
+✅ Auto-region detection (phase-1 via Accept-Language; swap to IP-based header when you have it)
+
+✅ Built-in minimal rate limiting so you don’t burn Replit credits during testing
+
+✅ JSON payload you can pipe directly to your UI preview

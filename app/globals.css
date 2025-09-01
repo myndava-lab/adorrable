@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Simple background without custom classes */
+body {
+  background: #0B1220;
+  color: #F9FAFB;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(139, 92, 246, 0.18), transparent 60%),
+    radial-gradient(900px 500px at 50% 120%, rgba(18, 183, 106, 0.18), transparent 60%),
+    linear-gradient(180deg, #0B1220 0%, #101827 60%, #0B1220 100%);
+}
+
+/* glass card */
+.card {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
