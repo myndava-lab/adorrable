@@ -303,6 +303,23 @@ export default function Home() {
     setGeneratedTemplate(null);
 
     try {
+      // Deduct credits first
+      const creditResponse = await fetch('/api/credits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+        },
+        body: JSON.stringify({
+          amount: 1,
+          reason: 'Website generation'
+        })
+      });
+
+      if (!creditResponse.ok) {
+        throw new Error('Insufficient credits');
+      }
+
       // Upload images if any
       let uploadedImages = [];
       if (attachedImages.length > 0) {
