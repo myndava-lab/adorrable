@@ -2268,11 +2268,7 @@ export default function Home() {
     </div>
   );
 
-  // Update language for existing messages when language changes
-  useEffect(() => {
-    // Update language for existing messages
-    setChatMessages(prev => prev.map(msg => ({...msg, language: language})))
-  }, [language]);
+  
 
 
   return (
