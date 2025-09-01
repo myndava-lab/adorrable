@@ -1,28 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
-
-// Safe Supabase client initialization
-const createSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (supabaseUrl && supabaseAnonKey) {
-    return createClient(supabaseUrl, supabaseAnonKey)
-  }
-  
-  // Return mock client if environment variables are missing
-  return {
-    auth: {
-      signInWithOAuth: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
-      signInWithPassword: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
-      signUp: () => Promise.resolve({ error: { message: "Authentication not configured" } })
-    }
-  }
-}
-
-const supabase = createSupabaseClient()
+import { supabase } from '../lib/supabase'
 
 interface AuthModalProps {
   isOpen: boolean

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
 import CrispChat from "../components/CrispChat";
 import AuthModal from "../components/AuthModal";
 import InspirationalWidget from "../components/InspirationalWidget";
@@ -95,49 +95,7 @@ const playCompletionSound = () => {
   }
 };
 
-// Create a single Supabase client instance to prevent multiple client warnings
-let supabaseClient: any = null;
 
-// Mock client for SSR and error cases
-function createMockClient() {
-  return {
-    auth: {
-      signInWithOAuth: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
-      signInWithPassword: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
-      signUp: () => Promise.resolve({ error: { message: "Authentication not configured" } }),
-      signOut: () => Promise.resolve({ error: null }),
-      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
-    }
-  };
-}
-
-// Initialize Supabase client only once
-const getSupabaseClient = () => {
-  if (supabaseClient) {
-    return supabaseClient;
-  }
-
-  if (typeof window === 'undefined') {
-    return createMockClient();
-  }
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (supabaseUrl && supabaseAnonKey) {
-    try {
-      supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
-      return supabaseClient;
-    } catch (error) {
-      console.error("Supabase initialization error:", error);
-      return createMockClient();
-    }
-  } else {
-    console.warn("Supabase environment variables missing. Using mock client.");
-    return createMockClient();
-  }
-};
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -719,16 +677,14 @@ export default function Home() {
 
   // Auth state management
   useEffect(() => {
-    const client = getSupabaseClient();
-    
     const checkUser = async () => {
-      const { data: { session } } = await client.auth.getSession()
+      const { data: { session } } = await supabase.auth.getSession()
       setUser(session?.user || null)
     }
 
     checkUser()
 
-    const { data: { subscription } } = client.auth.onAuthStateChange(
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user || null)
       }
@@ -833,8 +789,7 @@ export default function Home() {
   }
 
   const handleSignOut = async () => {
-    const client = getSupabaseClient();
-    await client.auth.signOut()
+    await supabase.auth.signOut()
     setShowDropdown(false)
     setUser(null) // Clear user state
     setCredits(0) // Reset credits on sign out
@@ -3831,7 +3786,7 @@ export default function Home() {
           setShowAuthModal(false);
           // Fetch user data or update state after successful auth
           const fetchUser = async () => {
-            const { data: { session } } = await supabaseClient.auth.getSession();
+            const { data: { session } } = await supabase.auth.getSession();
             setUser(session?.user || null);
             // Optionally fetch initial credits here
             setCredits(4); // Resetting credits for demo purposes
