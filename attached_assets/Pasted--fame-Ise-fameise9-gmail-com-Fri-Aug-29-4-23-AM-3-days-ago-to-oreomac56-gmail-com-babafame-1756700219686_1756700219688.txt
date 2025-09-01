@@ -1,0 +1,694 @@
+
+fame Ise <fameise9@gmail.com>
+Fri, Aug 29, 4:23 AM (3 days ago)
+to oreomac56@gmail.com, babafame1
+
+ Adorrable.dev — 100% Production-Ready Master Prompt
+Stack: Paystack + Crypto-Primary (e.g., NOWPayments) + Crypto-Backup (e.g., Triple-A) + Local | Supabase | Vercel | Next.js 14
+Brand: Adorrable.dev (by Myndava AI Systems LLC)
+Tagline: “Adorrable.dev — Made for everyone, with a touch of Africa. 🌍” (all public/legal pages)
+
+⚙️ Tech Stack
+•  Frontend: Next.js 14 (App Router), TypeScript, TailwindCSS, MDX (legal pages)
+•  Backend/DB: Supabase (Postgres, Auth, Edge Functions, Cron)
+•  Auth & Safety: Supabase Auth, hCaptcha (signup/waitlist), strict CSP
+•  Analytics: Microsoft Clarity, TikTok Pixel (with react-cookie-consent)
+•  i18n: next-intl (English, Pidgin, French, Swahili)
+•  Support: Crisp Chat (AI + live agent)
+•  AI:
+	•  GPT-5 Pro: Full templates (3.5 credits)
+	•  GPT-5 Mini: Microcopy (2.5 credits)
+	•  GPT-5 Nano: Edits/remix (1 credit)
+	•  DALL·E: Images (2 credits)
+
+🏢 Company Wiring
+•  Parent: Myndava AI Systems LLC (Missouri, USA)
+•  EIN: 981878539
+•  FinCEN ID: 2000-0733-1226
+•  Billing Descriptor: MYNDAVA*ADORRABLE
+•  Note: “AI Silicon Valley” may appear on Paystack/Opay statements; present as sub-brand.
+
+💳 Payments
+•  Paystack: NGN/USD cards, bank transfers, 3-D Secure
+•  Crypto-Primary: Placeholder for NOWPayments (BTC, ETH, USDT, USDC, +200 coins) or confirmed provider (e.g., Coinbase Commerce)
+•  Crypto-Backup: Placeholder for Triple-A (BTC, ETH, USDT, USDC) or confirmed provider (e.g., CoinPayments)
+•  Local (Nigeria): Opay bank transfer (Acct: 8168158636), WhatsApp CTA
+•  Fallback Copy: “Having trouble paying online? In Nigeria, pay via bank transfer (Opay 8168158636). Tap I’ve Paid, upload proof, and credits are added within minutes.”
+•  Confirmation Checklist:
+	1.  Register with NOWPayments (api.nowpayments.io) or alternative (e.g., Coinbase Commerce: commerce.coinbase.com).
+		•  Submit: EIN, FinCEN ID, Missouri address, business type (Technology/AI).
+		•  Test sandbox invoice ($1 USDT).
+	2.  Register with Triple-A (triple-a.io) or alternative (e.g., CoinPayments: coinpayments.net).
+		•  Provide same details; test sandbox API.
+	3.  Confirm approval (email/dashboard access), store API keys/secrets.
+	4.  Update .env and Edge Functions with confirmed provider details.
+
+💸 Credits & Pricing
+•  Free Trial: 4 credits/day, 100 signups/day, overflow to waitlist
+•  Plans:
+	•  Starter: 22 credits — ₦12,000 (~$12.99)
+	•  Growth: 110 credits — ₦24,000 (~$25) — Most Popular
+	•  Pro: 250 credits — ₦48,000 (~$50)
+	•  Scale: 500 credits — ₦96,000 (~$99)
+	•  Legacy: 1250 credits — ₦195,000 (~$199)
+	•  Lifetime Co-Founder: ₦3,999,000 (~$4,999) — 10 slots, unlimited usage, 600 credits/mo after 6 months
+•  Actions: Remix (1), Rewrite (2.5), Template (3.5), Redeploy (0.71), Image (2)
+•  Policy: 1 credit/template fetch (cache-first). Monthly expiry, no rollover.
+•  Refunds: 7 days for unused credits.
+•  Waitlist Copy: “Free tier full today. Join waitlist and try again in 24 hours.”
+
+🧠 Templates
+•  Output: JSON { meta, branding, sections[], compliance, payments, seo }
+•  Regions: Auto-detected + override
+	•  Nigeria/Africa: WhatsApp CTA, Paystack, NDPR
+	•  EU: GDPR badges, cookie banner, SEPA
+	•  US: ROI proof, Apple/Google Pay UI hints
+	•  Asia: QR codes, Alipay/WeChat cues
+•  Naming: No country names for broader use.
+•  Access: Free = cached; Paid = full AI pipeline.
+
+🧭 Onboarding
+•  Steps: Business name → Industry → Region/Language
+•  Target: <2s load on low-end Android (lazy-load, Lite mode).
+
+🎛️ Frontend Pages
+•  /: Builder UI + JSON preview (session-gated)
+•  /dashboard: Credits, logs, export
+•  /admin/pricing: Editor + audit log
+•  /waitlist: hCaptcha, cap messaging
+•  /privacy, /terms, /refunds: MDX with tagline footer
+•  Layout: Includes InspirationalWidget, react-cookie-consent
+InspirationalWidget (fixed for rotation/opt-out):
+
+// /components/InspirationalWidget.tsx
+"use client";
+import { useState, useEffect } from "react";
+
+const QUOTES = [
+  { text: "Commit your work to the Lord, and your plans will be established. — Proverbs 16:3", type: "verse" },
+  { text: "Success is not final; failure is not fatal. — Winston Churchill", type: "quote" },
+  // ... 48 more
+];
+
+export default function InspirationalWidget() {
+  const [enabled, setEnabled] = useState(true);
+  const [index, setIndex] = useState(Math.floor(Math.random() * QUOTES.length));
+
+  useEffect(() => {
+    if (!enabled || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const interval = setInterval(() => setIndex((prev) => (prev + 1) % QUOTES.length), 24 * 60 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [enabled]);
+
+  if (!enabled) return null;
+  return (
+    <div className="fixed bottom-4 right-4 p-4 bg-green-600 text-white rounded-md shadow-md max-w-xs text-sm">
+      <p>{QUOTES[index].text}</p>
+      <div className="mt-2 flex justify-between">
+        <button className="text-xs underline" onClick={() => setEnabled(false)}>Hide</button>
+        <button className="text-xs underline" onClick={() => setIndex((prev) => (prev + 1) % QUOTES.length)}>Next</button>
+      </div>
+    </div>
+  );
+}
+
+Root Layout:
+
+// /app/layout.tsx
+import InspirationalWidget from "@/components/InspirationalWidget";
+import CookieConsent from "react-cookie-consent";
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body className="min-h-screen bg-offwhite text-charcoal">
+        <main className="min-h-[90vh]">{children}</main>
+        <InspirationalWidget />
+        <footer className="text-center py-4">
+          <p>Adorrable.dev — Made for everyone, with a touch of Africa. 🌍</p>
+          <p>Payments by Myndava AI Systems LLC</p>
+        </footer>
+        <CookieConsent
+          location="bottom"
+          buttonText="Accept"
+          declineButtonText="Decline"
+          cookieName="adorrable-consent"
+          style={{ background: "#111827", color: "#F9FAFB" }}
+          buttonStyle={{ background: "#12B76A", color: "#F9FAFB" }}
+          declineButtonStyle={{ background: "#F4B400", color: "#111827" }}
+          enableDeclineButton
+        >
+          We use cookies for analytics (Microsoft Clarity, TikTok Pixel). Accept or decline to manage tracking.
+        </CookieConsent>
+      </body>
+    </html>
+  );
+}
+
+🔒 API Routes
+
+// /app/api/delete-account/route.ts
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+function getAuthToken(req: Request) {
+  const h = req.headers.get("authorization");
+  return h?.toLowerCase().startsWith("bearer ") ? h.slice(7) : null;
+}
+
+export async function POST(req: Request) {
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
+  const token = getAuthToken(req);
+  if (!token) return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
+
+  const { data: userData, error } = await supabase.auth.getUser(token);
+  if (error || !userData?.user?.id) return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
+
+  try {
+    await supabase.from("profiles").delete().eq("id", userData.user.id);
+    await supabase.auth.admin.deleteUser(userData.user.id);
+    return NextResponse.json({ message: "Account deleted" }, { status: 200 });
+  } catch {
+    return NextResponse.json({ error: "SERVER_ERROR" }, { status: 500 });
+  }
+}
+
+CSP Middleware:
+
+// /middleware.ts
+import { NextResponse } from "next/server";
+
+export function middleware(req: NextRequest) {
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-eval' https://js.hcaptcha.com https://hcaptcha.com https://*.crisp.chat https://analytics.tiktok.com https://*.clarity.ms https://api.paystack.co https://api.nowpayments.io https://api.triple-a.io",
+    "style-src 'self' 'unsafe-inline' https://*.crisp.chat",
+    "img-src 'self' data: https://*.openai.com https://*.crisp.chat https://*.clarity.ms",
+    "connect-src 'self' https://api.openai.com https://*.supabase.co https://api.paystack.co https://api.nowpayments.io https://api.triple-a.io https://client.crisp.chat https://*.clarity.ms https://analytics.tiktok.com",
+    "frame-src 'self' https://hcaptcha.com",
+    "font-src 'self' https://*.crisp.chat",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self' https://api.paystack.co https://api.nowpayments.io https://api.triple-a.io"
+  ].join("; ");
+
+  const response = NextResponse.next();
+  response.headers.set("Content-Security-Policy", csp);
+  return response;
+}
+
+export const config = { matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"] };
+
+🧩 Supabase Edge Functions
+•  templates-get: Cache or GPT-5
+•  credits-deduct: RPC spend + log
+•  waitlist-join: hCaptcha + 100/day cap
+•  credit-expiry: Cron for 30-day expiry
+•  image-generate: DALL·E + deduction
+•  redeploy-site: Vercel hooks
+•  payments-init-paystack, payments-init-crypto-primary, payments-init-crypto-backup, payments-init-local, payments-webhook-*, payments-status, data-export, admin-update-price, health
+•  Rate Limit: 30 req/min/IP
+Generic Crypto Payment (swap for NOWPayments/Triple-A post-confirmation):
+
+// /supabase/functions/payments-init-crypto-primary/index.ts
+import { corsHeaders } from "../_shared/cors.ts";
+import { sb } from "../_shared/sb.ts";
+import { rateLimit, ipFrom } from "../_shared/ratelimit.ts";
+
+Deno.serve(async (req) => {
+  const headers = corsHeaders(req.headers.get("Origin") || undefined);
+  if (req.method === "OPTIONS") return new Response(null, { headers });
+  const ip = ipFrom(req);
+  if (!rateLimit(`payments-init-crypto-primary:${ip}`, 30, 60_000)) {
+    return new Response(JSON.stringify({ error: "RATE_LIMITED" }), { status: 429, headers });
+  }
+
+  try {
+    const { email, plan } = await req.json();
+    if (!email || !plan) return new Response(JSON.stringify({ error: "INVALID_INPUT" }), { status: 400, headers });
+
+    const PLAN_AMT: Record<string, number> = { starter: 12.99, growth: 25, pro: 50, scale: 99, legacy: 199, lifetime: 4999 };
+    if (!PLAN_AMT[plan]) return new Response(JSON.stringify({ error: "INVALID_PLAN" }), { status: 400, headers });
+
+    const client = sb();
+    const { data: user } = await client.from("profiles").select("id").eq("email", email).single();
+    if (!user) return new Response(JSON.stringify({ error: "USER_NOT_FOUND" }), { status: 404, headers });
+
+    const res = await fetch("https://api.nowpayments.io/v1/invoice", { // Replace with confirmed provider
+      method: "POST",
+      headers: { "x-api-key": Deno.env.get("CRYPTO_PRIMARY_API_KEY")!, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        price_amount: PLAN_AMT[plan],
+        price_currency: "USD",
+        order_id: `${user.id}-${Date.now()}`,
+        order_description: `Adorrable.dev ${plan} Plan`,
+        ipn_callback_url: `${Deno.env.get("NEXT_PUBLIC_SUPABASE_URL")}/functions/v1/payments-webhook-crypto-primary`,
+        success_url: `${Deno.env.get("NEXT_PUBLIC_SUPABASE_URL")}/dashboard`,
+        cancel_url: `${Deno.env.get("NEXT_PUBLIC_SUPABASE_URL")}/payment/cancel`
+      })
+    });
+    const json = await res.json();
+    if (!res.ok) return new Response(JSON.stringify({ error: "CRYPTO_ERROR", detail: json.message }), { status: 500, headers });
+
+    const { data: payment } = await client.from("payments").insert({
+      user_id: user.id,
+      plan,
+      provider: "crypto-primary",
+      provider_ref: json.invoice_id,
+      amount: PLAN_AMT[plan],
+      currency: "USD",
+      status: "pending",
+      meta: { descriptor: Deno.env.get("COMPANY_BILLING_DESCRIPTOR") || "MYNDAVA*ADORRABLE" }
+    }).select("*").single();
+
+    return new Response(JSON.stringify({ ok: true, payment_url: json.invoice_url, paymentId: payment.id }), { status: 200, headers });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: "SERVER_ERROR", detail: String(e) }), { status: 500, headers });
+  }
+});
+Crypto Webhook:
+
+// /supabase/functions/payments-webhook-crypto-primary/index.ts
+import { corsHeaders } from "../_shared/cors.ts";
+import { sb } from "../_shared/sb.ts";
+import { createHmac } from "https://deno.land/std@0.140.0/node/crypto.ts";
+
+Deno.serve(async (req) => {
+  const headers = corsHeaders(req.headers.get("Origin") || undefined);
+  if (req.method === "OPTIONS") return new Response(null, { headers });
+
+  try {
+    const body = await req.json();
+    const signature = req.headers.get("x-crypto-primary-sig"); // Replace with provider-specific header
+    const expected = createHmac("sha512", Deno.env.get("CRYPTO_PRIMARY_WEBHOOK_SECRET")!).update(JSON.stringify(body)).digest("hex");
+    if (!signature || signature !== expected) {
+      return new Response(JSON.stringify({ error: "INVALID_SIGNATURE" }), { status: 403, headers });
+    }
+
+    if (body.payment_status === "finished" || body.status === "confirmed") {
+      const client = sb();
+      const { data: payment } = await client.from("payments").select("*").eq("provider_ref", body.invoice_id || body.order_id).single();
+      if (payment) {
+        const { data: plan } = await client.from("price_config").select("credits").eq("plan", payment.plan).maybeSingle();
+        if (plan?.credits) {
+          await client.rpc("grant_credits_and_log", {
+            p_user_id: payment.user_id,
+            p_action: "purchase",
+            p_credits: plan.credits,
+            p_meta: { provider: "crypto-primary", paymentId: payment.id }
+          });
+          await client.from("payments").update({ status: "paid", updated_at: new Date().toISOString() }).eq("id", payment.id);
+        }
+      }
+    }
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: "SERVER_ERROR", detail: String(e) }), { status: 500, headers });
+  }
+});
+
+Note: Duplicate for crypto-backup, updating API endpoints and secrets (e.g., Triple-A uses SHA256).
+Local Payment:
+
+// /app/payments/local/page.tsx
+"use client";
+import { useState } from "react";
+
+export default function LocalPayment() {
+  const [email, setEmail] = useState("");
+  const [plan, setPlan] = useState("starter");
+  const [receipt, setReceipt] = useState<File | null>(null);
+  const [error, setError] = useState("");
+
+  async function submit() {
+    if (!email || !plan || !receipt) {
+      setError("Please fill all fields and upload a receipt.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("plan", plan);
+    formData.append("receipt", receipt);
+
+    try {
+      const res = await fetch("/api/payments/local", { method: "POST", body: formData });
+      const json = await res.json();
+      if (!res.ok) {
+        setError(json.error || "Submission failed");
+        return;
+      }
+      alert("Payment submitted. Contact us on WhatsApp to confirm: https://wa.me/2348012345678");
+      setEmail(""); setPlan("starter"); setReceipt(null);
+    } catch {
+      setError("An error occurred. Please try again.");
+    }
+  }
+
+  return (
+    <div className="max-w-md mx-auto p-6 space-y-4">
+      <h1 className="text-xl font-semibold">Local Bank Transfer (Nigeria)</h1>
+      <div className="p-4 bg-gray-100 rounded">
+        <p><strong>Bank:</strong> OPay</p>
+        <p><strong>Account:</strong> 8168158636</p>
+        <p><strong>Note:</strong> Upload receipt and contact <a href="https://wa.me/2348012345678" className="underline">+234 801 234 5678</a>. Credits added within minutes.</p>
+      </div>
+      <input className="border p-2 w-full" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      <select className="border p-2 w-full" value={plan} onChange={(e) => setPlan(e.target.value)}>
+        <option value="starter">Starter (₦12,000)</option>
+        <option value="growth">Growth (₦24,000)</option>
+        <option value="pro">Pro (₦48,000)</option>
+        <option value="scale">Scale (₦96,000)</option>
+        <option value="legacy">Legacy (₦195,000)</option>
+        <option value="lifetime">Lifetime (₦3,999,000)</option>
+      </select>
+      <input type="file" accept="image/*,application/pdf" onChange={(e) => setReceipt(e.target.files?.[0] || null)} />
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+      <button onClick={submit} className="px-3 py-1 bg-black text-white rounded" disabled={!email || !plan || !receipt}>
+        I’ve Paid
+      </button>
+    </div>
+  );
+}
+
+Local Payment API:
+
+// /app/api/payments/local/route.ts
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+export async function POST(req: Request) {
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
+
+  try {
+    const formData = await req.formData();
+    const email = formData.get("email") as string;
+    const plan = formData.get("plan") as string;
+    const receipt = formData.get("receipt") as File;
+
+    if (!email || !plan || !receipt) return NextResponse.json({ error: "INVALID_INPUT" }, { status: 400 });
+
+    const PLAN_AMT: Record<string, number> = { starter: 12000, growth: 24000, pro: 48000, scale: 96000, legacy: 195000, lifetime: 3999000 };
+    if (!PLAN_AMT[plan]) return NextResponse.json({ error: "INVALID_PLAN" }, { status: 400 });
+
+    const { data: user } = await supabase.from("profiles").select("id").eq("email", email).single();
+    if (!user) return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
+
+    const receiptPath = `receipts/${user.id}/${Date.now()}-${receipt.name}`;
+    await supabase.storage.from("payment-receipts").upload(receiptPath, receipt);
+
+    const { data: payment } = await supabase.from("payments").insert({
+      user_id: user.id,
+      plan,
+      provider: "local",
+      provider_ref: receiptPath,
+      amount: PLAN_AMT[plan],
+      currency: "NGN",
+      status: "pending",
+      meta: { descriptor: process.env.COMPANY_BILLING_DESCRIPTOR || "MYNDAVA*ADORRABLE", whatsapp: "https://wa.me/2348012345678" }
+    }).select("*").single();
+
+    return NextResponse.json({ ok: true, message: "Payment submitted for verification", paymentId: payment.id }, { status: 200 });
+  } catch (e) {
+    return NextResponse.json({ error: "SERVER_ERROR", detail: String(e) }, { status: 500 });
+  }
+}
+
+🗄️ Supabase SQL Schema
+
+CREATE TABLE profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE POLICY "Profiles viewable by self" ON profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Profiles deletable by self" ON profiles FOR DELETE USING (auth.uid() = id);
+
+CREATE TABLE templates (
+  id SERIAL PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  content JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  region TEXT,
+  cached BOOLEAN DEFAULT FALSE
+);
+CREATE INDEX idx_templates_user_id ON templates(user_id);
+CREATE POLICY "Templates viewable by owner" ON templates FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Templates editable by owner" ON templates FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Templates creatable by owner" ON templates FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE TABLE credits (
+  user_id UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
+  balance INT DEFAULT 0,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE POLICY "Credits viewable by self" ON credits FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Credits updatable by system" ON credits FOR UPDATE USING (FALSE);
+
+CREATE TABLE credit_logs (
+  id SERIAL PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  action TEXT NOT NULL,
+  credits INT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  meta JSONB
+);
+CREATE INDEX idx_credit_logs_user_id ON credit_logs(user_id);
+CREATE POLICY "Credit logs viewable by self" ON credit_logs FOR SELECT USING (auth.uid() = user_id);
+
+CREATE TABLE payments (
+  id SERIAL PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  plan TEXT NOT NULL,
+  provider TEXT NOT NULL,
+  provider_ref TEXT,
+  amount FLOAT NOT NULL,
+  currency TEXT NOT NULL,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ,
+  meta JSONB
+);
+CREATE INDEX idx_payments_user_id ON payments(user_id);
+CREATE POLICY "Payments viewable by self" ON payments FOR SELECT USING (auth.uid() = user_id);
+
+CREATE TABLE price_config (
+  plan TEXT PRIMARY KEY,
+  credits INT NOT NULL,
+  amount_ngn FLOAT NOT NULL,
+  amount_usd FLOAT NOT NULL
+);
+INSERT INTO price_config (plan, credits, amount_ngn, amount_usd) VALUES
+  ('starter', 22, 12000, 12.99),
+  ('growth', 110, 24000, 25),
+  ('pro', 250, 48000, 50),
+  ('scale', 500, 96000, 99),
+  ('legacy', 1250, 195000, 199),
+  ('lifetime', 0, 3999000, 4999);
+
+CREATE TABLE site_settings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  key TEXT UNIQUE NOT NULL,
+  value JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE POLICY "Site settings service-role only" ON site_settings FOR ALL USING (FALSE);
+INSERT INTO site_settings (key, value) VALUES
+  ('company', '{"name":"Myndava AI Systems LLC","ein":"981878539","fincen_id":"2000-0733-1226","billing_descriptor":"MYNDAVA*ADORRABLE"}');
+
+CREATE TABLE signup_counters (
+  date DATE PRIMARY KEY,
+  count INT NOT NULL DEFAULT 0
+);
+CREATE INDEX idx_signup_counters_date ON signup_counters(date);
+CREATE POLICY "Signup counters service-role only" ON signup_counters FOR ALL USING (FALSE);
+
+CREATE TABLE waitlist (
+  id SERIAL PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE POLICY "Waitlist public for insert" ON waitlist FOR INSERT WITH CHECK (TRUE);
+
+CREATE TABLE audit_logs (
+  id SERIAL PRIMARY KEY,
+  action TEXT NOT NULL,
+  user_id UUID REFERENCES profiles(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  meta JSONB
+);
+CREATE POLICY "Audit logs service-role only" ON audit_logs FOR ALL USING (FALSE);
+
+CREATE OR REPLACE FUNCTION grant_credits_and_log(p_user_id UUID, p_action TEXT, p_credits INT, p_meta JSONB)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE credits SET balance = balance + p_credits, updated_at = NOW() WHERE user_id = p_user_id;
+  INSERT INTO credit_logs (user_id, action, credits, meta) VALUES (p_user_id, p_action, p_credits, p_meta);
+END;
+$$ LANGUAGE plpgsql;
+
+🛡️ Compliance
+•  NDPR/GDPR: Legal pages, cookie banners, /api/export, /api/delete-account
+•  hCaptcha: On signup/waitlist, verified via waitlist-join
+•  RLS: Enforced on all tables
+•  Logs: Activity (30 days), credit logs (1 year)
+•  Consent: react-cookie-consent for Clarity/TikTok Pixel
+
+📈 Ops
+•  Analytics: Microsoft Clarity, TikTok Pixel
+•  Alerts: Email admin if API spend > $50/day
+•  Reconciliation: Paystack, crypto providers, manual local payments
+•  Cron: credit-expiry, lifetime top-ups
+Reconciliation Script:
+
+// /scripts/reconcile-payments.ts
+import { createClient } from "@supabase/supabase-js";
+
+const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
+async function reconcilePaystack() {
+  const { data: pays } = await sb.from("payments").select("*").eq("provider", "paystack").order("created_at", { ascending: false }).limit(500);
+  if (!pays) return;
+  for (const p of pays) {
+    if (!p.provider_ref) continue;
+    const res = await fetch(`https://api.paystack.co/transaction/verify/${p.provider_ref}`, {
+      headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` }
+    });
+    const json = await res.json();
+    if (json.data.status === "success" && p.status !== "paid") {
+      await sb.from("payments").update({ status: "paid", updated_at: new Date().toISOString() }).eq("id", p.id);
+      const { data: logs } = await sb.from("credit_logs").select("id").eq("user_id", p.user_id).contains("meta", { paymentId: p.id }).limit(1);
+      if (!logs?.length) {
+        const { data: plan } = await sb.from("price_config").select("credits").eq("plan", p.plan).maybeSingle();
+        if (plan?.credits) {
+          await sb.rpc("grant_credits_and_log", {
+            p_user_id: p.user_id,
+            p_action: "purchase",
+            p_credits: plan.credits,
+            p_meta: { provider: "paystack", paymentId: p.id }
+          });
+        }
+      }
+    }
+  }
+}
+
+async function reconcileCrypto(provider: "crypto-primary" | "crypto-backup", apiUrl: string, apiKey: string) {
+  const { data: pays } = await sb.from("payments").select("*").eq("provider", provider).order("created_at", { ascending: false }).limit(500);
+  if (!pays) return;
+  for (const p of pays) {
+    if (!p.provider_ref) continue;
+    const res = await fetch(`${apiUrl}/${p.provider_ref}`, { headers: { "x-api-key": apiKey } });
+    const json = await res.json();
+    if ((json.payment_status === "finished" || json.status === "confirmed") && p.status !== "paid") {
+      await sb.from("payments").update({ status: "paid", updated_at: new Date().toISOString() }).eq("id", p.id);
+      const { data: logs } = await sb.from("credit_logs").select("id").eq("user_id", p.user_id).contains("meta", { paymentId: p.id }).limit(1);
+      if (!logs?.length) {
+        const { data: plan } = await sb.from("price_config").select("credits").eq("plan", p.plan).maybeSingle();
+        if (plan?.credits) {
+          await sb.rpc("grant_credits_and_log", {
+            p_user_id: p.user_id,
+            p_action: "purchase",
+            p_credits: plan.credits,
+            p_meta: { provider, paymentId: p.id }
+          });
+        }
+      }
+    }
+  }
+}
+
+async function reconcileLocal() {
+  // Manual via admin dashboard
+}
+
+async function main() {
+  await Promise.all([
+    reconcilePaystack(),
+    reconcileCrypto("crypto-primary", "https://api.nowpayments.io/v1/payment", process.env.CRYPTO_PRIMARY_API_KEY!),
+    reconcileCrypto("crypto-backup", "https://api.triple-a.io/api/v2/payment", process.env.CRYPTO_BACKUP_API_KEY!),
+    reconcileLocal()
+  ]);
+  console.log("Reconciliation complete");
+}
+
+main().catch(err => { console.error(err); process.exit(1); });
+
+ Deployment Workflow
+
+1.  Create GitHub repo, push code.
+2.  Supabase: Run migrations (supabase db push), deploy functions:
+
+supabase functions deploy templates-get credits-deduct waitlist-join credit-expiry image-generate redeploy-site payments-init-paystack payments-init-crypto-primary payments-init-crypto-backup payments-init-local payments-webhook-paystack payments-webhook-crypto-primary payments-webhook-crypto-backup payments-status data-export admin-update-price health
+
+3.  Vercel: Connect repo, set .env, 
+
+npm install
+npm run build
+vercel deploy --prod
+
+4.  Test Flow:
+	•  Signup → Paystack/Crypto/Local → Credits → Template → Legal pages (tagline) → Widget
+	•  Commands:
+
+# Local Payment
+curl -X POST "${NEXT_PUBLIC_SUPABASE_URL}/functions/v1/payments-init-local" -F "email=test@example.com" -F "plan=starter" -F "receipt=@/path/to/receipt.png"
+# Paystack
+curl -X POST "${NEXT_PUBLIC_SUPABASE_URL}/functions/v1/payments-init-paystack" -H "Content-Type: application/json" -d '{"email":"test@example.com","plan":"starter"}'
+# Crypto Primary
+curl -X POST "${NEXT_PUBLIC_SUPABASE_URL}/functions/v1/payments-init-crypto-primary" -H "Content-Type: application/json" -d '{"email":"test@example.com","plan":"starter"}'
+# Crypto Backup
+curl -X POST "${NEXT_PUBLIC_SUPABASE_URL}/functions/v1/payments-init-crypto-backup" -H "Content-Type: application/json" -d '{"email":"test@example.com","plan":"starter"}'
+# Status
+curl -X POST "${NEXT_PUBLIC_SUPABASE_URL}/functions/v1/payments-status" -H "Content-Type: application/json" -d '{"paymentId":1}'
+# Webhooks
+curl -X POST "${NEXT_PUBLIC_SUPABASE_URL}/functions/v1/payments-webhook-paystack" -H "x-paystack-signature: SHA512-HEX" -H "Content-Type: application/json" -d '{"event":"charge.success","data":{"reference":"test-ref","status":"success"}}'
+curl -X POST "${NEXT_PUBLIC_SUPABASE_URL}/functions/v1/payments-webhook-crypto-primary" -H "x-crypto-primary-sig: SHA512-HEX" -H "Content-Type: application/json" -d '{"payment_status":"finished","invoice_id":"test-id"}'
+curl -X POST "${NEXT_PUBLIC_SUPABASE_URL}/functions/v1/payments-webhook-crypto-backup" -H "x-crypto-backup-sig: SHA256-HEX" -H "Content-Type: application/json" -d '{"status":"confirmed","order_id":"test-id"}'
+
+🔑 ENV Secrets
+
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+OPENAI_API_KEY=
+PAYSTACK_PUBLIC_KEY=
+PAYSTACK_SECRET_KEY=
+PAYSTACK_WEBHOOK_SECRET=
+CRYPTO_PRIMARY_API_KEY= # e.g., NOWPAYMENTS_API_KEY
+CRYPTO_PRIMARY_WEBHOOK_SECRET= # e.g., NOWPAYMENTS_IPN_SECRET
+CRYPTO_BACKUP_API_KEY= # e.g., TRIPLEA_API_KEY
+CRYPTO_BACKUP_WEBHOOK_SECRET= # e.g., TRIPLEA_WEBHOOK_SECRET
+COMPANY_BILLING_DESCRIPTOR=MYNDAVA*ADORRABLE
+NEXT_PUBLIC_TIKTOK_PIXEL_ID=
+NEXT_PUBLIC_CLARITY_PROJECT_ID=
+CRISP_WEBSITE_ID=
+HCAPTCHA_SITEKEY=
+HCAPTCHA_SECRET=
+
+📄 Legal Pages (abbreviated)
+/app/privacy.mdx
+
+# Privacy Policy
+_Last updated: August 2025_
+**Adorrable.dev** by **Myndava AI Systems LLC** respects your privacy...
+<footer>Adorrable.dev — Made for everyone, with a touch of Africa. 🌍 Operated by Myndava AI Systems LLC</footer>
+
+/app/refunds.mdx
+
+# Refund Policy
+_Last updated: August 2025_
+Refunds for **unused credits** within **7 days**...
+<footer>Adorrable.dev — Made for everyone, with a touch of Africa. 🌍 Operated by Myndava AI Systems LLC</footer>
+
+✅ User-Facing Copy
+
+Adorrable.dev — AI website builder with culturally-intelligent templates. Cache-fast, credit-based, one-click hosting.
+•  Starter ($12.99): 22 credits + 1 domain
+•  Growth/Pro/Scale/Legacy: More credits
+•  Lifetime Co-Founder: $4,999 (10 slots)
+•  Free trial: 4 credits (100/day cap)
+
