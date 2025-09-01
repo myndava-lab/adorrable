@@ -675,73 +675,68 @@ export default function Home() {
 
   // Stable placeholder typewriter effect
   useEffect(() => {
+    // Clear existing timers
+    if (placeholderTimerRef.current) {
+      clearTimeout(placeholderTimerRef.current);
+    }
+    if (cursorTimerRef.current) {
+      clearInterval(cursorTimerRef.current);
+    }
+
     if (!mounted) return;
 
-    try {
-      // Clear existing timers
+    const currentMessages = placeholderMessages[language] || placeholderMessages.English;
+    let messageIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let currentMessage = currentMessages && currentMessages.length > 0
+      ? currentMessages[messageIndex % currentMessages.length]
+      : "Create something amazing";
+
+    setPlaceholderText("");
+
+    const typePlaceholder = () => {
+      if (!isDeleting) {
+        if (charIndex < currentMessage.length) {
+          setPlaceholderText(currentMessage.slice(0, charIndex + 1));
+          charIndex++;
+          placeholderTimerRef.current = setTimeout(typePlaceholder, 80);
+        } else {
+          placeholderTimerRef.current = setTimeout(() => {
+            isDeleting = true;
+            typePlaceholder();
+          }, 3000);
+        }
+      } else {
+        if (charIndex > 0) {
+          setPlaceholderText(currentMessage.slice(0, charIndex - 1));
+          charIndex--;
+          placeholderTimerRef.current = setTimeout(typePlaceholder, 40);
+        } else {
+          isDeleting = false;
+          messageIndex = (messageIndex + 1) % currentMessages.length;
+          currentMessage = currentMessages[messageIndex];
+          placeholderTimerRef.current = setTimeout(typePlaceholder, 500);
+        }
+      }
+    };
+
+    // Start the placeholder animation
+    placeholderTimerRef.current = setTimeout(typePlaceholder, 500);
+
+    // Start cursor blinking
+    cursorTimerRef.current = setInterval(() => {
+      setShowCursor((prev) => !prev);
+    }, 530);
+
+    return () => {
       if (placeholderTimerRef.current) {
         clearTimeout(placeholderTimerRef.current);
       }
       if (cursorTimerRef.current) {
         clearInterval(cursorTimerRef.current);
       }
-
-      const currentMessages = placeholderMessages[language] || placeholderMessages.English;
-      let messageIndex = 0;
-      let charIndex = 0;
-      let isDeleting = false;
-      let currentMessage = currentMessages && currentMessages.length > 0
-        ? currentMessages[messageIndex % currentMessages.length]
-        : "Create something amazing";
-
-      setPlaceholderText("");
-
-      const typePlaceholder = () => {
-        if (!isDeleting) {
-          if (charIndex < currentMessage.length) {
-            setPlaceholderText(currentMessage.slice(0, charIndex + 1));
-            charIndex++;
-            placeholderTimerRef.current = setTimeout(typePlaceholder, 80);
-          } else {
-            placeholderTimerRef.current = setTimeout(() => {
-              isDeleting = true;
-              typePlaceholder();
-            }, 3000);
-          }
-        } else {
-          if (charIndex > 0) {
-            setPlaceholderText(currentMessage.slice(0, charIndex - 1));
-            charIndex--;
-            placeholderTimerRef.current = setTimeout(typePlaceholder, 40);
-          } else {
-            isDeleting = false;
-            messageIndex = (messageIndex + 1) % currentMessages.length;
-            currentMessage = currentMessages[messageIndex];
-            placeholderTimerRef.current = setTimeout(typePlaceholder, 500);
-          }
-        }
-      };
-
-      // Start the placeholder animation
-      placeholderTimerRef.current = setTimeout(typePlaceholder, 500);
-
-      // Start cursor blinking
-      cursorTimerRef.current = setInterval(() => {
-        setShowCursor((prev) => !prev);
-      }, 530);
-
-      return () => {
-        if (placeholderTimerRef.current) {
-          clearTimeout(placeholderTimerRef.current);
-        }
-        if (cursorTimerRef.current) {
-          clearInterval(cursorTimerRef.current);
-        }
-      };
-    } catch (err) {
-      console.error('Error in placeholder effect:', err);
-      setError('Failed to load placeholder text');
-    }
+    };
   }, [mounted, language]);
 
   // Enter key handler
@@ -868,7 +863,30 @@ export default function Home() {
     };
   }, [isResizing]);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            width: "40px",
+            height: "40px",
+            border: "4px solid rgba(255,255,255,0.3)",
+            borderTop: "4px solid #10B981",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite",
+          }}
+        />
+      </div>
+    );
+  }
 
   // Render different views based on mode
   const renderContent = () => {
@@ -2247,19 +2265,13 @@ export default function Home() {
 
   // Update language for existing messages when language changes
   useEffect(() => {
-    try {
-      console.log('Language:', language)
-      const messages = placeholderMessages[language] || placeholderMessages.English
-      console.log('Current messages:', messages)
-      console.log('All placeholder messages:', placeholderMessages)
-      
-      // Update language for existing messages
-      setChatMessages(prev => prev.map(msg => ({...msg, language: language})))
-      setError(null)
-    } catch (err) {
-      console.error('Error in language effect:', err)
-      setError('Failed to load language content')
-    }
+    console.log('Language:', language)
+    const messages = placeholderMessages[language] || placeholderMessages.English
+    console.log('Current messages:', messages)
+    console.log('All placeholder messages:', placeholderMessages)
+    
+    // Update language for existing messages
+    setChatMessages(prev => prev.map(msg => ({...msg, language: language})))
   }, [language]);
 
 
