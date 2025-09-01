@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { createClient } from "@supabase/supabase-js";
 import AuthModal from "../components/AuthModal";
@@ -63,7 +63,9 @@ export default function Home() {
   const [showPricing, setShowPricing] = useState(false);
   const [showCommunityModal, setShowCommunityModal] = useState(false);
   const [selectedCommunityTemplate, setSelectedCommunityTemplate] = useState<CommunityTemplate | null>(null);
-  const [communityTemplates] = useState<CommunityTemplate[]>([
+
+  // Static community templates - memoized to prevent recreation
+  const communityTemplates = useMemo<CommunityTemplate[]>(() => [
     {
       id: "1",
       title: "Modern Portfolio Website",
@@ -212,7 +214,7 @@ export default function Home() {
 </body>
 </html>`
     }
-  ]);
+  ], []);
 
   const previewRef = useRef<HTMLIFrameElement>(null);
 
@@ -344,35 +346,36 @@ export default function Home() {
     setShowCommunityModal(true);
   }, []);
 
-  const CommunityTemplateModal = useCallback(() => {
+  const handleCloseCommunityModal = useCallback(() => {
+    setShowCommunityModal(false);
+    setSelectedCommunityTemplate(null);
+  }, []);
+
+  const handleUseTemplate = useCallback(() => {
+    if (selectedCommunityTemplate) {
+      setGeneratedCode(selectedCommunityTemplate.code);
+      setShowPreview(true);
+      handleCloseCommunityModal();
+    }
+  }, [selectedCommunityTemplate, handleCloseCommunityModal]);
+
+  const handleDownloadTemplate = useCallback(() => {
+    if (selectedCommunityTemplate) {
+      const blob = new Blob([selectedCommunityTemplate.code], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${selectedCommunityTemplate.title.replace(/[^a-z0-9]/gi, "_")}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  }, [selectedCommunityTemplate]);
+
+  // Community Template Modal - Memoized to prevent re-renders
+  const CommunityTemplateModal = useMemo(() => {
     if (!showCommunityModal || !selectedCommunityTemplate) return null;
-
-    const handleCloseModal = useCallback(() => {
-      setShowCommunityModal(false);
-      setSelectedCommunityTemplate(null);
-    }, []);
-
-    const handleUseTemplate = useCallback(() => {
-      if (selectedCommunityTemplate) {
-        setGeneratedCode(selectedCommunityTemplate.code);
-        setShowPreview(true);
-        handleCloseModal();
-      }
-    }, [selectedCommunityTemplate, handleCloseModal]);
-
-    const handleDownloadTemplate = useCallback(() => {
-      if (selectedCommunityTemplate) {
-        const blob = new Blob([selectedCommunityTemplate.code], { type: "text/html" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${selectedCommunityTemplate.title.replace(/[^a-z0-9]/gi, "_")}.html`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-    }, [selectedCommunityTemplate]);
 
     return (
       <div
@@ -389,7 +392,7 @@ export default function Home() {
           zIndex: 1000,
           padding: "20px",
         }}
-        onClick={handleCloseModal}
+        onClick={handleCloseCommunityModal}
       >
         <div
           style={{
@@ -452,7 +455,7 @@ export default function Home() {
               </div>
             </div>
             <button
-              onClick={handleCloseModal}
+              onClick={handleCloseCommunityModal}
               style={{
                 background: "none",
                 border: "none",
@@ -625,7 +628,7 @@ export default function Home() {
         </div>
       </div>
     );
-  }, [showCommunityModal, selectedCommunityTemplate]);
+  }, [showCommunityModal, selectedCommunityTemplate, handleCloseCommunityModal, handleUseTemplate, handleDownloadTemplate]);
 
   // Pricing Modal Component
   const PricingModal = () => (
@@ -1259,100 +1262,6 @@ export default function Home() {
     );
   };
 
-  const renderChatView = () => (
-    <main
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#000",
-        color: "white",
-        padding: "24px",
-        fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
-      }}
-    >
-      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-        {renderUserSection()}
-        {renderInputSection()}
-        {renderPreview()}
-        {renderCommunityTemplates()}
-      </div>
-
-      {/* Inspirational Widget */}
-      <InspirationalWidget />
-
-      {/* Modals */}
-      {showAuthModal && (
-        <AuthModal
-          onClose={() => setShowAuthModal(false)}
-          onSuccess={() => setShowAuthModal(false)}
-        />
-      )}
-      {showPricing && <PricingModal />}
-      <CommunityTemplateModal />
-
-      {/* Simple Footer */}
-      <div
-        style={{
-          marginTop: "60px",
-          textAlign: "center",
-          padding: "40px 24px",
-          borderTop: "1px solid rgba(255,255,255,0.1)",
-          color: "rgba(255,255,255,0.6)",
-          fontSize: "14px",
-        }}
-      >
-        <div style={{ marginBottom: "20px" }}>
-          <a
-            href="#"
-            style={{
-              color: "inherit",
-              textDecoration: "none",
-              margin: "0 16px",
-            }}
-          >
-            About
-          </a>
-          <button
-            onClick={() => setShowPricing(true)}
-            style={{
-              background: "none",
-              border: "none",
-              color: "inherit",
-              textDecoration: "none",
-              margin: "0 16px",
-              cursor: "pointer",
-              fontSize: "14px",
-            }}
-          >
-            Pricing
-          </button>
-          <a
-            href="#"
-            style={{
-              color: "inherit",
-              textDecoration: "none",
-              margin: "0 16px",
-            }}
-          >
-            Templates
-          </a>
-          <a
-            href="#"
-            style={{
-              color: "inherit",
-              textDecoration: "none",
-              margin: "0 16px",
-            }}
-          >
-            Support
-          </a>
-        </div>
-        <div>
-          © 2025 Adorrable.dev - Made for everyone with a touch of Africa 🌍
-        </div>
-      </div>
-    </main>
-  );
-
   if (!mounted) {
     return (
       <div
@@ -1371,7 +1280,98 @@ export default function Home() {
 
   return (
     <>
-      {renderChatView()}
+      <main
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "#000",
+          color: "white",
+          padding: "24px",
+          fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
+        }}
+      >
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          {renderUserSection()}
+          {renderInputSection()}
+          {renderPreview()}
+          {renderCommunityTemplates()}
+        </div>
+
+        {/* Inspirational Widget */}
+        <InspirationalWidget />
+
+        {/* Modals */}
+        {showAuthModal && (
+          <AuthModal
+            isOpen={showAuthModal}
+            onClose={() => setShowAuthModal(false)}
+            onSuccess={() => setShowAuthModal(false)}
+          />
+        )}
+        {showPricing && <PricingModal />}
+        {CommunityTemplateModal}
+
+        {/* Simple Footer */}
+        <div
+          style={{
+            marginTop: "60px",
+            textAlign: "center",
+            padding: "40px 24px",
+            borderTop: "1px solid rgba(255,255,255,0.1)",
+            color: "rgba(255,255,255,0.6)",
+            fontSize: "14px",
+          }}
+        >
+          <div style={{ marginBottom: "20px" }}>
+            <a
+              href="#"
+              style={{
+                color: "inherit",
+                textDecoration: "none",
+                margin: "0 16px",
+              }}
+            >
+              About
+            </a>
+            <button
+              onClick={() => setShowPricing(true)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "inherit",
+                textDecoration: "none",
+                margin: "0 16px",
+                cursor: "pointer",
+                fontSize: "14px",
+              }}
+            >
+              Pricing
+            </button>
+            <a
+              href="#"
+              style={{
+                color: "inherit",
+                textDecoration: "none",
+                margin: "0 16px",
+              }}
+            >
+              Templates
+            </a>
+            <a
+              href="#"
+              style={{
+                color: "inherit",
+                textDecoration: "none",
+                margin: "0 16px",
+              }}
+            >
+              Support
+            </a>
+          </div>
+          <div>
+            © 2025 Adorrable.dev - Made for everyone with a touch of Africa 🌍
+          </div>
+        </div>
+      </main>
       <CrispChat />
     </>
   );
