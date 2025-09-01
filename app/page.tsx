@@ -101,6 +101,7 @@ export default function Home() {
   const [leftPanelWidth, setLeftPanelWidth] = useState(50);
   const [isResizing, setIsResizing] = useState(false);
   const [activeTab, setActiveTab] = useState<"chat" | "code">("chat");
+  const [showPricing, setShowPricing] = useState(false);
 
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
@@ -111,9 +112,9 @@ export default function Home() {
 
   const languages: Language[] = [
     "English",
-    "French",
+    "French", 
     "Swahili",
-    "Pidgin English",
+    "Pidgin",
   ];
   const fullText = "Build something with Adorrable";
 
@@ -303,20 +304,8 @@ export default function Home() {
     setGeneratedTemplate(null);
 
     try {
-      // Deduct credits first
-      const creditResponse = await fetch('/api/credits', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
-        },
-        body: JSON.stringify({
-          amount: 1,
-          reason: 'Website generation'
-        })
-      });
-
-      if (!creditResponse.ok) {
+      // For now, just check credits locally (backend integration ready)
+      if (credits <= 0) {
         throw new Error('Insufficient credits');
       }
 
@@ -907,16 +896,20 @@ export default function Home() {
           >
             About
           </a>
-          <a
-            href="#"
+          <button
+            onClick={() => setShowPricing(true)}
             style={{
+              background: "none",
+              border: "none",
               color: "inherit",
               textDecoration: "none",
               margin: "0 16px",
+              cursor: "pointer",
+              fontSize: "14px",
             }}
           >
             Pricing
-          </a>
+          </button>
           <a
             href="#"
             style={{
@@ -1453,6 +1446,134 @@ export default function Home() {
     </div>
   );
 
+  // Pricing Modal Component
+  const PricingModal = () => (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: "rgba(0,0,0,0.8)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+      }}
+      onClick={() => setShowPricing(false)}
+    >
+      <div
+        style={{
+          background: "linear-gradient(135deg, #1e293b, #334155)",
+          borderRadius: "20px",
+          padding: "32px",
+          maxWidth: "600px",
+          width: "90%",
+          border: "1px solid rgba(255,255,255,0.1)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2
+          style={{
+            color: "white",
+            fontSize: "24px",
+            marginBottom: "20px",
+            textAlign: "center",
+          }}
+        >
+          Choose Your Plan
+        </h2>
+        
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
+          {[
+            { name: "Starter", credits: 50, price: "$9.99", popular: false },
+            { name: "Creator", credits: 200, price: "$29.99", popular: true },
+            { name: "Business", credits: 500, price: "$59.99", popular: false },
+          ].map((plan) => (
+            <div
+              key={plan.name}
+              style={{
+                background: plan.popular ? "linear-gradient(135deg, #10B981, #059669)" : "rgba(255,255,255,0.05)",
+                border: plan.popular ? "2px solid #10B981" : "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "16px",
+                padding: "24px",
+                textAlign: "center",
+                position: "relative",
+              }}
+            >
+              {plan.popular && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "-10px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "#10B981",
+                    color: "white",
+                    padding: "4px 16px",
+                    borderRadius: "20px",
+                    fontSize: "12px",
+                    fontWeight: "600",
+                  }}
+                >
+                  POPULAR
+                </div>
+              )}
+              
+              <h3 style={{ color: "white", fontSize: "20px", marginBottom: "8px" }}>
+                {plan.name}
+              </h3>
+              <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "14px", marginBottom: "16px" }}>
+                {plan.credits} Credits
+              </div>
+              <div style={{ color: "white", fontSize: "32px", fontWeight: "700", marginBottom: "20px" }}>
+                {plan.price}
+              </div>
+              
+              <button
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  background: plan.popular ? "white" : "linear-gradient(135deg, #10B981, #059669)",
+                  color: plan.popular ? "#10B981" : "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  // Handle purchase
+                  console.log(`Purchasing ${plan.name} plan`);
+                  setShowPricing(false);
+                }}
+              >
+                Get Started
+              </button>
+            </div>
+          ))}
+        </div>
+        
+        <button
+          onClick={() => setShowPricing(false)}
+          style={{
+            position: "absolute",
+            top: "16px",
+            right: "16px",
+            background: "none",
+            border: "none",
+            color: "rgba(255,255,255,0.5)",
+            fontSize: "24px",
+            cursor: "pointer",
+          }}
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+
   const renderPreviewView = () => (
     <div
       style={{
@@ -1838,9 +1959,28 @@ export default function Home() {
             marginTop: "16px",
             color: "rgba(255,255,255,0.5)",
             fontSize: "12px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
           }}
         >
-          {credits} credits remaining
+          <span>{credits} credits remaining</span>
+          <button
+            onClick={() => setShowPricing(true)}
+            style={{
+              background: "linear-gradient(135deg, #10B981, #059669)",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              padding: "4px 8px",
+              fontSize: "10px",
+              fontWeight: "500",
+              cursor: "pointer",
+            }}
+          >
+            Buy More
+          </button>
         </div>
       )}
     </div>
@@ -1937,6 +2077,9 @@ export default function Home() {
       `}</style>
 
       {renderContent()}
+      
+      {/* Pricing Modal */}
+      {showPricing && <PricingModal />}
     </div>
   );
 }
