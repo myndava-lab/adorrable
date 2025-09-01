@@ -1,0 +1,158 @@
+Create .env.local with:
+
+NEXT_PUBLIC_CRISP_WEBSITE_ID=YOUR_CRISP_SITE_ID
+
+
+Add components/ChatCrisp.tsx:
+
+"use client";
+import { useEffect } from "react";
+
+declare global {
+  interface Window {
+    $crisp: any[];
+    CRISP_WEBSITE_ID: string;
+  }
+}
+
+export default function ChatCrisp() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.$crisp) return;
+
+    window.$crisp = [];
+    window.CRISP_WEBSITE_ID =
+      process.env.NEXT_PUBLIC_CRISP_WEBSITE_ID || "";
+
+    (function () {
+      const d = document;
+      const s = d.createElement("script");
+      s.src = "https://client.crisp.chat/l.js";
+      s.async = true;
+      d.getElementsByTagName("head")[0].appendChild(s);
+    })();
+  }, []);
+  return null;
+}
+
+
+Inject into the root layout so it loads everywhere. Open app/layout.tsx and add:
+
+import ChatCrisp from "@/components/ChatCrisp";
+
+
+Then inside the returned JSX (just before </body>):
+
+<ChatCrisp />
+
+
+Ensure NEXT_PUBLIC_CRISP_WEBSITE_ID is set in Replit Secrets and Vercel Project Env.
+components/SuccessScripture.tsx with this
+"use client";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+type Item = { text: string; source: string };
+
+const success: Item[] = [
+  { text: "Dream big. Start small. Act now.", source: "— Unknown" },
+  { text: "Done is better than perfect.", source: "— Sheryl Sandberg" },
+  { text: "Focus on users and all else follows.", source: "— Google mantra" },
+];
+
+const scripture: Item[] = [
+  { text: "I can do all things through Christ who strengthens me.", source: "— Philippians 4:13" },
+  { text: "Commit to the LORD whatever you do, and He will establish your plans.", source: "— Proverbs 16:3" },
+  { text: "For I know the plans I have for you… a future and a hope.", source: "— Jeremiah 29:11" },
+];
+
+export default function SuccessScripture() {
+  const [i, setI] = useState(0);
+  const [hover, setHover] = useState(false);
+  const intervalRef = useRef<number | null>(null);
+
+  // Respect reduced motion
+  const reduced = useMemo(
+    () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches,
+    []
+  );
+
+  useEffect(() => {
+    if (hover || reduced) return;
+    intervalRef.current = window.setInterval(
+      () => setI((n) => (n + 1) % success.length),
+      9000 // unhurried cadence
+    );
+    return () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
+    };
+  }, [hover, reduced]);
+
+  return (
+    <div
+      className="mx-auto mt-10 max-w-3xl rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      aria-live="polite"
+    >
+      <div className="grid gap-4 md:grid-cols-2">
+        <FadeCard key={`s-${i}`} title="Success">
+          <p className="text-[15px] leading-relaxed text-white/85">{success[i].text}</p>
+          <p className="mt-2 text-xs text-white/55">{success[i].source}</p>
+        </FadeCard>
+
+        <FadeCard key={`b-${i}`} title="Scripture">
+          <p className="text-[15px] leading-relaxed text-white/85">{scripture[i].text}</p>
+          <p className="mt-2 text-xs text-white/55">{scripture[i].source}</p>
+        </FadeCard>
+      </div>
+
+      {/* calm, tiny progress dots */}
+      <div className="mt-4 flex justify-center gap-2">
+        {[0, 1, 2].map((n) => (
+          <span
+            key={n}
+            className={[
+              "h-1.5 w-1.5 rounded-full transition-opacity",
+              n === i ? "bg-white/70 opacity-100" : "bg-white/30 opacity-60"
+            ].join(" ")}
+            aria-hidden
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FadeCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="group rounded-xl bg-black/25 p-4 ring-1 ring-white/10 transition-colors">
+      <div className="mb-2 text-xs uppercase tracking-wide text-white/50">{title}</div>
+      <div className="fade-swap">{children}</div>
+    </div>
+  );
+}
+
+Add a tiny CSS helper (calm fade)
+
+Add this to styles/globals.css (or your global stylesheet):
+
+/* Calm crossfade for quote swaps */
+.fade-swap {
+  opacity: 1;
+  transition: opacity 600ms ease-out;
+}
+.fade-swap > * {
+  /* ensure children don't jump */
+  transition: color 300ms ease-out;
+}
+
+
+Tailwind already handles most styling. The .fade-swap class gives a gentle cross-fade as the key changes. We keep colors muted (/85, /55) and cadence at 9s. Rotation pauses on hover and respects prefers-reduced-motion.
+
+Place <SuccessScripture /> where you had it before (under the hero card). If you want it even calmer, reduce the contrast a touch more (e.g., text-white/75) or increase the interval to 12000.

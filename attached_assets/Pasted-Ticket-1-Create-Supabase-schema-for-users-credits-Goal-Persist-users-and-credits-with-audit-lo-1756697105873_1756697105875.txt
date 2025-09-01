@@ -1,0 +1,887 @@
+Ticket 1 — Create Supabase schema for users & credits
+
+Goal: Persist users and credits with audit logs.
+
+Do:
+
+In Supabase SQL editor, run:
+
+-- USERS
+create table if not exists profiles (
+  id uuid primary key default gen_random_uuid(),
+  email text unique,
+  display_name text,
+  credits int not null default 0,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- CREDITS LOG
+create table if not exists credit_logs (
+  id bigserial primary key,
+  profile_id uuid references profiles(id) on delete cascade,
+  delta int not null,                 -- +10 or -1 etc
+  reason text not null,               -- "purchase", "generation"
+  balance_after int not null,
+  meta jsonb default '{}'::jsonb,
+  created_at timestamptz default now()
+);
+
+-- helpful index
+create index if not exists credit_logs_profile_id_idx on credit_logs(profile_id);
+
+-- RLS
+alter table profiles enable row level security;
+alter table credit_logs enable row level security;
+
+-- Policies (email-based auth using Supabase Auth)
+create policy "read own profile" on profiles
+  for select using (auth.uid() = id);
+
+create policy "update own profile" on profiles
+  for update using (auth.uid() = id);
+
+create policy "insert own profile" on profiles
+  for insert with check (auth.uid() = id);
+
+create policy "read own logs" on credit_logs
+  for select using (auth.uid() = profile_id);
+
+create policy "insert own logs" on credit_logs
+  for insert with check (auth.uid() = profile_id);
+
+
+Commit message: db: profiles + credit_logs tables with RLS
+
+Ticket 2 — Environment variables & Supabase server client
+
+Goal: Centralized Supabase server client.
+
+Edit .env.local (Replit “Secrets”)
+
+NEXT_PUBLIC_SUPABASE_URL=YOUR_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE
+OPENAI_API_KEY=YOUR_OPENAI_KEY   # or CLAUDE key later
+
+
+Add lib/supabaseServer.ts
+
+import { cookies } from 'next/headers';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+
+export function createServerSupabase() {
+  const cookieStore = cookies();
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) { return cookieStore.get(name)?.value; },
+        set(name: string, value: string, options: CookieOptions) { cookieStore.set({ name, value, ...options }); },
+        remove(name: string, options: CookieOptions) { cookieStore.set({ name, value: '', ...options, maxAge: 0 }); }
+      }
+    }
+  );
+}
+
+
+Commit: chore: supabase server client + env
+
+Ticket 3 — Auth bootstrap (email-less dev mode)
+
+Goal: Ensure a profile exists for the current session. For now, create a dev profile if none.
+
+Add lib/getOrCreateDevProfile.ts
+
+import { createServerSupabase } from './supabaseServer';
+
+export async function getOrCreateDevProfile() {
+  const supabase = createServerSupabase();
+
+  // In Phase 2 we’re not gating with auth yet; we simulate a stable dev user via a cookie.
+  const devId = '00000000-0000-4000-8000-000000000001';
+
+  // Try fetch
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', devId).single();
+
+  if (profile) return profile;
+
+  // Insert with starter credits (e.g., 10)
+  const { data: inserted, error } = await supabase
+    .from('profiles')
+    .insert({ id: devId, email: 'dev@adorrable.dev', display_name: 'Dev', credits: 10 })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return inserted;
+}
+
+
+Commit: feat: dev profile bootstrap (no auth yet)
+
+Ticket 4 — Credits RPCs (server-side helpers)
+
+Goal: Safe “check & spend” credits logic + log writing.
+
+Add lib/credits.ts
+
+import { createServerSupabase } from './supabaseServer';
+import { getOrCreateDevProfile } from './getOrCreateDevProfile';
+
+export async function getBalance() {
+  const supabase = createServerSupabase();
+  const p = await getOrCreateDevProfile();
+  const { data, error } = await supabase.from('profiles').select('credits').eq('id', p.id).single();
+  if (error) throw error;
+  return data.credits as number;
+}
+
+export async function spendCredit(reason = 'generation', meta: Record<string, any> = {}) {
+  const supabase = createServerSupabase();
+  const p = await getOrCreateDevProfile();
+
+  // Use single transaction via service role call from server route later if needed.
+  const { data: current, error: e1 } = await supabase.from('profiles').select('credits').eq('id', p.id).single();
+  if (e1) throw e1;
+  if ((current?.credits ?? 0) <= 0) {
+    return { ok: false, balance: current?.credits ?? 0 };
+  }
+
+  const newBalance = (current!.credits as number) - 1;
+  const { error: e2 } = await supabase.from('profiles').update({ credits: newBalance }).eq('id', p.id);
+  if (e2) throw e2;
+
+  const { error: e3 } = await supabase.from('credit_logs').insert({
+    profile_id: p.id,
+    delta: -1,
+    reason,
+    balance_after: newBalance,
+    meta
+  });
+  if (e3) throw e3;
+
+  return { ok: true, balance: newBalance };
+}
+
+export async function addCredits(amount: number, reason = 'purchase', meta: Record<string, any> = {}) {
+  const supabase = createServerSupabase();
+  const p = await getOrCreateDevProfile();
+  const { data: current, error: e1 } = await supabase.from('profiles').select('credits').eq('id', p.id).single();
+  if (e1) throw e1;
+
+  const newBalance = (current?.credits ?? 0) + amount;
+  const { error: e2 } = await supabase.from('profiles').update({ credits: newBalance }).eq('id', p.id);
+  if (e2) throw e2;
+
+  const { error: e3 } = await supabase.from('credit_logs').insert({
+    profile_id: p.id,
+    delta: amount,
+    reason,
+    balance_after: newBalance,
+    meta
+  });
+  if (e3) throw e3;
+
+  return { balance: newBalance };
+}
+
+
+Commit: feat: credits helpers (get/spend/add)
+
+Ticket 5 — API: get credits & spend credits
+
+Goal: Frontend can show live credits and spend one per generation.
+
+Create app/api/credits/route.ts
+
+import { NextResponse } from 'next/server';
+import { getBalance } from '@/lib/credits';
+
+export async function GET() {
+  try {
+    const balance = await getBalance();
+    return NextResponse.json({ balance });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+
+Create app/api/credits/spend/route.ts
+
+import { NextResponse } from 'next/server';
+import { spendCredit } from '@/lib/credits';
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json().catch(() => ({}));
+    const reason = body?.reason ?? 'generation';
+    const meta = body?.meta ?? {};
+    const result = await spendCredit(reason, meta);
+    if (!result.ok) return NextResponse.json({ error: 'NO_CREDITS', balance: result.balance }, { status: 402 });
+    return NextResponse.json({ balance: result.balance });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+
+Commit: api: credits GET + spend POST
+
+Ticket 6 — API: generate (stubbed to OpenAI/Claude)
+
+Goal: Turn the prompt box into a working call that decrements a credit, calls AI, returns copy for now.
+
+Create app/api/generate/route.ts
+
+import { NextResponse } from 'next/server';
+import { spendCredit } from '@/lib/credits';
+
+export const runtime = 'nodejs'; // needed for some Replit/Vercel envs
+
+export async function POST(req: Request) {
+  try {
+    const { prompt, language } = await req.json();
+
+    // 1) spend a credit
+    const spend = await spendCredit('generation', { language });
+    if (!spend.ok) return NextResponse.json({ error: 'NO_CREDITS', balance: spend.balance }, { status: 402 });
+
+    // 2) call AI (placeholder)
+    // TODO: swap to Claude or OpenAI. For now, return stub to validate wiring.
+    const generated = `✅ Generated (${language || 'EN'}): ${prompt}`;
+
+    return NextResponse.json({ result: generated, balance: spend.balance });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+
+Commit: api: generate stub wired to credits
+
+Ticket 7 — Frontend: wire credits badge + prompt form
+
+Goal: Replace the hard-coded “4 credits remaining” with live data and call /api/generate.
+
+Edit your main page component (where the input box lives). Add:
+
+// at top
+import { useEffect, useState } from 'react';
+
+function useCredits() {
+  const [balance, setBalance] = useState<number | null>(null);
+  const refresh = async () => {
+    const res = await fetch('/api/credits', { cache: 'no-store' });
+    const json = await res.json();
+    setBalance(json.balance ?? 0);
+  };
+  useEffect(() => { refresh(); }, []);
+  return { balance, refresh, setBalance };
+}
+
+
+In your component:
+
+const { balance, refresh, setBalance } = useCredits();
+const [language, setLanguage] = useState<'EN'|'FR'|'SW'|'PI'>('EN');
+const [prompt, setPrompt] = useState('');
+
+async function handleGenerate() {
+  const res = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, language })
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    if (json.error === 'NO_CREDITS') alert('You are out of credits.');
+    return;
+  }
+  setBalance(json.balance);
+  // TODO: show result in a preview area or modal
+  console.log('Generated:', json.result);
+}
+
+
+Replace the static credit text with:
+
+<span className="...">
+  {balance === null ? '…' : `${balance} credits`}
+</span>
+
+
+Hook the send button to handleGenerate().
+
+Commit: ui: live credits + generate call
+
+Ticket 8 — Payments (stub) via “Buy More” button
+
+Goal: Add 10 credits locally so the flow is testable; later we’ll connect Paystack/Stripe.
+
+API: app/api/credits/add/route.ts
+
+import { NextResponse } from 'next/server';
+import { addCredits } from '@/lib/credits';
+
+export async function POST() {
+  try {
+    const { balance } = await addCredits(10, 'dev_topup', { source: 'dev_button' });
+    return NextResponse.json({ balance });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+
+Frontend button action:
+
+async function handleBuyMore() {
+  const res = await fetch('/api/credits/add', { method: 'POST' });
+  const json = await res.json();
+  if (res.ok) setBalance(json.balance);
+}
+
+
+Commit: payments: dev add-credits endpoint + button wiring
+
+Ticket 9 — Claude/OpenAI integration (real generation)
+
+Goal: Replace stub with real model. Choose one (sample for OpenAI):
+
+Install (already likely in pkg):
+
+npm i openai
+
+
+Update app/api/generate/route.ts
+
+import { NextResponse } from 'next/server';
+import { spendCredit } from '@/lib/credits';
+import OpenAI from 'openai';
+
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+
+export const runtime = 'nodejs';
+
+export async function POST(req: Request) {
+  try {
+    const { prompt, language } = await req.json();
+
+    const spend = await spendCredit('generation', { language });
+    if (!spend.ok) return NextResponse.json({ error: 'NO_CREDITS', balance: spend.balance }, { status: 402 });
+
+    const sys = `You are Adorrable.dev, generating culturally intelligent website copy and structure. Language=${language}. Keep output concise and production-ready.`;
+    const completion = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'system', content: sys }, { role: 'user', content: prompt }],
+      temperature: 0.5
+    });
+
+    const generated = completion.choices[0]?.message?.content ?? 'No result';
+    return NextResponse.json({ result: generated, balance: spend.balance });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+
+(Swap to Claude SDK if preferred.)
+
+Commit: ai: real OpenAI generation
+
+Ticket 10 — Result preview UI
+
+Goal: Show AI output below the prompt card.
+
+In page component:
+
+const [result, setResult] = useState<string | null>(null);
+
+// in handleGenerate() after success:
+setResult(json.result);
+
+// Render area:
+{result && (
+  <div className="mt-6 rounded-xl border border-white/10 bg-black/20 p-4 text-sm leading-6">
+    <pre className="whitespace-pre-wrap">{result}</pre>
+  </div>
+)}
+
+
+Commit: ui: result preview
+
+Ticket 11 — Production safety & polish
+
+Add simple server-side rate limit (IP based) if you want (optional).
+
+Validate prompt length and reject empty.
+
+Handle 402 “NO_CREDITS” nicely (toast/inline message).
+
+Replace dev profile bootstrap with real auth when ready (Supabase Auth).
+
+Commit: chore: validations + nicer 402 UX
+
+Ticket 12 — Push & verify
+
+Commit & push to GitHub.
+
+Vercel will redeploy automatically.
+
+Test:
+
+Load page → credits badge loads real value.
+
+Click “Buy more” → +10.
+
+Generate → credits decreases, result shows.
+
+Refresh → credits persist.
+
+Commit: release: phase-2 backend MVP liveTicket 1 — Create Supabase schema for users & credits
+
+Goal: Persist users and credits with audit logs.
+
+Do:
+
+In Supabase SQL editor, run:
+
+-- USERS
+create table if not exists profiles (
+  id uuid primary key default gen_random_uuid(),
+  email text unique,
+  display_name text,
+  credits int not null default 0,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- CREDITS LOG
+create table if not exists credit_logs (
+  id bigserial primary key,
+  profile_id uuid references profiles(id) on delete cascade,
+  delta int not null,                 -- +10 or -1 etc
+  reason text not null,               -- "purchase", "generation"
+  balance_after int not null,
+  meta jsonb default '{}'::jsonb,
+  created_at timestamptz default now()
+);
+
+-- helpful index
+create index if not exists credit_logs_profile_id_idx on credit_logs(profile_id);
+
+-- RLS
+alter table profiles enable row level security;
+alter table credit_logs enable row level security;
+
+-- Policies (email-based auth using Supabase Auth)
+create policy "read own profile" on profiles
+  for select using (auth.uid() = id);
+
+create policy "update own profile" on profiles
+  for update using (auth.uid() = id);
+
+create policy "insert own profile" on profiles
+  for insert with check (auth.uid() = id);
+
+create policy "read own logs" on credit_logs
+  for select using (auth.uid() = profile_id);
+
+create policy "insert own logs" on credit_logs
+  for insert with check (auth.uid() = profile_id);
+
+
+Commit message: db: profiles + credit_logs tables with RLS
+
+Ticket 2 — Environment variables & Supabase server client
+
+Goal: Centralized Supabase server client.
+
+Edit .env.local (Replit “Secrets”)
+
+NEXT_PUBLIC_SUPABASE_URL=YOUR_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE
+OPENAI_API_KEY=YOUR_OPENAI_KEY   # or CLAUDE key later
+
+
+Add lib/supabaseServer.ts
+
+import { cookies } from 'next/headers';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+
+export function createServerSupabase() {
+  const cookieStore = cookies();
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) { return cookieStore.get(name)?.value; },
+        set(name: string, value: string, options: CookieOptions) { cookieStore.set({ name, value, ...options }); },
+        remove(name: string, options: CookieOptions) { cookieStore.set({ name, value: '', ...options, maxAge: 0 }); }
+      }
+    }
+  );
+}
+
+
+Commit: chore: supabase server client + env
+
+Ticket 3 — Auth bootstrap (email-less dev mode)
+
+Goal: Ensure a profile exists for the current session. For now, create a dev profile if none.
+
+Add lib/getOrCreateDevProfile.ts
+
+import { createServerSupabase } from './supabaseServer';
+
+export async function getOrCreateDevProfile() {
+  const supabase = createServerSupabase();
+
+  // In Phase 2 we’re not gating with auth yet; we simulate a stable dev user via a cookie.
+  const devId = '00000000-0000-4000-8000-000000000001';
+
+  // Try fetch
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', devId).single();
+
+  if (profile) return profile;
+
+  // Insert with starter credits (e.g., 10)
+  const { data: inserted, error } = await supabase
+    .from('profiles')
+    .insert({ id: devId, email: 'dev@adorrable.dev', display_name: 'Dev', credits: 10 })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return inserted;
+}
+
+
+Commit: feat: dev profile bootstrap (no auth yet)
+
+Ticket 4 — Credits RPCs (server-side helpers)
+
+Goal: Safe “check & spend” credits logic + log writing.
+
+Add lib/credits.ts
+
+import { createServerSupabase } from './supabaseServer';
+import { getOrCreateDevProfile } from './getOrCreateDevProfile';
+
+export async function getBalance() {
+  const supabase = createServerSupabase();
+  const p = await getOrCreateDevProfile();
+  const { data, error } = await supabase.from('profiles').select('credits').eq('id', p.id).single();
+  if (error) throw error;
+  return data.credits as number;
+}
+
+export async function spendCredit(reason = 'generation', meta: Record<string, any> = {}) {
+  const supabase = createServerSupabase();
+  const p = await getOrCreateDevProfile();
+
+  // Use single transaction via service role call from server route later if needed.
+  const { data: current, error: e1 } = await supabase.from('profiles').select('credits').eq('id', p.id).single();
+  if (e1) throw e1;
+  if ((current?.credits ?? 0) <= 0) {
+    return { ok: false, balance: current?.credits ?? 0 };
+  }
+
+  const newBalance = (current!.credits as number) - 1;
+  const { error: e2 } = await supabase.from('profiles').update({ credits: newBalance }).eq('id', p.id);
+  if (e2) throw e2;
+
+  const { error: e3 } = await supabase.from('credit_logs').insert({
+    profile_id: p.id,
+    delta: -1,
+    reason,
+    balance_after: newBalance,
+    meta
+  });
+  if (e3) throw e3;
+
+  return { ok: true, balance: newBalance };
+}
+
+export async function addCredits(amount: number, reason = 'purchase', meta: Record<string, any> = {}) {
+  const supabase = createServerSupabase();
+  const p = await getOrCreateDevProfile();
+  const { data: current, error: e1 } = await supabase.from('profiles').select('credits').eq('id', p.id).single();
+  if (e1) throw e1;
+
+  const newBalance = (current?.credits ?? 0) + amount;
+  const { error: e2 } = await supabase.from('profiles').update({ credits: newBalance }).eq('id', p.id);
+  if (e2) throw e2;
+
+  const { error: e3 } = await supabase.from('credit_logs').insert({
+    profile_id: p.id,
+    delta: amount,
+    reason,
+    balance_after: newBalance,
+    meta
+  });
+  if (e3) throw e3;
+
+  return { balance: newBalance };
+}
+
+
+Commit: feat: credits helpers (get/spend/add)
+
+Ticket 5 — API: get credits & spend credits
+
+Goal: Frontend can show live credits and spend one per generation.
+
+Create app/api/credits/route.ts
+
+import { NextResponse } from 'next/server';
+import { getBalance } from '@/lib/credits';
+
+export async function GET() {
+  try {
+    const balance = await getBalance();
+    return NextResponse.json({ balance });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+
+Create app/api/credits/spend/route.ts
+
+import { NextResponse } from 'next/server';
+import { spendCredit } from '@/lib/credits';
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json().catch(() => ({}));
+    const reason = body?.reason ?? 'generation';
+    const meta = body?.meta ?? {};
+    const result = await spendCredit(reason, meta);
+    if (!result.ok) return NextResponse.json({ error: 'NO_CREDITS', balance: result.balance }, { status: 402 });
+    return NextResponse.json({ balance: result.balance });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+
+Commit: api: credits GET + spend POST
+
+Ticket 6 — API: generate (stubbed to OpenAI/Claude)
+
+Goal: Turn the prompt box into a working call that decrements a credit, calls AI, returns copy for now.
+
+Create app/api/generate/route.ts
+
+import { NextResponse } from 'next/server';
+import { spendCredit } from '@/lib/credits';
+
+export const runtime = 'nodejs'; // needed for some Replit/Vercel envs
+
+export async function POST(req: Request) {
+  try {
+    const { prompt, language } = await req.json();
+
+    // 1) spend a credit
+    const spend = await spendCredit('generation', { language });
+    if (!spend.ok) return NextResponse.json({ error: 'NO_CREDITS', balance: spend.balance }, { status: 402 });
+
+    // 2) call AI (placeholder)
+    // TODO: swap to Claude or OpenAI. For now, return stub to validate wiring.
+    const generated = `✅ Generated (${language || 'EN'}): ${prompt}`;
+
+    return NextResponse.json({ result: generated, balance: spend.balance });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+
+Commit: api: generate stub wired to credits
+
+Ticket 7 — Frontend: wire credits badge + prompt form
+
+Goal: Replace the hard-coded “4 credits remaining” with live data and call /api/generate.
+
+Edit your main page component (where the input box lives). Add:
+
+// at top
+import { useEffect, useState } from 'react';
+
+function useCredits() {
+  const [balance, setBalance] = useState<number | null>(null);
+  const refresh = async () => {
+    const res = await fetch('/api/credits', { cache: 'no-store' });
+    const json = await res.json();
+    setBalance(json.balance ?? 0);
+  };
+  useEffect(() => { refresh(); }, []);
+  return { balance, refresh, setBalance };
+}
+
+
+In your component:
+
+const { balance, refresh, setBalance } = useCredits();
+const [language, setLanguage] = useState<'EN'|'FR'|'SW'|'PI'>('EN');
+const [prompt, setPrompt] = useState('');
+
+async function handleGenerate() {
+  const res = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, language })
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    if (json.error === 'NO_CREDITS') alert('You are out of credits.');
+    return;
+  }
+  setBalance(json.balance);
+  // TODO: show result in a preview area or modal
+  console.log('Generated:', json.result);
+}
+
+
+Replace the static credit text with:
+
+<span className="...">
+  {balance === null ? '…' : `${balance} credits`}
+</span>
+
+
+Hook the send button to handleGenerate().
+
+Commit: ui: live credits + generate call
+
+Ticket 8 — Payments (stub) via “Buy More” button
+
+Goal: Add 10 credits locally so the flow is testable; later we’ll connect Paystack/Stripe.
+
+API: app/api/credits/add/route.ts
+
+import { NextResponse } from 'next/server';
+import { addCredits } from '@/lib/credits';
+
+export async function POST() {
+  try {
+    const { balance } = await addCredits(10, 'dev_topup', { source: 'dev_button' });
+    return NextResponse.json({ balance });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+
+Frontend button action:
+
+async function handleBuyMore() {
+  const res = await fetch('/api/credits/add', { method: 'POST' });
+  const json = await res.json();
+  if (res.ok) setBalance(json.balance);
+}
+
+
+Commit: payments: dev add-credits endpoint + button wiring
+
+Ticket 9 — Claude/OpenAI integration (real generation)
+
+Goal: Replace stub with real model. Choose one (sample for OpenAI):
+
+Install (already likely in pkg):
+
+npm i openai
+
+
+Update app/api/generate/route.ts
+
+import { NextResponse } from 'next/server';
+import { spendCredit } from '@/lib/credits';
+import OpenAI from 'openai';
+
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+
+export const runtime = 'nodejs';
+
+export async function POST(req: Request) {
+  try {
+    const { prompt, language } = await req.json();
+
+    const spend = await spendCredit('generation', { language });
+    if (!spend.ok) return NextResponse.json({ error: 'NO_CREDITS', balance: spend.balance }, { status: 402 });
+
+    const sys = `You are Adorrable.dev, generating culturally intelligent website copy and structure. Language=${language}. Keep output concise and production-ready.`;
+    const completion = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'system', content: sys }, { role: 'user', content: prompt }],
+      temperature: 0.5
+    });
+
+    const generated = completion.choices[0]?.message?.content ?? 'No result';
+    return NextResponse.json({ result: generated, balance: spend.balance });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+
+(Swap to Claude SDK if preferred.)
+
+Commit: ai: real OpenAI generation
+
+Ticket 10 — Result preview UI
+
+Goal: Show AI output below the prompt card.
+
+In page component:
+
+const [result, setResult] = useState<string | null>(null);
+
+// in handleGenerate() after success:
+setResult(json.result);
+
+// Render area:
+{result && (
+  <div className="mt-6 rounded-xl border border-white/10 bg-black/20 p-4 text-sm leading-6">
+    <pre className="whitespace-pre-wrap">{result}</pre>
+  </div>
+)}
+
+
+Commit: ui: result preview
+
+Ticket 11 — Production safety & polish
+
+Add simple server-side rate limit (IP based) if you want (optional).
+
+Validate prompt length and reject empty.
+
+Handle 402 “NO_CREDITS” nicely (toast/inline message).
+
+Replace dev profile bootstrap with real auth when ready (Supabase Auth).
+
+Commit: chore: validations + nicer 402 UX
+
+Ticket 12 — Push & verify
+
+Commit & push to GitHub.
+
+Vercel will redeploy automatically.
+
+Test:
+
+Load page → credits badge loads real value.
+
+Click “Buy more” → +10.
+
+Generate → credits decreases, result shows.
+
+Refresh → credits persist.
+
+Commit: release: phase-2 backend MVP live
