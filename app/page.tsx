@@ -223,29 +223,43 @@ const playCompletionSound = () => {
   }
 };
 
-// Supabase Client Initialization
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Supabase Client Initialization - Client-side only
+const initializeSupabase = () => {
+  if (typeof window === 'undefined') {
+    // Return mock client for server-side rendering
+    return {
+      auth: {
+        signInWithOAuth: () => Promise.resolve({ error: { message: "Server-side rendering" } }),
+        signInWithPassword: () => Promise.resolve({ error: { message: "Server-side rendering" } }),
+        signUp: () => Promise.resolve({ error: { message: "Server-side rendering" } }),
+        signOut: () => Promise.resolve({ error: null }),
+        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+      }
+    };
+  }
 
-// Create a default/mock client if environment variables are missing
-let supabase: any;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-if (supabaseUrl && supabaseAnonKey) {
-  supabase = createClient(supabaseUrl, supabaseAnonKey);
-} else {
-  console.warn("Supabase environment variables missing. Using mock client.");
-  // Create a mock client for development
-  supabase = {
-    auth: {
-      signInWithOAuth: () => Promise.resolve({ error: { message: "Environment not configured" } }),
-      signInWithPassword: () => Promise.resolve({ error: { message: "Environment not configured" } }),
-      signUp: () => Promise.resolve({ error: { message: "Environment not configured" } }),
-      signOut: () => Promise.resolve({ error: null }),
-      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
-    }
-  };
-}
+  if (supabaseUrl && supabaseAnonKey) {
+    return createClient(supabaseUrl, supabaseAnonKey);
+  } else {
+    console.warn("Supabase environment variables missing. Using mock client.");
+    return {
+      auth: {
+        signInWithOAuth: () => Promise.resolve({ error: { message: "Environment not configured" } }),
+        signInWithPassword: () => Promise.resolve({ error: { message: "Environment not configured" } }),
+        signUp: () => Promise.resolve({ error: { message: "Environment not configured" } }),
+        signOut: () => Promise.resolve({ error: null }),
+        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+      }
+    };
+  }
+};
+
+const supabase = initializeSupabase();
 
 // Auth Modal Component (Assuming it's in components/AuthModal.tsx)
 // It should handle sign-up/sign-in with email, Google, and LinkedIn
@@ -1334,6 +1348,8 @@ export default function Home() {
                   lineHeight: "1.5",
                   whiteSpace: "pre-wrap",
                   textAlign: "left",
+                  wordBreak: "break-word",
+                  overflowWrap: "break-word",
                 }}
               >
                 {message.content}
@@ -1752,6 +1768,8 @@ export default function Home() {
                           lineHeight: "1.4",
                           whiteSpace: "pre-wrap",
                           textAlign: "left",
+                          wordBreak: "break-word",
+                          overflowWrap: "break-word",
                         }}
                       >
                         {message.content}
@@ -2280,6 +2298,7 @@ export default function Home() {
                 position: "absolute",
                 top: "16px",
                 left: "16px",
+                right: "16px",
                 pointerEvents: "none",
                 color: "rgba(255,255,255,0.4)",
                 fontSize: "16px",
@@ -2288,9 +2307,18 @@ export default function Home() {
                 minHeight: "24px",
                 display: "flex",
                 alignItems: "flex-start",
+                overflow: "hidden",
               }}
             >
-              <span style={{ whiteSpace: "nowrap", overflow: "hidden" }}>
+              <span 
+                style={{ 
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: "calc(100% - 10px)",
+                  display: "block"
+                }}
+              >
                 {placeholderText}
               </span>
               <span
@@ -2703,53 +2731,161 @@ export default function Home() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           {user && (
-            <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-full">
-              <Zap className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-700">{credits} credits</span>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              background: "rgba(59, 130, 246, 0.1)",
+              padding: "8px 12px",
+              borderRadius: "20px",
+              border: "1px solid rgba(59, 130, 246, 0.2)"
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              <span style={{ fontSize: "14px", fontWeight: "500", color: "#3B82F6" }}>{credits} credits</span>
             </div>
           )}
 
           {user ? (
-            <div className="relative">
+            <div style={{ position: "relative" }}>
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center gap-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "8px",
+                  borderRadius: "20px",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "background 0.2s ease"
+                }}
+                onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.1)"}
+                onMouseLeave={(e) => e.target.style.background = "none"}
               >
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                <div style={{
+                  width: "32px",
+                  height: "32px",
+                  background: "linear-gradient(135deg, #8B5CF6, #EC4899)",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}>
                   {user.user_metadata?.avatar_url ? (
                     <img
                       src={user.user_metadata.avatar_url}
                       alt="Avatar"
-                      className="w-8 h-8 rounded-full"
+                      style={{ width: "32px", height: "32px", borderRadius: "50%" }}
                     />
                   ) : (
-                    <User className="w-4 h-4 text-white" />
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
                   )}
                 </div>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.7)">
+                  <polyline points="6,9 12,15 18,9"/>
+                </svg>
               </button>
 
               {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 py-1 z-10">
-                  <div className="px-4 py-2 text-sm text-gray-300 border-b border-gray-700">
+                <div style={{
+                  position: "absolute",
+                  right: "0",
+                  marginTop: "8px",
+                  width: "192px",
+                  background: "rgba(31, 41, 55, 0.95)",
+                  borderRadius: "12px",
+                  boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  padding: "4px 0",
+                  zIndex: 10,
+                  backdropFilter: "blur(10px)"
+                }}>
+                  <div style={{
+                    padding: "12px 16px",
+                    fontSize: "14px",
+                    color: "rgba(255,255,255,0.7)",
+                    borderBottom: "1px solid rgba(255,255,255,0.1)",
+                    wordBreak: "break-word"
+                  }}>
                     {user.email}
                   </div>
-                  <button className="w-full px-4 py-2 text-left hover:bg-gray-700 flex items-center gap-2 text-gray-300">
-                    <Settings className="w-4 h-4 text-gray-400" />
+                  <button style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    textAlign: "left",
+                    background: "none",
+                    border: "none",
+                    color: "rgba(255,255,255,0.7)",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    fontSize: "14px",
+                    transition: "background 0.2s ease"
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.1)"}
+                  onMouseLeave={(e) => e.target.style.background = "none"}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)">
+                      <circle cx="12" cy="12" r="3"/>
+                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
                     Settings
                   </button>
-                  <button className="w-full px-4 py-2 text-left hover:bg-gray-700 flex items-center gap-2 text-gray-300">
-                    <MessageSquare className="w-4 h-4 text-gray-400" />
+                  <button style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    textAlign: "left",
+                    background: "none",
+                    border: "none",
+                    color: "rgba(255,255,255,0.7)",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    fontSize: "14px",
+                    transition: "background 0.2s ease"
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.1)"}
+                  onMouseLeave={(e) => e.target.style.background = "none"}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
                     Support
                   </button>
-                  <hr className="my-1 border-gray-700" />
+                  <hr style={{ margin: "4px 0", border: "none", borderTop: "1px solid rgba(255,255,255,0.1)" }} />
                   <button
                     onClick={handleSignOut}
-                    className="w-full px-4 py-2 text-left hover:bg-gray-700 flex items-center gap-2 text-red-500"
+                    style={{
+                      width: "100%",
+                      padding: "12px 16px",
+                      textAlign: "left",
+                      background: "none",
+                      border: "none",
+                      color: "#EF4444",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      fontSize: "14px",
+                      transition: "background 0.2s ease"
+                    }}
+                    onMouseEnter={(e) => e.target.style.background = "rgba(239, 68, 68, 0.1)"}
+                    onMouseLeave={(e) => e.target.style.background = "none"}
                   >
-                    <LogOut className="w-4 h-4 text-red-500" />
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#EF4444">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                      <polyline points="16,17 21,12 16,7"/>
+                      <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
                     Sign Out
                   </button>
                 </div>
@@ -2758,7 +2894,19 @@ export default function Home() {
           ) : (
             <button
               onClick={() => setShowAuthModal(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+              style={{
+                padding: "8px 16px",
+                background: "linear-gradient(135deg, #3B82F6, #1D4ED8)",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: "500",
+                cursor: "pointer",
+                transition: "all 0.2s ease"
+              }}
+              onMouseEnter={(e) => e.target.style.transform = "translateY(-1px)"}
+              onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
             >
               Sign In
             </button>
