@@ -160,6 +160,8 @@ export default function Home() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showCommunityModal, setShowCommunityModal] = useState(false);
+  const [selectedCommunityTemplate, setSelectedCommunityTemplate] = useState(null);
 
 
   const fileInputRef = useRef(null);
@@ -2073,15 +2075,8 @@ export default function Home() {
               <div
                 key={index}
                 onClick={() => {
-                  setGeneratedCode(template.code);
-                  setGeneratedTemplate({
-                    id: `community-${index}`,
-                    title: template.title,
-                    language: 'English',
-                    code: template.code,
-                    createdAt: new Date().toISOString()
-                  });
-                  setViewMode("split");
+                  setSelectedCommunityTemplate(template);
+                  setShowCommunityModal(true);
                 }}
                 style={{
                   background: "rgba(255,255,255,0.05)",
@@ -2710,6 +2705,148 @@ export default function Home() {
           insertSpaces: true,
         }}
       />
+    </div>
+  );
+
+  // Community Template Modal Component
+  const CommunityTemplateModal = () => (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: "rgba(0,0,0,0.8)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+      }}
+      onClick={() => setShowCommunityModal(false)}
+    >
+      <div
+        style={{
+          background: "linear-gradient(135deg, #1e293b, #334155)",
+          borderRadius: "20px",
+          padding: "0",
+          maxWidth: "900px",
+          width: "90%",
+          maxHeight: "80vh",
+          border: "1px solid rgba(255,255,255,0.1)",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column"
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div style={{
+          padding: "24px 32px",
+          borderBottom: "1px solid rgba(255,255,255,0.1)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}>
+          <div>
+            <h2 style={{
+              color: "white",
+              fontSize: "24px",
+              fontWeight: "700",
+              margin: "0 0 4px 0"
+            }}>
+              {selectedCommunityTemplate?.title}
+            </h2>
+            <p style={{
+              color: "rgba(255,255,255,0.6)",
+              fontSize: "14px",
+              margin: "0"
+            }}>
+              by Stephane Boghossian
+            </p>
+          </div>
+          
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <button
+              onClick={() => {
+                setGeneratedCode(selectedCommunityTemplate.code);
+                setGeneratedTemplate({
+                  id: `community-${selectedCommunityTemplate.title}`,
+                  title: selectedCommunityTemplate.title,
+                  language: 'English',
+                  code: selectedCommunityTemplate.code,
+                  createdAt: new Date().toISOString()
+                });
+                setViewMode("split");
+                setShowCommunityModal(false);
+              }}
+              style={{
+                padding: "10px 20px",
+                background: "linear-gradient(135deg, #10B981, #059669)",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: "pointer"
+              }}
+            >
+              Open Project
+            </button>
+            
+            <button
+              onClick={() => {
+                // Copy template code logic here
+                navigator.clipboard.writeText(selectedCommunityTemplate.code);
+              }}
+              style={{
+                padding: "10px 20px",
+                background: "rgba(255,255,255,0.1)",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: "pointer"
+              }}
+            >
+              Remix
+            </button>
+
+            <button
+              onClick={() => setShowCommunityModal(false)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "rgba(255,255,255,0.5)",
+                fontSize: "24px",
+                cursor: "pointer",
+                padding: "4px"
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+
+        {/* Modal Preview */}
+        <div style={{
+          flex: 1,
+          background: "white",
+          position: "relative"
+        }}>
+          <iframe
+            style={{
+              width: "100%",
+              height: "100%",
+              border: "none",
+              background: "white"
+            }}
+            srcDoc={selectedCommunityTemplate?.code}
+            title="Community Template Preview"
+          />
+        </div>
+      </div>
     </div>
   );
 
@@ -3619,6 +3756,9 @@ export default function Home() {
 
       {/* Pricing Modal */}
       {showPricing && <PricingModal />}
+
+      {/* Community Template Modal */}
+      {showCommunityModal && selectedCommunityTemplate && <CommunityTemplateModal />}
 
       {/* Auth Modal */}
       <AuthModal
