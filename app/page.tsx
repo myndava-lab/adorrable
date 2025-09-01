@@ -1861,7 +1861,7 @@ export default function Home() {
                 onClick={() => setLanguage(lang)}
                 disabled={isGenerating}
                 style={{
-                  padding: compact ? "4px 6px" : "6px 8px",
+                  padding: compact ? "4px 8px" : "6px 12px",
                   border: "none",
                   background:
                     language === lang
@@ -1870,14 +1870,14 @@ export default function Home() {
                   color:
                     language === lang ? "#10B981" : "rgba(255,255,255,0.6)",
                   borderRadius: compact ? "4px" : "6px",
-                  fontSize: compact ? "10px" : "11px",
+                  fontSize: compact ? "9px" : "10px",
                   fontWeight: "500",
                   cursor: isGenerating ? "not-allowed" : "pointer",
                   transition: "all 0.2s ease",
                   opacity: isGenerating ? 0.5 : 1,
                 }}
               >
-                {lang.slice(0, 2).toUpperCase()}
+                {lang}
               </button>
             ))}
           </div>
