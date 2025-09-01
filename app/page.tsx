@@ -2641,6 +2641,70 @@ export default function Home() {
     </main>
   );
 
+      {/* Simple Footer */}
+      <div
+        style={{
+          marginTop: "60px",
+          textAlign: "center",
+          padding: "40px 24px",
+          borderTop: "1px solid rgba(255,255,255,0.1)",
+          color: "rgba(255,255,255,0.6)",
+          fontSize: "14px",
+        }}
+      >
+        <div style={{ marginBottom: "20px" }}>
+          <a
+            href="#"
+            style={{
+              color: "inherit",
+              textDecoration: "none",
+              margin: "0 16px",
+            }}
+          >
+            About
+          </a>
+          <button
+            onClick={() => setShowPricing(true)}
+            style={{
+              background: "none",
+              border: "none",
+              color: "inherit",
+              textDecoration: "none",
+              margin: "0 16px",
+              cursor: "pointer",
+              fontSize: "14px",
+            }}
+          >
+            Pricing
+          </button>
+          <a
+            href="#"
+            style={{
+              color: "inherit",
+              textDecoration: "none",
+              margin: "0 16px",
+            }}
+          >
+            Templates
+          </a>
+          <a
+            href="#"
+            style={{
+              color: "inherit",
+              textDecoration: "none",
+              margin: "0 16px",
+            }}
+          >
+            Support
+          </a>
+        </div>
+        <div>
+          © 2025 Adorrable.dev - Made for everyone with a touch of Africa 🌍
+        </div>
+      </div>
+    </main>
+  );
+
   const renderSplitView = () => (
     <div
       style={{
