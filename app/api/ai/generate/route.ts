@@ -5,28 +5,72 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Language-specific prompts
-const languagePrompts = {
-  English: {
-    systemPrompt:
-      "You are an expert web developer creating modern, responsive websites. Generate professional HTML/CSS/JS code based on the user's request.",
-    contentStyle: "professional and engaging",
-  },
-  French: {
-    systemPrompt:
-      "Vous êtes un développeur web expert créant des sites web modernes et réactifs. Générez du code HTML/CSS/JS professionnel basé sur la demande de l'utilisateur.",
-    contentStyle: "professionnel et engageant",
-  },
-  Swahili: {
-    systemPrompt:
-      "Wewe ni mtaalamu wa ukuzaji wa wavuti unayeunda tovuti za kisasa na zinazoweza kubadilika. Tengeneza msimbo wa HTML/CSS/JS wa kitaalamu kulingana na ombi la mtumiaji.",
-    contentStyle: "wa kitaaluma na wa kuvutia",
-  },
-  Pidgin: {
-    systemPrompt:
-      "You be expert web developer wey dey create modern, responsive websites. Generate professional HTML/CSS/JS code based on wetin user want.",
-    contentStyle: "professional and engaging",
-  },
+// Cultural intelligence configurations
+const getCulturalConfig = (language: string, region?: string) => {
+  // Auto-detect region from language if not provided
+  const detectRegion = (lang: string) => {
+    if (lang === "French") return "EU";
+    if (lang === "Swahili" || lang === "Pidgin") return "Africa";
+    return "Global";
+  };
+
+  const currentRegion = region || detectRegion(language);
+
+  const configs = {
+    English: {
+      contentStyle: "professional and modern",
+      culturalNotes: "Include African cultural elements and vibrant colors",
+      region: "Africa"
+    },
+    French: {
+      contentStyle: "élégant et sophistiqué",
+      culturalNotes: "Incorporate Francophone African aesthetics and cultural references",
+      region: "Africa"
+    },
+    Swahili: {
+      contentStyle: "jamii na utamaduni",
+      culturalNotes: "Include East African cultural elements and community-focused design",
+      region: "Africa"
+    },
+    Pidgin: {
+      contentStyle: "friendly and relatable",
+      culturalNotes: "Use Nigerian cultural references and vibrant West African aesthetics",
+      region: "Africa"
+    },
+  };
+
+  // Regional overrides for cultural intelligence
+  const regionalConfig = {
+    Africa: {
+      paymentMethods: "WhatsApp CTA, Paystack, NDPR compliance",
+      designElements: "Vibrant colors, cultural patterns, community-focused",
+      businessStyle: "Relationship-driven, storytelling approach"
+    },
+    EU: {
+      paymentMethods: "GDPR badges, cookie banner, SEPA payments",
+      designElements: "Clean minimalism, accessibility focus, privacy-first",
+      businessStyle: "Compliance-focused, trust indicators, data protection"
+    },
+    US: {
+      paymentMethods: "ROI proof, Apple/Google Pay, conversion optimization",
+      designElements: "Bold CTAs, social proof, performance metrics",
+      businessStyle: "Results-driven, testimonials, growth-focused"
+    },
+    Asia: {
+      paymentMethods: "QR codes, Alipay/WeChat integration, mobile-first",
+      designElements: "Mobile optimization, social commerce, chat features",
+      businessStyle: "Social integration, mobile experience, community features"
+    }
+  };
+
+  const baseConfig = configs[language] || configs.English;
+  const regional = regionalConfig[currentRegion] || regionalConfig.Africa;
+
+  return {
+    ...baseConfig,
+    ...regional,
+    detectedRegion: currentRegion
+  };
 };
 
 export async function POST(req: NextRequest) {
@@ -40,28 +84,45 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const langConfig = languagePrompts[language] || languagePrompts.English;
+    // Enhanced cultural intelligence
+    const culturalConfig = getCulturalConfig(language,
+      prompt.toLowerCase().includes('europe') || prompt.toLowerCase().includes('eu') ? 'EU' :
+      prompt.toLowerCase().includes('america') || prompt.toLowerCase().includes('usa') || prompt.toLowerCase().includes('us ') ? 'US' :
+      prompt.toLowerCase().includes('asia') || prompt.toLowerCase().includes('china') || prompt.toLowerCase().includes('japan') || prompt.toLowerCase().includes('korea') ? 'Asia' :
+      undefined
+    );
 
-    // Construct the full prompt
-    const fullPrompt = `
-${langConfig.systemPrompt}
+    const fullPrompt = `Create a beautiful, modern website template with cultural intelligence for the ${culturalConfig.detectedRegion} market:
+
+${prompt}
 
 User Request: ${prompt}
 Language: ${language}
+Target Region: ${culturalConfig.detectedRegion}
 Attached Images: ${images.length > 0 ? `${images.length} images provided` : "No images"}
 
 Requirements:
 1. Create a complete, modern website template
 2. Include HTML structure, CSS styling, and basic JavaScript
 3. Make it responsive and mobile-friendly
-4. Use ${langConfig.contentStyle} content in ${language}
+4. Use ${culturalConfig.contentStyle} content in ${language}
 5. Include appropriate meta tags and SEO optimization
 6. Add modern design elements with gradients and animations
-7. Make it culturally relevant for African markets when appropriate
-8. Use vibrant colors and modern UI principles
+7. Apply regional cultural intelligence:
+   - Payment Methods: ${culturalConfig.paymentMethods}
+   - Design Elements: ${culturalConfig.designElements}
+   - Business Style: ${culturalConfig.businessStyle}
+8. Cultural Notes: ${culturalConfig.culturalNotes}
 9. Include proper typography and spacing
+10. Ensure accessibility and modern web standards
 
-Generate a complete HTML file with embedded CSS and JavaScript that creates a beautiful, functional website.
+Regional Specific Features:
+${culturalConfig.detectedRegion === 'EU' ? '- GDPR compliance indicators\n- Cookie consent banner\n- Privacy policy links\n- Accessibility features' : ''}
+${culturalConfig.detectedRegion === 'US' ? '- ROI/conversion focus\n- Social proof sections\n- Performance metrics\n- Bold call-to-actions' : ''}
+${culturalConfig.detectedRegion === 'Asia' ? '- QR code integration\n- Mobile-first design\n- Social commerce features\n- Chat/messaging UI elements' : ''}
+${culturalConfig.detectedRegion === 'Africa' ? '- WhatsApp integration\n- Vibrant color schemes\n- Community-focused design\n- Local payment options' : ''}
+
+Generate a complete HTML file with embedded CSS and JavaScript that creates a beautiful, culturally-intelligent website.
 `;
 
     const completion = await openai.chat.completions.create({

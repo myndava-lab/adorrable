@@ -9,7 +9,7 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
 });
 
-type Language = "English" | "French" | "Swahili" | "Nigerian Pidgin";
+type Language = "English" | "French" | "Swahili" | "Pidgin";
 type ViewMode = "chat" | "split" | "code" | "preview";
 
 interface ChatMessage {
@@ -254,7 +254,7 @@ export default function Home() {
     "English",
     "French",
     "Swahili",
-    "Nigerian Pidgin",
+    "Pidgin",
   ];
   const fullText = "Build something with Adorrable";
 
@@ -266,6 +266,9 @@ export default function Home() {
       "Design a tech startup homepage with testimonials and pricing",
       "Make a portfolio website for a Nigerian photographer",
       "Create an e-commerce site for handmade African crafts",
+      "Build a website for a European luxury goods company",
+      "Design a US-based SaaS product landing page",
+      "Create an online store for Asian artisanal products"
     ],
     French: [
       "Créer une page d'accueil pour une marque de mode de Lagos",
@@ -273,6 +276,9 @@ export default function Home() {
       "Concevoir une page d'accueil de startup tech avec témoignages",
       "Faire un site portfolio pour un photographe nigérian",
       "Créer un site e-commerce pour l'artisanat africain fait main",
+      "Construire un site pour une entreprise européenne de produits de luxe",
+      "Concevoir une page de destination pour un produit SaaS basé aux États-Unis",
+      "Créer une boutique en ligne pour des produits artisanaux asiatiques"
     ],
     Swahili: [
       "Unda ukurasa wa kwanza wa biashara ya mavazi ya Lagos",
@@ -280,13 +286,19 @@ export default function Home() {
       "Buni ukurasa wa kwanza wa kampuni ya teknolojia",
       "Fanya tovuti ya portfolio kwa mpiga picha wa Nigeria",
       "Unda tovuti ya biashara kwa sanaa za Afrika",
+      "Jenga tovuti ya kampuni ya bidhaa za kifahari za Ulaya",
+      "Buni ukurasa wa kutua kwa bidhaa ya SaaS ya Marekani",
+      "Unda duka la mtandaoni kwa bidhaa za ufundi za Asia"
     ],
-    "Nigerian Pidgin": [
+    Pidgin: [
       "Make landing page for Lagos fashion brand wey get product grid",
       "Build modern restaurant website wey get online menu",
       "Design tech startup homepage wey get testimonials",
       "Make portfolio website for Nigerian photographer",
       "Create e-commerce site for handmade African crafts",
+      "Build website for European luxury goods company",
+      "Design US-based SaaS product landing page",
+      "Create online store for Asian artisanal products"
     ],
   };
 
@@ -443,6 +455,45 @@ export default function Home() {
     setIsGenerating(true);
     setGeneratedTemplate(null);
 
+    // Determine cultural configuration based on language (or potentially more sophisticated detection)
+    let culturalConfig = {
+      detectedRegion: "Global",
+      paymentMethods: ["Credit Card", "PayPal"],
+      designElements: ["Modern", "Clean"],
+      businessStyle: "E-commerce",
+    };
+
+    if (language === "French") {
+      culturalConfig = {
+        detectedRegion: "Europe (EU)",
+        paymentMethods: ["Credit Card", "SEPA Transfer", "PayPal"],
+        designElements: ["Elegant", "Minimalist", "Chic"],
+        businessStyle: "Luxury Retail",
+      };
+    } else if (language === "English" && text.toLowerCase().includes("us")) {
+      culturalConfig = {
+        detectedRegion: "North America (US)",
+        paymentMethods: ["Credit Card", "PayPal", "Apple Pay", "Google Pay"],
+        designElements: ["User-friendly", "Direct", "Informative"],
+        businessStyle: "SaaS",
+      };
+    } else if (language === "English" && text.toLowerCase().includes("asia")) {
+      culturalConfig = {
+        detectedRegion: "Asia",
+        paymentMethods: ["Credit Card", "Alipay", "WeChat Pay", "Local Options"],
+        designElements: ["Vibrant", "Cultural Motifs", "Interactive"],
+        businessStyle: "E-commerce",
+      };
+    } else if (language === "Swahili" || language === "Pidgin") {
+      culturalConfig = {
+        detectedRegion: "Africa",
+        paymentMethods: ["Mobile Money", "Bank Transfer", "Cash on Delivery"],
+        designElements: ["Bold", "Colorful", "Community-focused"],
+        businessStyle: "Local Business",
+      };
+    }
+
+
     try {
       // For now, just check credits locally (backend integration ready)
       if (credits <= 0) {
@@ -478,6 +529,7 @@ export default function Home() {
           prompt: text,
           language: language,
           images: uploadedImages,
+          culturalConfig: culturalConfig, // Pass cultural config to backend
         }),
       });
 
@@ -495,14 +547,27 @@ export default function Home() {
         const assistantMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           type: "assistant",
-          content: `✨ Template generated successfully!\n\n🎯 **${result.template.title}**\n🗣️ Language: ${result.template.language}\n📄 Ready for editing and preview`,
+          content: `✨ Template generated successfully!\n\n🎯 **${result.template.title}**\n🗣️ Language: ${result.template.language}\n📍 Region: ${culturalConfig.detectedRegion}\n📄 Ready for editing and preview`,
           timestamp: new Date(),
           language: language,
         };
 
         setChatMessages((prev) => [...prev, assistantMessage]);
         setGeneratedCode(result.template.code);
-        setGeneratedTemplate(result.template);
+        setGeneratedTemplate({
+          ...result.template,
+          metadata: {
+            model: "gpt-4",
+            tokens: result.usage?.total_tokens || 0,
+            culturallyAdapted: language !== "English",
+            targetRegion: culturalConfig.detectedRegion,
+            culturalFeatures: {
+              paymentMethods: culturalConfig.paymentMethods,
+              designElements: culturalConfig.designElements,
+              businessStyle: culturalConfig.businessStyle
+            }
+          },
+        });
         setViewMode("split"); // Switch to split view after generation
         setCredits((prev) => prev - 1);
       } else {
@@ -524,6 +589,22 @@ export default function Home() {
 
       // Fallback to sample code for demo
       setGeneratedCode(sampleCode);
+      setGeneratedTemplate({
+        title: "Sample Template",
+        language: language,
+        code: sampleCode,
+        metadata: {
+          model: "gpt-4",
+          tokens: 0,
+          culturallyAdapted: language !== "English",
+          targetRegion: culturalConfig.detectedRegion,
+          culturalFeatures: {
+            paymentMethods: culturalConfig.paymentMethods,
+            designElements: culturalConfig.designElements,
+            businessStyle: culturalConfig.businessStyle
+          }
+        },
+      });
       setViewMode("split");
       playCompletionSound(); // Still play sound for demo
     } finally {
