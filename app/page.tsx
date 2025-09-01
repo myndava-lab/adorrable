@@ -95,6 +95,9 @@ const playCompletionSound = () => {
   }
 };
 
+// Create a single Supabase client instance to prevent multiple client warnings
+let supabaseClient: any = null;
+
 // Mock client for SSR and error cases
 function createMockClient() {
   return {
@@ -109,8 +112,12 @@ function createMockClient() {
   };
 }
 
-// Initialize Supabase client with proper error handling
-const createSupabaseClient = () => {
+// Initialize Supabase client only once
+const getSupabaseClient = () => {
+  if (supabaseClient) {
+    return supabaseClient;
+  }
+
   if (typeof window === 'undefined') {
     return createMockClient();
   }
@@ -120,7 +127,8 @@ const createSupabaseClient = () => {
 
   if (supabaseUrl && supabaseAnonKey) {
     try {
-      return createClient(supabaseUrl, supabaseAnonKey);
+      supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+      return supabaseClient;
     } catch (error) {
       console.error("Supabase initialization error:", error);
       return createMockClient();
@@ -130,8 +138,6 @@ const createSupabaseClient = () => {
     return createMockClient();
   }
 };
-
-const supabaseClient = createSupabaseClient();
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -713,14 +719,16 @@ export default function Home() {
 
   // Auth state management
   useEffect(() => {
+    const client = getSupabaseClient();
+    
     const checkUser = async () => {
-      const { data: { session } } = await supabaseClient.auth.getSession()
+      const { data: { session } } = await client.auth.getSession()
       setUser(session?.user || null)
     }
 
     checkUser()
 
-    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
+    const { data: { subscription } } = client.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user || null)
       }
@@ -825,7 +833,8 @@ export default function Home() {
   }
 
   const handleSignOut = async () => {
-    await supabaseClient.auth.signOut()
+    const client = getSupabaseClient();
+    await client.auth.signOut()
     setShowDropdown(false)
     setUser(null) // Clear user state
     setCredits(0) // Reset credits on sign out
