@@ -675,26 +675,24 @@ export default function Home() {
 
   // Stable placeholder typewriter effect
   useEffect(() => {
-    try {
-      if (!mounted) return;
+    if (!mounted) return;
 
+    try {
+      // Clear existing timers
       if (placeholderTimerRef.current) {
         clearTimeout(placeholderTimerRef.current);
       }
       if (cursorTimerRef.current) {
         clearInterval(cursorTimerRef.current);
       }
+
       const currentMessages = placeholderMessages[language] || placeholderMessages.English;
-      console.log("Language:", language);
-      console.log("Current messages:", currentMessages);
-      console.log("All placeholder messages:", placeholderMessages);
       let messageIndex = 0;
       let charIndex = 0;
       let isDeleting = false;
-      let currentMessage =
-        currentMessages && currentMessages.length > 0
-          ? currentMessages[messageIndex % currentMessages.length]
-          : "Create something amazing";
+      let currentMessage = currentMessages && currentMessages.length > 0
+        ? currentMessages[messageIndex % currentMessages.length]
+        : "Create something amazing";
 
       setPlaceholderText("");
 
@@ -724,8 +722,10 @@ export default function Home() {
         }
       };
 
+      // Start the placeholder animation
       placeholderTimerRef.current = setTimeout(typePlaceholder, 500);
 
+      // Start cursor blinking
       cursorTimerRef.current = setInterval(() => {
         setShowCursor((prev) => !prev);
       }, 530);
@@ -2245,34 +2245,34 @@ export default function Home() {
     </div>
   );
 
+  // Consolidate language and message effects to prevent hook order issues
   useEffect(() => {
     try {
       console.log('Language:', language)
       const messages = placeholderMessages[language] || placeholderMessages.English
-      setChatMessages(prev => prev.map(msg => ({...msg, language: language}))) // Update language for existing messages
       console.log('Current messages:', messages)
       console.log('All placeholder messages:', placeholderMessages)
+      
+      // Update language for existing messages
+      setChatMessages(prev => prev.map(msg => ({...msg, language: language})))
       setError(null)
+      
+      // Handle message rotation only if we have chat messages
+      let interval;
+      if (chatMessages.length > 0) {
+        interval = setInterval(() => {
+          setMessageIndex((prev) => (prev + 1) % chatMessages.length)
+        }, 3000)
+      }
+
+      return () => {
+        if (interval) clearInterval(interval)
+      }
     } catch (err) {
-      console.error('Error in language effect:', err)
+      console.error('Error in language/message effect:', err)
       setError('Failed to load language content')
     }
-  }, [language]);
-
-  useEffect(() => {
-    if (chatMessages.length === 0) return
-
-    try {
-      const interval = setInterval(() => {
-        setMessageIndex((prev) => (prev + 1) % chatMessages.length)
-      }, 3000)
-
-      return () => clearInterval(interval)
-    } catch (err) {
-      console.error('Error in message rotation:', err)
-      setError('Failed to rotate messages')
-    }
-  }, [chatMessages]);
+  }, [language, chatMessages.length]);
 
 
   return (
