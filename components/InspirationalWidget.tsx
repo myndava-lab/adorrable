@@ -1,6 +1,6 @@
 
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 const QUOTES = [
   { text: "The key to success is to focus on goals, not obstacles." },
@@ -18,16 +18,23 @@ const QUOTES = [
 export default function InspirationalWidget() {
   const [currentQuote, setCurrentQuote] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    
     const interval = setInterval(() => {
       setCurrentQuote((prev) => (prev + 1) % QUOTES.length);
-    }, 5000);
+    }, 6000);
 
     return () => clearInterval(interval);
   }, []);
 
-  if (!isVisible) return null;
+  if (!mounted || !isVisible) {
+    return null;
+  }
+
+  const currentQuoteObj = QUOTES[currentQuote];
 
   return (
     <div
@@ -44,30 +51,35 @@ export default function InspirationalWidget() {
         backdropFilter: "blur(10px)",
         border: "1px solid rgba(255,255,255,0.1)",
         zIndex: 1000,
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         transform: "translateZ(0)",
-        willChange: "transform",
+        backfaceVisibility: "hidden",
+        perspective: "1000px",
       }}
     >
-      <div style={{
-        position: "absolute",
-        top: "8px",
-        right: "8px",
-        cursor: "pointer",
-        width: "24px",
-        height: "24px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: "50%",
-        background: "rgba(255,255,255,0.2)",
-        fontSize: "16px",
-        fontWeight: "bold",
-        transition: "background 0.2s ease"
-      }}
-      onClick={() => setIsVisible(false)}
-      onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
-      onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
+      <div 
+        style={{
+          position: "absolute",
+          top: "8px",
+          right: "8px",
+          cursor: "pointer",
+          width: "24px",
+          height: "24px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "50%",
+          background: "rgba(255,255,255,0.2)",
+          fontSize: "16px",
+          fontWeight: "bold",
+          userSelect: "none",
+        }}
+        onClick={() => setIsVisible(false)}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "rgba(255,255,255,0.3)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "rgba(255,255,255,0.2)";
+        }}
       >
         ×
       </div>
@@ -82,13 +94,10 @@ export default function InspirationalWidget() {
           alignItems: "center",
           justifyContent: "center",
           fontWeight: "500",
-          opacity: 1,
-          transform: "translateY(0)",
-          transition: "all 0.4s ease-in-out",
+          paddingTop: "8px",
         }}
-        key={currentQuote}
       >
-        {QUOTES[currentQuote].text}
+        {currentQuoteObj?.text || ""}
       </div>
 
       <div
@@ -101,13 +110,13 @@ export default function InspirationalWidget() {
       >
         {QUOTES.map((_, index) => (
           <div
-            key={`indicator-${index}`}
+            key={index}
             style={{
               width: "8px",
               height: "8px",
               borderRadius: "50%",
               background: currentQuote === index ? "white" : "rgba(255,255,255,0.4)",
-              transition: "all 0.3s ease",
+              transition: "background-color 0.3s ease",
               cursor: "pointer",
             }}
             onClick={() => setCurrentQuote(index)}
