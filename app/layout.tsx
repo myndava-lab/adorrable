@@ -36,13 +36,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased min-h-screen bg-offwhite text-charcoal`} style={{ margin: 0, padding: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
-        <main className="min-h-[90vh]">{children}</main>
+        <main className="min-h-screen">{children}</main>
         <InspirationalWidget />
         <CrispChat />
-        <footer className="text-center py-4">
-          <p>Adorrable.dev — Made for everyone, with a touch of Africa. 🌍</p>
-          <p>Payments by Myndava AI Systems LLC</p>
-        </footer>
       </body>
     </html>
   );
