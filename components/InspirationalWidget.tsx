@@ -22,17 +22,13 @@ export default function InspirationalWidget() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
     
     const interval = setInterval(() => {
       setCurrentQuote((prev) => (prev + 1) % QUOTES.length);
     }, 6000);
 
     return () => clearInterval(interval);
-  }, [mounted]);
+  }, []);
 
   if (!mounted || !isVisible) {
     return null;
