@@ -227,11 +227,25 @@ const playCompletionSound = () => {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Supabase URL and Anon Key must be provided.");
-}
+// Create a default/mock client if environment variables are missing
+let supabase: any;
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+if (supabaseUrl && supabaseAnonKey) {
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
+} else {
+  console.warn("Supabase environment variables missing. Using mock client.");
+  // Create a mock client for development
+  supabase = {
+    auth: {
+      signInWithOAuth: () => Promise.resolve({ error: { message: "Environment not configured" } }),
+      signInWithPassword: () => Promise.resolve({ error: { message: "Environment not configured" } }),
+      signUp: () => Promise.resolve({ error: { message: "Environment not configured" } }),
+      signOut: () => Promise.resolve({ error: null }),
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+    }
+  };
+}
 
 // Auth Modal Component (Assuming it's in components/AuthModal.tsx)
 // It should handle sign-up/sign-in with email, Google, and LinkedIn
@@ -242,35 +256,45 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
   const [error, setError] = useState(null);
 
   const handleGoogleSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-    });
-    if (error) setError(error.message);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+      if (error) setError(error.message);
+    } catch (err) {
+      setError("Authentication service not configured. Please try again later.");
+    }
   };
 
   const handleLinkedInSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'linkedin',
-    });
-    if (error) setError(error.message);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'linkedin',
+      });
+      if (error) setError(error.message);
+    } catch (err) {
+      setError("Authentication service not configured. Please try again later.");
+    }
   };
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    if (isSignIn) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) setError(error.message);
-      else onSuccess();
-    } else {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) setError(error.message);
-      else {
-        // Typically, you'd send a confirmation email here and maybe auto-login
-        // For simplicity, we'll just show a success message and let the user sign in
-        alert('Check your email for confirmation!');
-        setIsSignIn(true); // Switch to sign in form
+    try {
+      if (isSignIn) {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) setError(error.message);
+        else onSuccess();
+      } else {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) setError(error.message);
+        else {
+          alert('Check your email for confirmation!');
+          setIsSignIn(true);
+        }
       }
+    } catch (err) {
+      setError("Authentication service not configured. Please try again later.");
     }
   };
 
