@@ -625,7 +625,216 @@ export default function Home() {
     }
   ];
 
-  // Multi-language placeholder messages
+  // Community Template Modal Component - Proper React component
+const CommunityTemplateModal = ({ 
+  showCommunityModal, 
+  selectedCommunityTemplate, 
+  setShowCommunityModal, 
+  setSelectedCommunityTemplate,
+  setGeneratedCode,
+  setGeneratedTemplate,
+  setViewMode 
+}) => {
+  if (!showCommunityModal || !selectedCommunityTemplate) return null;
+
+  const handleCloseModal = () => {
+    setShowCommunityModal(false);
+    setSelectedCommunityTemplate(null);
+  };
+
+  const handleOpenProject = () => {
+    setGeneratedCode(selectedCommunityTemplate.code);
+    setGeneratedTemplate({
+      id: `community-${selectedCommunityTemplate.title.replace(/\s+/g, '-').toLowerCase()}`,
+      title: selectedCommunityTemplate.title,
+      language: 'English',
+      code: selectedCommunityTemplate.code,
+      createdAt: new Date().toISOString()
+    });
+    setViewMode("split");
+    handleCloseModal();
+  };
+
+  const handleRemixTemplate = (e) => {
+    e.preventDefault();
+    navigator.clipboard.writeText(selectedCommunityTemplate.code);
+    const btn = e.target;
+    const originalText = btn.textContent;
+    btn.textContent = "Copied!";
+    btn.style.background = "rgba(16, 185, 129, 0.3)";
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.style.background = "rgba(255,255,255,0.1)";
+    }, 1500);
+  };
+
+  return (
+    <div
+      key={`modal-${selectedCommunityTemplate.title}`}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: "rgba(0,0,0,0.9)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 9999,
+        backdropFilter: "blur(12px)",
+        padding: "20px"
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleCloseModal();
+        }
+      }}
+    >
+      <div
+        style={{
+          background: "linear-gradient(135deg, #1e293b, #334155)",
+          borderRadius: "20px",
+          width: "90vw",
+          height: "85vh",
+          maxWidth: "1400px",
+          maxHeight: "900px",
+          border: "1px solid rgba(255,255,255,0.1)",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
+          animation: "modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div style={{
+          padding: "24px 32px",
+          borderBottom: "1px solid rgba(255,255,255,0.1)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexShrink: 0,
+          background: "rgba(15, 23, 42, 0.8)"
+        }}>
+          <div>
+            <h2 style={{
+              color: "white",
+              fontSize: "24px",
+              fontWeight: "700",
+              margin: "0 0 4px 0"
+            }}>
+              {selectedCommunityTemplate.title}
+            </h2>
+            <p style={{
+              color: "rgba(255,255,255,0.6)",
+              fontSize: "14px",
+              margin: "0"
+            }}>
+              by Stephane Boghossian
+            </p>
+          </div>
+
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <button
+              onClick={handleOpenProject}
+              style={{
+                padding: "12px 24px",
+                background: "linear-gradient(135deg, #10B981, #059669)",
+                color: "white",
+                border: "none",
+                borderRadius: "10px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all 0.2s ease"
+              }}
+            >
+              Open Project
+            </button>
+
+            <button
+              onClick={handleRemixTemplate}
+              style={{
+                padding: "12px 24px",
+                background: "rgba(255,255,255,0.1)",
+                color: "white",
+                border: "none",
+                borderRadius: "10px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all 0.2s ease"
+              }}
+            >
+              Remix
+            </button>
+
+            <button
+              onClick={handleCloseModal}
+              style={{
+                background: "rgba(239, 68, 68, 0.1)",
+                border: "1px solid rgba(239, 68, 68, 0.3)",
+                color: "#EF4444",
+                fontSize: "20px",
+                cursor: "pointer",
+                padding: "10px",
+                borderRadius: "50%",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.2s ease"
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+
+        {/* Modal Preview - Static iframe to prevent re-rendering */}
+        <div style={{
+          flex: 1,
+          background: "white",
+          position: "relative",
+          overflow: "hidden"
+        }}>
+          <iframe
+            key={`preview-${selectedCommunityTemplate.title}`}
+            style={{
+              width: "100%",
+              height: "100%",
+              border: "none",
+              background: "white",
+              display: "block"
+            }}
+            srcDoc={selectedCommunityTemplate.code}
+            title={`${selectedCommunityTemplate.title} Preview`}
+            sandbox="allow-scripts allow-same-origin"
+            loading="eager"
+          />
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes modalSlideIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+// Multi-language placeholder messages
   const placeholderMessages = {
     English: [
       "Create a landing page for a Lagos fashion brand with a product grid",
@@ -2678,206 +2887,10 @@ export default function Home() {
     </div>
   );
 
-  // Community Template Modal Component - Memoized to prevent unnecessary re-renders
-  const CommunityTemplateModal = useCallback(() => {
-    if (!showCommunityModal || !selectedCommunityTemplate) return null;
+  // Pricing Modal Component
+  const PricingModal = () => (
 
-    const handleCloseModal = useCallback(() => {
-      setShowCommunityModal(false);
-      setSelectedCommunityTemplate(null);
-    }, []);
-
-    const handleOpenProject = useCallback(() => {
-      setGeneratedCode(selectedCommunityTemplate.code);
-      setGeneratedTemplate({
-        id: `community-${selectedCommunityTemplate.title.replace(/\s+/g, '-').toLowerCase()}`,
-        title: selectedCommunityTemplate.title,
-        language: 'English',
-        code: selectedCommunityTemplate.code,
-        createdAt: new Date().toISOString()
-      });
-      setViewMode("split");
-      handleCloseModal();
-    }, [selectedCommunityTemplate]);
-
-    const handleRemixTemplate = useCallback((e) => {
-      e.preventDefault();
-      navigator.clipboard.writeText(selectedCommunityTemplate.code);
-      const btn = e.target;
-      const originalText = btn.textContent;
-      btn.textContent = "Copied!";
-      btn.style.background = "rgba(16, 185, 129, 0.3)";
-      setTimeout(() => {
-        btn.textContent = originalText;
-        btn.style.background = "rgba(255,255,255,0.1)";
-      }, 1500);
-    }, [selectedCommunityTemplate]);
-
-    return (
-      <div
-        key={`modal-${selectedCommunityTemplate.title}`}
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "rgba(0,0,0,0.9)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 9999,
-          backdropFilter: "blur(12px)",
-          padding: "20px"
-        }}
-        onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            handleCloseModal();
-          }
-        }}
-      >
-        <div
-          style={{
-            background: "linear-gradient(135deg, #1e293b, #334155)",
-            borderRadius: "20px",
-            width: "90vw",
-            height: "85vh",
-            maxWidth: "1400px",
-            maxHeight: "900px",
-            border: "1px solid rgba(255,255,255,0.1)",
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-            boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
-            animation: "modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)"
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Modal Header */}
-          <div style={{
-            padding: "24px 32px",
-            borderBottom: "1px solid rgba(255,255,255,0.1)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexShrink: 0,
-            background: "rgba(15, 23, 42, 0.8)"
-          }}>
-            <div>
-              <h2 style={{
-                color: "white",
-                fontSize: "24px",
-                fontWeight: "700",
-                margin: "0 0 4px 0"
-              }}>
-                {selectedCommunityTemplate.title}
-              </h2>
-              <p style={{
-                color: "rgba(255,255,255,0.6)",
-                fontSize: "14px",
-                margin: "0"
-              }}>
-                by Stephane Boghossian
-              </p>
-            </div>
-
-            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-              <button
-                onClick={handleOpenProject}
-                style={{
-                  padding: "12px 24px",
-                  background: "linear-gradient(135deg, #10B981, #059669)",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "10px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease"
-                }}
-              >
-                Open Project
-              </button>
-
-              <button
-                onClick={handleRemixTemplate}
-                style={{
-                  padding: "12px 24px",
-                  background: "rgba(255,255,255,0.1)",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "10px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease"
-                }}
-              >
-                Remix
-              </button>
-
-              <button
-                onClick={handleCloseModal}
-                style={{
-                  background: "rgba(239, 68, 68, 0.1)",
-                  border: "1px solid rgba(239, 68, 68, 0.3)",
-                  color: "#EF4444",
-                  fontSize: "20px",
-                  cursor: "pointer",
-                  padding: "10px",
-                  borderRadius: "50%",
-                  width: "40px",
-                  height: "40px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "all 0.2s ease"
-                }}
-              >
-                ×
-              </button>
-            </div>
-          </div>
-
-          {/* Modal Preview - Static iframe to prevent re-rendering */}
-          <div style={{
-            flex: 1,
-            background: "white",
-            position: "relative",
-            overflow: "hidden"
-          }}>
-            <iframe
-              key={`preview-${selectedCommunityTemplate.title}`}
-              style={{
-                width: "100%",
-                height: "100%",
-                border: "none",
-                background: "white",
-                display: "block"
-              }}
-              srcDoc={selectedCommunityTemplate.code}
-              title={`${selectedCommunityTemplate.title} Preview`}
-              sandbox="allow-scripts allow-same-origin"
-              loading="eager"
-            />
-          </div>
-        </div>
-
-        <style jsx>{`
-          @keyframes modalSlideIn {
-            from {
-              opacity: 0;
-              transform: scale(0.95) translateY(-20px);
-            }
-            to {
-              opacity: 1;
-              transform: scale(1) translateY(0);
-            }
-          }
-        `}</style>
-      </div>
-    );
-  }, [showCommunityModal, selectedCommunityTemplate]);
+    
 
   // Pricing Modal Component
   const PricingModal = () => (
@@ -3787,7 +3800,15 @@ export default function Home() {
       {showPricing && <PricingModal />}
 
       {/* Community Template Modal */}
-      {showCommunityModal && selectedCommunityTemplate && <CommunityTemplateModal />}
+      <CommunityTemplateModal 
+        showCommunityModal={showCommunityModal}
+        selectedCommunityTemplate={selectedCommunityTemplate}
+        setShowCommunityModal={setShowCommunityModal}
+        setSelectedCommunityTemplate={setSelectedCommunityTemplate}
+        setGeneratedCode={setGeneratedCode}
+        setGeneratedTemplate={setGeneratedTemplate}
+        setViewMode={setViewMode}
+      />
 
       {/* Auth Modal */}
       <AuthModal
