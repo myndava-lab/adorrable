@@ -111,3 +111,25 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+import { NextRequest, NextResponse } from 'next/server'
+
+export async function POST(req: NextRequest) {
+  try {
+    const template = await req.json()
+    
+    // Mock save - in production, save to database
+    console.log('Saving template:', template.title)
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Template saved successfully'
+    })
+
+  } catch (error) {
+    console.error('Save error:', error)
+    return NextResponse.json(
+      { success: false, message: 'Failed to save template' },
+      { status: 500 }
+    )
+  }
+}

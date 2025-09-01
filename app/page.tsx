@@ -240,28 +240,28 @@ function createMockClient() {
 }
 
 // Initialize Supabase client with proper error handling
-const initializeSupabase = () => {
-  if (typeof window !== 'undefined') {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const createSupabaseClient = () => {
+  if (typeof window === 'undefined') {
+    return createMockClient();
+  }
 
-    if (supabaseUrl && supabaseAnonKey) {
-      try {
-        return createClient(supabaseUrl, supabaseAnonKey);
-      } catch (error) {
-        console.error("Supabase initialization error:", error);
-        return createMockClient();
-      }
-    } else {
-      console.warn("Supabase environment variables missing. Using mock client.");
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (supabaseUrl && supabaseAnonKey) {
+    try {
+      return createClient(supabaseUrl, supabaseAnonKey);
+    } catch (error) {
+      console.error("Supabase initialization error:", error);
       return createMockClient();
     }
   } else {
+    console.warn("Supabase environment variables missing. Using mock client.");
     return createMockClient();
   }
 };
 
-const supabase = initializeSupabase();
+const supabaseClient = createSupabaseClient();
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -338,7 +338,7 @@ export default function Home() {
       "Développer un portfolio d'agence de design minimaliste nordique",
       "Construire un site e-commerce d'équipement de plein air australien",
       "Créer une plateforme de réservation de cérémonie du thé japonaise",
-      "Concevoir un site web de conseil en ingénierie allemand",
+      "Beni tovuti ya ushauri wa uhandisi wa Kijerumani",
       "Construire un site de gestion d'événements de carnaval brésilien",
       "Créer une plateforme de marché d'épices indiennes",
       "Concevoir un site web de ferme de sirop d'érable canadien"
@@ -842,13 +842,13 @@ export default function Home() {
   // Auth state management
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { session } } = await supabaseClient.auth.getSession()
       setUser(session?.user || null)
     }
 
     checkUser()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user || null)
       }
@@ -953,7 +953,7 @@ export default function Home() {
   }
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
+    await supabaseClient.auth.signOut()
     setShowDropdown(false)
     setUser(null) // Clear user state
     setCredits(0) // Reset credits on sign out
@@ -2738,7 +2738,7 @@ export default function Home() {
           setShowAuthModal(false);
           // Fetch user data or update state after successful auth
           const fetchUser = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             setUser(session?.user || null);
             // Optionally fetch initial credits here
             setCredits(4); // Resetting credits for demo purposes

@@ -140,3 +140,86 @@ export default function InspirationalWidget() {
     </>
   );
 }
+'use client'
+
+import { useState, useEffect } from 'react'
+
+const inspirationalQuotes = [
+  {
+    text: "The best time to plant a tree was 20 years ago. The second best time is now.",
+    author: "African Proverb"
+  },
+  {
+    text: "If you want to go fast, go alone. If you want to go far, go together.",
+    author: "African Proverb"
+  },
+  {
+    text: "A dream doesn't become reality through magic; it takes sweat, determination and hard work.",
+    author: "Colin Powell"
+  },
+  {
+    text: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+    author: "Winston Churchill"
+  }
+]
+
+interface InspirationalWidgetProps {
+  isVisible: boolean
+  onClose: () => void
+}
+
+export default function InspirationalWidget({ isVisible, onClose }: InspirationalWidgetProps) {
+  const [currentQuote, setCurrentQuote] = useState(0)
+  const [fadeClass, setFadeClass] = useState('opacity-100')
+
+  useEffect(() => {
+    if (!isVisible) return
+
+    const interval = setInterval(() => {
+      setFadeClass('opacity-0')
+      setTimeout(() => {
+        setCurrentQuote((prev) => (prev + 1) % inspirationalQuotes.length)
+        setFadeClass('opacity-100')
+      }, 300)
+    }, 4000)
+
+    return () => clearInterval(interval)
+  }, [isVisible])
+
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(() => {
+        setFadeClass('opacity-0')
+        setTimeout(onClose, 500)
+      }, 10000) // Show for 10 seconds
+
+      return () => clearTimeout(timer)
+    }
+  }, [isVisible, onClose])
+
+  if (!isVisible) return null
+
+  const quote = inspirationalQuotes[currentQuote]
+
+  return (
+    <div
+      className={`fixed top-20 right-4 max-w-sm bg-gradient-to-r from-emerald-500 to-blue-500 text-white p-6 rounded-lg shadow-lg transition-all duration-500 ${fadeClass} ${isVisible ? 'translate-y-0' : 'translate-y-[-100%]'}`}
+      style={{ zIndex: 1000 }}
+    >
+      <div className="flex justify-between items-start mb-3">
+        <div className="text-lg font-semibold">✨ Inspiration</div>
+        <button
+          onClick={onClose}
+          className="text-white hover:text-gray-200 text-xl leading-none"
+        >
+          ×
+        </button>
+      </div>
+      
+      <div className={`transition-opacity duration-300 ${fadeClass}`}>
+        <p className="text-sm mb-3 leading-relaxed">"{quote.text}"</p>
+        <p className="text-xs opacity-90">— {quote.author}</p>
+      </div>
+    </div>
+  )
+}

@@ -186,3 +186,57 @@ Generate a complete HTML file with embedded CSS and JavaScript that creates a be
     );
   }
 }
+import { NextRequest, NextResponse } from 'next/server'
+
+export async function POST(req: NextRequest) {
+  try {
+    const { prompt, language, images, culturalConfig } = await req.json()
+
+    // Mock response for now - replace with actual AI integration
+    const mockTemplate = {
+      id: Date.now().toString(),
+      title: `${language} Website Template`,
+      language: language,
+      code: `<!DOCTYPE html>
+<html lang="${language.toLowerCase()}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Template</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        .header { background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 40px; text-align: center; }
+        .content { padding: 40px; }
+        .footer { background: #1f2937; color: white; padding: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to Your ${language} Website</h1>
+        <p>Generated based on: ${prompt}</p>
+    </div>
+    <div class="content">
+        <h2>Your Content Here</h2>
+        <p>This template was generated with cultural adaptation for ${culturalConfig?.detectedRegion || 'Global'} market.</p>
+    </div>
+    <div class="footer">
+        <p>Powered by Adorrable.dev</p>
+    </div>
+</body>
+</html>`
+    }
+
+    return NextResponse.json({
+      success: true,
+      template: mockTemplate,
+      usage: { total_tokens: 1000 }
+    })
+
+  } catch (error) {
+    console.error('Generation error:', error)
+    return NextResponse.json(
+      { success: false, message: 'Failed to generate template' },
+      { status: 500 }
+    )
+  }
+}

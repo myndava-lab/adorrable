@@ -31,3 +31,27 @@ export default function CrispChat() {
 
   return null; // This component doesn't render anything visible
 }
+'use client'
+
+import { useEffect } from 'react'
+
+export default function CrispChat() {
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const crispWebsiteId = process.env.NEXT_PUBLIC_CRISP_WEBSITE_ID
+
+      if (crispWebsiteId) {
+        // Load Crisp chat widget
+        window.$crisp = []
+        window.CRISP_WEBSITE_ID = crispWebsiteId
+
+        const script = document.createElement('script')
+        script.src = 'https://client.crisp.chat/l.js'
+        script.async = true
+        document.getElementsByTagName('head')[0].appendChild(script)
+      }
+    }
+  }, [])
+
+  return null
+}
