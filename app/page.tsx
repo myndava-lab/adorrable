@@ -2889,11 +2889,6 @@ const CommunityTemplateModal = ({
 
   // Pricing Modal Component
   const PricingModal = () => (
-
-    
-
-  // Pricing Modal Component
-  const PricingModal = () => (
     <div
       style={{
         position: "fixed",
