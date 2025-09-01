@@ -2874,15 +2874,24 @@ export default function Home() {
             overflow: "hidden"
           }}>
             <iframe
+              key={selectedCommunityTemplate.title}
               style={{
                 width: "100%",
                 height: "100%",
                 border: "none",
-                background: "white"
+                background: "white",
+                display: "block"
               }}
-              srcDoc={selectedCommunityTemplate.code}
+              src={`data:text/html;charset=utf-8,${encodeURIComponent(selectedCommunityTemplate.code)}`}
               title="Community Template Preview"
               sandbox="allow-scripts allow-same-origin"
+              onLoad={(e) => {
+                // Ensure iframe is stable after load
+                e.target.style.opacity = "1";
+              }}
+              onError={() => {
+                console.warn("Failed to load template preview");
+              }}
             />
           </div>
         </div>
