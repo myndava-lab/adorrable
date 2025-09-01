@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { createClient } from '@supabase/supabase-js';
 import CrispChat from "../components/CrispChat";
 import AuthModal from "../components/AuthModal";
+import InspirationalWidget from "../components/InspirationalWidget";
 
 // Dynamically import Monaco Editor to avoid SSR issues
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
@@ -239,26 +240,28 @@ function createMockClient() {
 }
 
 // Initialize Supabase client with proper error handling
-let supabase: any;
+const createSupabaseClient = () => {
+  if (typeof window === 'undefined') {
+    return createMockClient();
+  }
 
-if (typeof window !== 'undefined') {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (supabaseUrl && supabaseAnonKey) {
     try {
-      supabase = createClient(supabaseUrl, supabaseAnonKey);
+      return createClient(supabaseUrl, supabaseAnonKey);
     } catch (error) {
       console.error("Supabase initialization error:", error);
-      supabase = createMockClient();
+      return createMockClient();
     }
   } else {
     console.warn("Supabase environment variables missing. Using mock client.");
-    supabase = createMockClient();
+    return createMockClient();
   }
-} else {
-  supabase = createMockClient();
-}
+};
+
+const supabase = createSupabaseClient();
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -281,6 +284,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<"chat" | "code">("chat");
   const [showPricing, setShowPricing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showUpgrade, setShowUpgrade] = useState(false); // Added state for upgrade modal
 
   // Auth states
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -1074,7 +1078,7 @@ export default function Home() {
             borderRadius: "20px",
             padding: "20px",
             backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: "1px solid rgba(255,255,255,0.1)"
           }}
         >
           {chatMessages.map((message) => (
@@ -2109,12 +2113,12 @@ export default function Home() {
                 overflow: "hidden",
                 boxSizing: "border-box",
                 maxHeight: "60px",
-                wordWrap: "break-word",
+                wordBreak: "break-word",
                 hyphens: "auto",
               }}
             >
-              <span 
-                style={{ 
+              <span
+                style={{
                   overflow: "hidden",
                   display: "-webkit-box",
                   WebkitBoxOrient: "vertical",
