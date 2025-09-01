@@ -54,137 +54,7 @@ const ThinkingAnimation = () => {
   return <span>{steps[currentStep]}</span>;
 };
 
-// Success Quotes Component
-const SuccessQuotes = () => {
-  const quotes = [
-    {
-      text: "Adorrable helped me launch my fashion brand's website in minutes. The African-inspired designs were exactly what I needed!",
-      author: "Amina K.",
-      role: "Fashion Entrepreneur, Lagos"
-    },
-    {
-      text: "As a photographer, I needed a portfolio that stood out. Adorrable's cultural touch made all the difference.",
-      author: "Kwame A.",
-      role: "Photographer, Accra"
-    },
-    {
-      text: "The multi-language support in Pidgin, Swahili, and French opened up new markets for my restaurant.",
-      author: "Fatou D.",
-      role: "Restaurant Owner, Dakar"
-    },
-    {
-      text: "Building my tech startup's landing page was so easy. The AI understood exactly what we needed.",
-      author: "Chidi O.",
-      role: "Tech Founder, Abuja"
-    }
-  ];
 
-  const [currentQuote, setCurrentQuote] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentQuote((prev) => (prev + 1) % quotes.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div style={{
-      maxWidth: "800px",
-      margin: "80px auto",
-      padding: "0 24px",
-      textAlign: "center"
-    }}>
-      <h2 style={{
-        fontSize: "32px",
-        fontWeight: "700",
-        color: "white",
-        marginBottom: "48px",
-        background: "linear-gradient(135deg, #6EE7B7, #67E8F9)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent"
-      }}>
-        What Our Creators Say
-      </h2>
-
-      <div style={{
-        position: "relative",
-        height: "200px",
-        overflow: "hidden"
-      }}>
-        {quotes.map((quote, index) => (
-          <div
-            key={index}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              opacity: index === currentQuote ? 1 : 0,
-              transform: `translateY(${index === currentQuote ? 0 : 20}px)`,
-              transition: "all 0.8s ease-in-out",
-              background: "rgba(255,255,255,0.05)",
-              backdropFilter: "blur(10px)",
-              borderRadius: "20px",
-              padding: "32px",
-              border: "1px solid rgba(255,255,255,0.1)"
-            }}
-          >
-            <blockquote style={{
-              fontSize: "18px",
-              lineHeight: "1.6",
-              color: "rgba(255,255,255,0.9)",
-              marginBottom: "24px",
-              fontStyle: "italic"
-            }}>
-              "{quote.text}"
-            </blockquote>
-            <div>
-              <div style={{
-                fontSize: "16px",
-                fontWeight: "600",
-                color: "#10B981",
-                marginBottom: "4px"
-              }}>
-                {quote.author}
-              </div>
-              <div style={{
-                fontSize: "14px",
-                color: "rgba(255,255,255,0.6)"
-              }}>
-                {quote.role}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Quote indicators */}
-      <div style={{
-        display: "flex",
-        justifyContent: "center",
-        gap: "8px",
-        marginTop: "32px"
-      }}>
-        {quotes.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentQuote(index)}
-            style={{
-              width: "12px",
-              height: "12px",
-              borderRadius: "50%",
-              border: "none",
-              background: index === currentQuote ? "#10B981" : "rgba(255,255,255,0.3)",
-              cursor: "pointer",
-              transition: "all 0.3s ease"
-            }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
 
 // Completion Sound Function
 const playCompletionSound = () => {
@@ -1247,8 +1117,292 @@ export default function Home() {
       )}
       {renderInputSection()}
 
-      {/* Success Quotes Section */}
-      <SuccessQuotes />
+      {/* Global Workspace Section */}
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "80px auto 0",
+          padding: "0 24px",
+        }}
+      >
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "32px"
+        }}>
+          <h2 style={{
+            fontSize: "24px",
+            fontWeight: "700",
+            color: "white",
+            margin: "0"
+          }}>
+            Global's Lovable's Workspace
+          </h2>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "16px"
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              background: "rgba(255,255,255,0.1)",
+              padding: "8px 12px",
+              borderRadius: "8px"
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+              </svg>
+              <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "14px" }}>Search projects...</span>
+            </div>
+            <select style={{
+              background: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              borderRadius: "8px",
+              padding: "8px 12px",
+              color: "rgba(255,255,255,0.8)",
+              fontSize: "14px"
+            }}>
+              <option>Last edited</option>
+              <option>Newest first</option>
+            </select>
+            <select style={{
+              background: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              borderRadius: "8px",
+              padding: "8px 12px",
+              color: "rgba(255,255,255,0.8)",
+              fontSize: "14px"
+            }}>
+              <option>All creators</option>
+            </select>
+            <button style={{
+              background: "none",
+              border: "none",
+              color: "rgba(255,255,255,0.6)",
+              fontSize: "14px",
+              cursor: "pointer"
+            }}>
+              View All
+            </button>
+          </div>
+        </div>
+
+        {/* Project Cards */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: "24px",
+          marginBottom: "48px"
+        }}>
+          <div style={{
+            background: "rgba(255,255,255,0.05)",
+            borderRadius: "12px",
+            overflow: "hidden",
+            border: "1px solid rgba(255,255,255,0.1)"
+          }}>
+            <div style={{
+              height: "160px",
+              background: "linear-gradient(135deg, #F59E0B, #D97706)",
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}>
+              <span style={{ color: "white", fontSize: "18px", fontWeight: "600" }}>Authentic Restaurant</span>
+            </div>
+            <div style={{ padding: "16px" }}>
+              <h3 style={{ color: "white", fontSize: "16px", fontWeight: "600", margin: "0 0 8px 0" }}>amala-on-demand</h3>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "rgba(255,255,255,0.6)",
+                fontSize: "12px"
+              }}>
+                <div style={{
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  background: "#10B981",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "10px",
+                  fontWeight: "600",
+                  color: "white"
+                }}>G</div>
+                <span>Edited 23 days ago</span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{
+            background: "rgba(255,255,255,0.05)",
+            borderRadius: "12px",
+            overflow: "hidden",
+            border: "1px solid rgba(255,255,255,0.1)"
+          }}>
+            <div style={{
+              height: "160px",
+              background: "linear-gradient(135deg, #1F2937, #374151)",
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}>
+              <span style={{ color: "white", fontSize: "18px", fontWeight: "600" }}>Under Construction</span>
+              <div style={{
+                position: "absolute",
+                top: "12px",
+                right: "12px",
+                background: "#10B981",
+                color: "white",
+                padding: "4px 8px",
+                borderRadius: "4px",
+                fontSize: "10px",
+                fontWeight: "600"
+              }}>
+                Published
+              </div>
+            </div>
+            <div style={{ padding: "16px" }}>
+              <h3 style={{ color: "white", fontSize: "16px", fontWeight: "600", margin: "0 0 8px 0" }}>warrant-partners-web</h3>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "rgba(255,255,255,0.6)",
+                fontSize: "12px"
+              }}>
+                <div style={{
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  background: "#10B981",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "10px",
+                  fontWeight: "600",
+                  color: "white"
+                }}>G</div>
+                <span>Edited 25 days ago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* From the Community Section */}
+        <div style={{ marginBottom: "48px" }}>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "24px"
+          }}>
+            <h3 style={{
+              fontSize: "20px",
+              fontWeight: "600",
+              color: "white",
+              margin: "0"
+            }}>
+              From the Community
+            </h3>
+            <button style={{
+              background: "none",
+              border: "none",
+              color: "rgba(255,255,255,0.6)",
+              fontSize: "14px",
+              cursor: "pointer"
+            }}>
+              View All
+            </button>
+          </div>
+
+          {/* Category Tabs */}
+          <div style={{
+            display: "flex",
+            gap: "24px",
+            marginBottom: "24px",
+            borderBottom: "1px solid rgba(255,255,255,0.1)",
+            paddingBottom: "12px"
+          }}>
+            {["Popular", "Discover", "Internal Tools", "Website", "Personal", "Consumer App", "B2B App", "Prototype"].map((tab, index) => (
+              <button
+                key={tab}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: index === 0 ? "white" : "rgba(255,255,255,0.6)",
+                  fontSize: "14px",
+                  fontWeight: index === 0 ? "600" : "400",
+                  cursor: "pointer",
+                  borderBottom: index === 0 ? "2px solid #10B981" : "none",
+                  paddingBottom: "4px"
+                }}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Community Templates Grid */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+            gap: "20px"
+          }}>
+            {[
+              { title: "E-commerce Store", type: "Website", color: "#10B981" },
+              { title: "SaaS Landing Page", type: "Website", color: "#3B82F6" },
+              { title: "Portfolio Site", type: "Personal", color: "#8B5CF6" },
+              { title: "Restaurant Menu", type: "Business", color: "#F59E0B" },
+              { title: "Event Booking", type: "App", color: "#EF4444" },
+              { title: "Blog Platform", type: "Website", color: "#6366F1" }
+            ].map((template, index) => (
+              <div
+                key={index}
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  cursor: "pointer",
+                  transition: "transform 0.2s ease"
+                }}
+                onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
+                onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
+              >
+                <div style={{
+                  height: "120px",
+                  background: template.color,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}>
+                  <span style={{ color: "white", fontSize: "14px", fontWeight: "600" }}>{template.title}</span>
+                </div>
+                <div style={{ padding: "12px" }}>
+                  <div style={{
+                    fontSize: "12px",
+                    color: "rgba(255,255,255,0.6)",
+                    background: "rgba(255,255,255,0.1)",
+                    padding: "2px 6px",
+                    borderRadius: "4px",
+                    display: "inline-block"
+                  }}>
+                    {template.type}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Simple Footer */}
       <div
