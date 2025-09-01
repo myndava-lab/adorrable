@@ -20,6 +20,13 @@ interface ChatMessage {
   images?: any[];
 }
 
+interface PricePackage {
+  name: string;
+  credits: number;
+  price: string;
+  popular: boolean;
+}
+
 // Thinking Animation Component
 const ThinkingAnimation = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -112,7 +119,7 @@ export default function Home() {
 
   const languages: Language[] = [
     "English",
-    "French", 
+    "French",
     "Swahili",
     "Pidgin",
   ];
@@ -159,28 +166,28 @@ export default function Home() {
           <title>Lagos Fashion Brand</title>
           <style>
               * { margin: 0; padding: 0; box-sizing: border-box; }
-              body { 
-                  font-family: 'Inter', sans-serif; 
+              body {
+                  font-family: 'Inter', sans-serif;
                   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                   color: #333;
               }
-              .hero { 
-                  min-height: 100vh; 
-                  display: flex; 
-                  align-items: center; 
+              .hero {
+                  min-height: 100vh;
+                  display: flex;
+                  align-items: center;
                   justify-content: center;
                   text-align: center;
                   padding: 2rem;
               }
-              .hero h1 { 
-                  font-size: clamp(2rem, 5vw, 4rem); 
-                  color: white; 
+              .hero h1 {
+                  font-size: clamp(2rem, 5vw, 4rem);
+                  color: white;
                   margin-bottom: 1rem;
                   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
               }
-              .hero p { 
-                  font-size: 1.2rem; 
-                  color: rgba(255,255,255,0.9); 
+              .hero p {
+                  font-size: 1.2rem;
+                  color: rgba(255,255,255,0.9);
                   max-width: 600px;
                   margin: 0 auto 2rem;
               }
@@ -201,47 +208,47 @@ export default function Home() {
                   transform: translateY(-2px);
                   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
               }
-              .products { 
-                  padding: 4rem 2rem; 
+              .products {
+                  padding: 4rem 2rem;
                   background: white;
               }
-              .product-grid { 
-                  display: grid; 
-                  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-                  gap: 2rem; 
-                  max-width: 1200px; 
+              .product-grid {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                  gap: 2rem;
+                  max-width: 1200px;
                   margin: 0 auto;
               }
-              .product-card { 
-                  background: #f8f9fa; 
-                  border-radius: 16px; 
-                  overflow: hidden; 
+              .product-card {
+                  background: #f8f9fa;
+                  border-radius: 16px;
+                  overflow: hidden;
                   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
                   transition: transform 0.3s ease;
               }
-              .product-card:hover { 
-                  transform: translateY(-5px); 
+              .product-card:hover {
+                  transform: translateY(-5px);
               }
-              .product-image { 
-                  height: 250px; 
-                  background: linear-gradient(45deg, #667eea, #764ba2); 
+              .product-image {
+                  height: 250px;
+                  background: linear-gradient(45deg, #667eea, #764ba2);
                   display: flex;
                   align-items: center;
                   justify-content: center;
                   color: white;
                   font-size: 18px;
               }
-              .product-info { 
-                  padding: 1.5rem; 
+              .product-info {
+                  padding: 1.5rem;
               }
-              .product-title { 
-                  font-size: 1.2rem; 
-                  font-weight: 600; 
+              .product-title {
+                  font-size: 1.2rem;
+                  font-weight: 600;
                   margin-bottom: 0.5rem;
               }
-              .product-price { 
-                  color: #10B981; 
-                  font-size: 1.1rem; 
+              .product-price {
+                  color: #10B981;
+                  font-size: 1.1rem;
                   font-weight: 600;
               }
           </style>
@@ -1295,7 +1302,6 @@ export default function Home() {
                     insertSpaces: true,
                   }}
                 />
-                =
               </div>
             )}
           </div>
@@ -1484,13 +1490,13 @@ export default function Home() {
         >
           Choose Your Plan
         </h2>
-        
+
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
           {[
             { name: "Starter", credits: 50, price: "$9.99", popular: false },
             { name: "Creator", credits: 200, price: "$29.99", popular: true },
             { name: "Business", credits: 500, price: "$59.99", popular: false },
-          ].map((plan) => (
+          ].map((plan: PricePackage) => (
             <div
               key={plan.name}
               style={{
@@ -1520,7 +1526,7 @@ export default function Home() {
                   POPULAR
                 </div>
               )}
-              
+
               <h3 style={{ color: "white", fontSize: "20px", marginBottom: "8px" }}>
                 {plan.name}
               </h3>
@@ -1530,7 +1536,7 @@ export default function Home() {
               <div style={{ color: "white", fontSize: "32px", fontWeight: "700", marginBottom: "20px" }}>
                 {plan.price}
               </div>
-              
+
               <button
                 style={{
                   width: "100%",
@@ -1554,7 +1560,7 @@ export default function Home() {
             </div>
           ))}
         </div>
-        
+
         <button
           onClick={() => setShowPricing(false)}
           style={{
@@ -2077,7 +2083,7 @@ export default function Home() {
       `}</style>
 
       {renderContent()}
-      
+
       {/* Pricing Modal */}
       {showPricing && <PricingModal />}
     </div>
