@@ -2245,7 +2245,7 @@ export default function Home() {
     </div>
   );
 
-  // Consolidate language and message effects to prevent hook order issues
+  // Update language for existing messages when language changes
   useEffect(() => {
     try {
       console.log('Language:', language)
@@ -2256,23 +2256,11 @@ export default function Home() {
       // Update language for existing messages
       setChatMessages(prev => prev.map(msg => ({...msg, language: language})))
       setError(null)
-      
-      // Handle message rotation only if we have chat messages
-      let interval;
-      if (chatMessages.length > 0) {
-        interval = setInterval(() => {
-          setMessageIndex((prev) => (prev + 1) % chatMessages.length)
-        }, 3000)
-      }
-
-      return () => {
-        if (interval) clearInterval(interval)
-      }
     } catch (err) {
-      console.error('Error in language/message effect:', err)
+      console.error('Error in language effect:', err)
       setError('Failed to load language content')
     }
-  }, [language, chatMessages.length]);
+  }, [language]);
 
 
   return (
