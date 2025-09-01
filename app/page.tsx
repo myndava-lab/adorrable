@@ -1121,7 +1121,7 @@ export default function Home() {
       <div
         style={{
           maxWidth: "1200px",
-          margin: "80px auto 0",
+          margin: "120px auto 0",
           padding: "0 24px",
         }}
       >
@@ -1137,7 +1137,7 @@ export default function Home() {
             color: "white",
             margin: "0"
           }}>
-            Global's Lovable's Workspace
+            Global Adorrable's Workspace
           </h2>
           <div style={{
             display: "flex",
@@ -1295,33 +1295,40 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* From the Community Section */}
-        <div style={{ marginBottom: "48px" }}>
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "24px"
+      {/* From the Community Section */}
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "60px auto 0",
+          padding: "0 24px",
+        }}
+      >
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "24px"
+        }}>
+          <h2 style={{
+            fontSize: "24px",
+            fontWeight: "700",
+            color: "white",
+            margin: "0"
           }}>
-            <h3 style={{
-              fontSize: "20px",
-              fontWeight: "600",
-              color: "white",
-              margin: "0"
-            }}>
-              From the Community
-            </h3>
-            <button style={{
-              background: "none",
-              border: "none",
-              color: "rgba(255,255,255,0.6)",
-              fontSize: "14px",
-              cursor: "pointer"
-            }}>
-              View All
-            </button>
-          </div>
+            From the Community
+          </h2>
+          <button style={{
+            background: "none",
+            border: "none",
+            color: "rgba(255,255,255,0.6)",
+            fontSize: "14px",
+            cursor: "pointer"
+          }}>
+            View All
+          </button>
+        </div>
 
           {/* Category Tabs */}
           <div style={{
@@ -1402,7 +1409,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </div>
 
       {/* Simple Footer */}
       <div
