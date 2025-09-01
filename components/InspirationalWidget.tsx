@@ -17,14 +17,17 @@ const QUOTES = [
 
 export default function InspirationalWidget() {
   const [currentQuote, setCurrentQuote] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentQuote((prev) => (prev + 1) % QUOTES.length);
-    }, 4000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
+
+  if (!isVisible) return null;
 
   return (
     <div
@@ -32,29 +35,58 @@ export default function InspirationalWidget() {
         position: "fixed",
         bottom: "20px",
         right: "20px",
-        width: "300px",
+        width: "320px",
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         borderRadius: "16px",
-        padding: "20px",
+        padding: "24px",
         color: "white",
         boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
         backdropFilter: "blur(10px)",
         border: "1px solid rgba(255,255,255,0.1)",
         zIndex: 1000,
-        transition: "all 0.3s ease",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        transform: "translateZ(0)",
+        willChange: "transform",
       }}
     >
+      <div style={{
+        position: "absolute",
+        top: "8px",
+        right: "8px",
+        cursor: "pointer",
+        width: "24px",
+        height: "24px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "50%",
+        background: "rgba(255,255,255,0.2)",
+        fontSize: "16px",
+        fontWeight: "bold",
+        transition: "background 0.2s ease"
+      }}
+      onClick={() => setIsVisible(false)}
+      onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"}
+      onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}
+      >
+        ×
+      </div>
+
       <div
         style={{
-          fontSize: "14px",
-          lineHeight: "1.5",
+          fontSize: "15px",
+          lineHeight: "1.6",
           textAlign: "center",
-          minHeight: "60px",
+          minHeight: "72px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           fontWeight: "500",
+          opacity: 1,
+          transform: "translateY(0)",
+          transition: "all 0.4s ease-in-out",
         }}
+        key={currentQuote}
       >
         {QUOTES[currentQuote].text}
       </div>
@@ -64,19 +96,21 @@ export default function InspirationalWidget() {
           display: "flex",
           justifyContent: "center",
           gap: "6px",
-          marginTop: "16px",
+          marginTop: "20px",
         }}
       >
         {QUOTES.map((_, index) => (
           <div
-            key={index}
+            key={`indicator-${index}`}
             style={{
               width: "8px",
               height: "8px",
               borderRadius: "50%",
-              background: currentQuote === index ? "white" : "rgba(255,255,255,0.3)",
+              background: currentQuote === index ? "white" : "rgba(255,255,255,0.4)",
               transition: "all 0.3s ease",
+              cursor: "pointer",
             }}
+            onClick={() => setCurrentQuote(index)}
           />
         ))}
       </div>
