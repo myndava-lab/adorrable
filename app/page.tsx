@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
+import { createClient } from '@supabase/supabase-js';
 import CrispChat from "../components/CrispChat";
 
 // Dynamically import Monaco Editor to avoid SSR issues
