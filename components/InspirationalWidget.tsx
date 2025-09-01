@@ -77,8 +77,7 @@ export default function InspirationalWidget() {
         }
         
         .inspirational-widget {
-          animation: ${isVisible && !isAnimatingOut ? 'slideInFromRight 6s cubic-bezier(0.16, 1, 0.3, 1)' : ''};
-          animation: ${isAnimatingOut ? 'fadeOutSlideDown 7s cubic-bezier(0.55, 0, 0.45, 1)' : ''};
+          animation: ${isVisible && !isAnimatingOut ? 'slideInFromRight 6s cubic-bezier(0.16, 1, 0.3, 1) forwards' : isAnimatingOut ? 'fadeOutSlideDown 7s cubic-bezier(0.55, 0, 0.45, 1) forwards' : ''};
         }
       `}</style>
       
@@ -98,9 +97,8 @@ export default function InspirationalWidget() {
           zIndex: 1000,
           backdropFilter: "blur(10px)",
           border: "1px solid rgba(255,255,255,0.1)",
-          transform: isVisible ? "translateX(0) scale(1)" : "translateX(100%) scale(0.8)",
-          opacity: isVisible ? 1 : 0,
-          transition: isVisible && !isAnimatingOut ? "none" : "all 0.3s ease"
+          transform: !isVisible && !isAnimatingOut ? "translateX(100%) scale(0.8)" : "translateX(0) scale(1)",
+          opacity: !isVisible && !isAnimatingOut ? 0 : 1
         }}
       >
         <p style={{ margin: "0 0 12px 0", lineHeight: "1.4" }}>{QUOTES[index].text}</p>
