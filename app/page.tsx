@@ -145,9 +145,9 @@ export default function Home() {
 
   // Memoized community templates to prevent re-creation
   const communityTemplates = [
-    { 
-      title: "E-commerce Store", 
-      type: "Website", 
+    {
+      title: "E-commerce Store",
+      type: "Website",
       color: "#10B981",
       code: `<!DOCTYPE html>
 <html lang="en">
@@ -219,9 +219,9 @@ export default function Home() {
 </body>
 </html>`
     },
-    { 
-      title: "SaaS Landing Page", 
-      type: "Website", 
+    {
+      title: "SaaS Landing Page",
+      type: "Website",
       color: "#3B82F6",
       code: `<!DOCTYPE html>
 <html lang="en">
@@ -280,9 +280,9 @@ export default function Home() {
 </body>
 </html>`
     },
-    { 
-      title: "Portfolio Site", 
-      type: "Personal", 
+    {
+      title: "Portfolio Site",
+      type: "Personal",
       color: "#8B5CF6",
       code: `<!DOCTYPE html>
 <html lang="en">
@@ -355,9 +355,9 @@ export default function Home() {
 </body>
 </html>`
     },
-    { 
-      title: "Restaurant Menu", 
-      type: "Business", 
+    {
+      title: "Restaurant Menu",
+      type: "Business",
       color: "#F59E0B",
       code: `<!DOCTYPE html>
 <html lang="en">
@@ -437,9 +437,9 @@ export default function Home() {
 </body>
 </html>`
     },
-    { 
-      title: "Event Booking", 
-      type: "App", 
+    {
+      title: "Event Booking",
+      type: "App",
       color: "#EF4444",
       code: `<!DOCTYPE html>
 <html lang="en">
@@ -533,9 +533,9 @@ export default function Home() {
 </body>
 </html>`
     },
-    { 
-      title: "Blog Platform", 
-      type: "Website", 
+    {
+      title: "Blog Platform",
+      type: "Website",
       color: "#6366F1",
       code: `<!DOCTYPE html>
 <html lang="en">
@@ -1646,7 +1646,7 @@ export default function Home() {
           gap: "24px",
           marginBottom: "48px"
         }}>
-          <div 
+          <div
             onClick={() => {
               const restaurantCode = `<!DOCTYPE html>
 <html lang="en">
@@ -1657,41 +1657,41 @@ export default function Home() {
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; line-height: 1.6; }
-        .hero { 
-            background: linear-gradient(135deg, #F59E0B, #D97706); 
-            min-height: 100vh; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            text-align: center; 
-            color: white; 
+        .hero {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
             padding: 2rem;
         }
         .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; }
         .hero p { font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem; }
-        .cta-btn { 
-            background: white; 
-            color: #F59E0B; 
-            padding: 16px 32px; 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 18px; 
-            font-weight: 600; 
-            cursor: pointer; 
+        .cta-btn {
+            background: white;
+            color: #F59E0B;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
         }
         .menu { padding: 4rem 2rem; background: #FEF3C7; }
-        .menu-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-            gap: 2rem; 
-            max-width: 1200px; 
-            margin: 0 auto; 
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        .menu-item { 
-            background: white; 
-            padding: 2rem; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        .menu-item {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             text-align: center;
         }
         .menu-item h3 { color: #F59E0B; margin-bottom: 1rem; }
@@ -1804,7 +1804,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div 
+          <div
             onClick={() => {
               const constructionCode = `<!DOCTYPE html>
 <html lang="en">
@@ -1814,51 +1814,51 @@ export default function Home() {
     <title>Warrant Partners</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #1F2937, #374151); 
-            color: white; 
-            min-height: 100vh; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1F2937, #374151);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .container { text-align: center; max-width: 800px; padding: 2rem; }
         .logo { font-size: 3rem; font-weight: 800; margin-bottom: 2rem; }
-        .construction { 
-            background: rgba(255,255,255,0.1); 
-            padding: 3rem; 
-            border-radius: 20px; 
-            backdrop-filter: blur(10px); 
+        .construction {
+            background: rgba(255,255,255,0.1);
+            padding: 3rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
         }
         .icon { font-size: 4rem; margin-bottom: 2rem; }
         h1 { font-size: 2.5rem; margin-bottom: 1rem; }
         p { font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.8; }
-        .progress { 
-            width: 100%; 
-            height: 8px; 
-            background: rgba(255,255,255,0.2); 
-            border-radius: 4px; 
-            overflow: hidden; 
-            margin: 2rem 0; 
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 2rem 0;
         }
-        .progress-bar { 
-            width: 75%; 
-            height: 100%; 
-            background: linear-gradient(90deg, #10B981, #059669); 
-            animation: progress 2s ease-in-out infinite; 
+        .progress-bar {
+            width: 75%;
+            height: 100%;
+            background: linear-gradient(90deg, #10B981, #059669);
+            animation: progress 2s ease-in-out infinite;
         }
         @keyframes progress { 0%, 100% { transform: translateX(-10px); } 50% { transform: translateX(10px); } }
         .contact { margin-top: 2rem; }
-        .btn { 
-            background: linear-gradient(135deg, #10B981, #059669); 
-            color: white; 
-            padding: 12px 24px; 
-            border: none; 
-            border-radius: 8px; 
-            text-decoration: none; 
-            display: inline-block; 
-            margin: 0 8px; 
+        .btn {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 8px;
         }
     </style>
 </head>
@@ -2039,478 +2039,6 @@ export default function Home() {
             gap: "20px"
           }}>
             {communityTemplates.map((template, index) => (
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopEase - Your Online Store</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; }
-        .header { background: #10B981; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: 700; }
-        .nav { display: flex; gap: 2rem; }
-        .nav a { color: white; text-decoration: none; }
-        .hero { background: linear-gradient(135deg, #10B981, #059669); color: white; text-align: center; padding: 4rem 2rem; }
-        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
-        .products { padding: 4rem 2rem; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
-        .product { background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; }
-        .product-img { height: 200px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; }
-        .product-info { padding: 1rem; }
-        .price { color: #10B981; font-weight: 700; font-size: 1.2rem; }
-        .btn { background: #10B981; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <div class="logo">ShopEase</div>
-        <nav class="nav">
-            <a href="#">Home</a>
-            <a href="#">Products</a>
-            <a href="#">About</a>
-            <a href="#">Contact</a>
-        </nav>
-    </header>
-    <section class="hero">
-        <h1>Welcome to ShopEase</h1>
-        <p>Discover amazing products at unbeatable prices</p>
-    </section>
-    <section class="products">
-        <h2 style="text-align: center; margin-bottom: 3rem;">Featured Products</h2>
-        <div class="product-grid">
-            <div class="product">
-                <div class="product-img">Product Image</div>
-                <div class="product-info">
-                    <h3>Wireless Headphones</h3>
-                    <p class="price">$99.99</p>
-                    <button class="btn">Add to Cart</button>
-                </div>
-            </div>
-            <div class="product">
-                <div class="product-img">Product Image</div>
-                <div class="product-info">
-                    <h3>Smart Watch</h3>
-                    <p class="price">$199.99</p>
-                    <button class="btn">Add to Cart</button>
-                </div>
-            </div>
-            <div class="product">
-                <div class="product-img">Product Image</div>
-                <div class="product-info">
-                    <h3>Laptop Stand</h3>
-                    <p class="price">$49.99</p>
-                    <button class="btn">Add to Cart</button>
-                </div>
-            </div>
-        </div>
-    </section>
-</body>
-</html>`
-              },
-              { 
-                title: "SaaS Landing Page", 
-                type: "Website", 
-                color: "#3B82F6",
-                code: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloudSync - Streamline Your Workflow</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; }
-        .header { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: 700; color: #3B82F6; }
-        .hero { background: linear-gradient(135deg, #3B82F6, #1D4ED8); color: white; text-align: center; padding: 6rem 2rem; }
-        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; }
-        .hero p { font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem; }
-        .cta-btn { background: white; color: #3B82F6; padding: 16px 32px; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; }
-        .features { padding: 4rem 2rem; background: #f9fafb; }
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
-        .feature { background: white; padding: 2rem; border-radius: 8px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .feature-icon { width: 60px; height: 60px; background: #3B82F6; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <div class="logo">CloudSync</div>
-        <div>
-            <button style="background: none; border: 1px solid #3B82F6; color: #3B82F6; padding: 8px 16px; border-radius: 4px; margin-right: 1rem;">Login</button>
-            <button style="background: #3B82F6; color: white; border: none; padding: 8px 16px; border-radius: 4px;">Sign Up</button>
-        </div>
-    </header>
-    <section class="hero">
-        <h1>Streamline Your Workflow</h1>
-        <p>CloudSync helps teams collaborate seamlessly with powerful automation and real-time synchronization.</p>
-        <button class="cta-btn">Start Free Trial</button>
-    </section>
-    <section class="features">
-        <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem;">Why Choose CloudSync?</h2>
-        <div class="features-grid">
-            <div class="feature">
-                <div class="feature-icon">⚡</div>
-                <h3>Lightning Fast</h3>
-                <p>Sync your data in real-time across all devices with our optimized infrastructure.</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">🔒</div>
-                <h3>Secure & Private</h3>
-                <p>Enterprise-grade security with end-to-end encryption for all your data.</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">🚀</div>
-                <h3>Easy Integration</h3>
-                <p>Connect with your favorite tools and services with our powerful API.</p>
-            </div>
-        </div>
-    </section>
-</body>
-</html>`
-              },
-              { 
-                title: "Portfolio Site", 
-                type: "Personal", 
-                color: "#8B5CF6",
-                code: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alex Johnson - Creative Designer</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; line-height: 1.6; }
-        .header { background: #8B5CF6; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: 700; }
-        .nav { display: flex; gap: 2rem; }
-        .nav a { color: white; text-decoration: none; }
-        .hero { background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: white; text-align: center; padding: 6rem 2rem; }
-        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; }
-        .portfolio { padding: 4rem 2rem; }
-        .project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
-        .project { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
-        .project:hover { transform: translateY(-5px); }
-        .project-img { height: 200px; background: linear-gradient(45deg, #8B5CF6, #EC4899); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
-        .project-info { padding: 1.5rem; }
-        .about { background: #f9fafb; padding: 4rem 2rem; text-align: center; }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <div class="logo">Alex Johnson</div>
-        <nav class="nav">
-            <a href="#home">Home</a>
-            <a href="#portfolio">Portfolio</a>
-            <a href="#about">About</a>
-            <a href="#contact">Contact</a>
-        </nav>
-    </header>
-    <section class="hero" id="home">
-        <h1>Creative Designer</h1>
-        <p>I create beautiful and functional designs that make a difference</p>
-    </section>
-    <section class="portfolio" id="portfolio">
-        <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem;">My Work</h2>
-        <div class="project-grid">
-            <div class="project">
-                <div class="project-img">Brand Identity</div>
-                <div class="project-info">
-                    <h3>Tech Startup Branding</h3>
-                    <p>Complete brand identity for a fintech startup including logo, colors, and guidelines.</p>
-                </div>
-            </div>
-            <div class="project">
-                <div class="project-img">Web Design</div>
-                <div class="project-info">
-                    <h3>E-commerce Website</h3>
-                    <p>Modern and responsive website design for an online fashion retailer.</p>
-                </div>
-            </div>
-            <div class="project">
-                <div class="project-img">Mobile App</div>
-                <div class="project-info">
-                    <h3>Food Delivery App</h3>
-                    <p>UI/UX design for a local food delivery mobile application.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="about" id="about">
-        <h2 style="margin-bottom: 2rem; font-size: 2.5rem;">About Me</h2>
-        <p style="max-width: 800px; margin: 0 auto; font-size: 1.1rem;">I'm a passionate designer with 5+ years of experience creating impactful visual solutions. I specialize in branding, web design, and user experience.</p>
-    </section>
-</body>
-</html>`
-              },
-              { 
-                title: "Restaurant Menu", 
-                type: "Business", 
-                color: "#F59E0B",
-                code: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bella's Kitchen - Menu</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Georgia', serif; background: #FEF3C7; }
-        .header { background: #F59E0B; color: white; text-align: center; padding: 2rem; }
-        .header h1 { font-size: 3rem; margin-bottom: 0.5rem; }
-        .menu { padding: 3rem 2rem; max-width: 1000px; margin: 0 auto; }
-        .menu-section { margin-bottom: 3rem; }
-        .menu-section h2 { color: #D97706; font-size: 2rem; margin-bottom: 1.5rem; text-align: center; border-bottom: 2px solid #F59E0B; padding-bottom: 0.5rem; }
-        .menu-item { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; padding: 1rem; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .item-info h3 { color: #D97706; margin-bottom: 0.5rem; }
-        .item-info p { color: #666; max-width: 400px; }
-        .price { color: #F59E0B; font-weight: bold; font-size: 1.2rem; }
-        .footer { background: #F59E0B; color: white; text-align: center; padding: 2rem; }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <h1>Bella's Kitchen</h1>
-        <p>Authentic Italian Cuisine</p>
-    </header>
-    <div class="menu">
-        <div class="menu-section">
-            <h2>Appetizers</h2>
-            <div class="menu-item">
-                <div class="item-info">
-                    <h3>Bruschetta Trio</h3>
-                    <p>Three varieties of our signature bruschetta with fresh tomatoes, basil, and mozzarella</p>
-                </div>
-                <div class="price">$12</div>
-            </div>
-            <div class="menu-item">
-                <div class="item-info">
-                    <h3>Antipasto Platter</h3>
-                    <p>Selection of cured meats, cheeses, olives, and marinated vegetables</p>
-                </div>
-                <div class="price">$18</div>
-            </div>
-        </div>
-        <div class="menu-section">
-            <h2>Main Courses</h2>
-            <div class="menu-item">
-                <div class="item-info">
-                    <h3>Spaghetti Carbonara</h3>
-                    <p>Classic Roman pasta with eggs, pancetta, and Parmigiano-Reggiano</p>
-                </div>
-                <div class="price">$22</div>
-            </div>
-            <div class="menu-item">
-                <div class="item-info">
-                    <h3>Osso Buco</h3>
-                    <p>Braised veal shanks with risotto Milanese and gremolata</p>
-                </div>
-                <div class="price">$32</div>
-            </div>
-        </div>
-        <div class="menu-section">
-            <h2>Desserts</h2>
-            <div class="menu-item">
-                <div class="item-info">
-                    <h3>Tiramisu</h3>
-                    <p>Traditional Italian coffee-flavored dessert with mascarpone</p>
-                </div>
-                <div class="price">$9</div>
-            </div>
-        </div>
-    </div>
-    <footer class="footer">
-        <p>📍 123 Main Street | 📞 (555) 123-4567 | 🕒 Open Daily 5PM - 11PM</p>
-    </footer>
-</body>
-</html>`
-              },
-              { 
-                title: "Event Booking", 
-                type: "App", 
-                color: "#EF4444",
-                code: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EventPro - Book Your Perfect Event</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; }
-        .header { background: #EF4444; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: 700; }
-        .hero { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; text-align: center; padding: 4rem 2rem; }
-        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
-        .booking-form { max-width: 600px; margin: -2rem auto 0; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); position: relative; z-index: 10; }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; }
-        .btn { background: #EF4444; color: white; padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; width: 100%; }
-        .events { padding: 4rem 2rem; background: #f9fafb; }
-        .event-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
-        .event-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .event-img { height: 200px; background: linear-gradient(45deg, #EF4444, #F97316); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
-        .event-info { padding: 1.5rem; }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <div class="logo">EventPro</div>
-        <nav>
-            <a href="#" style="color: white; text-decoration: none; margin: 0 1rem;">Events</a>
-            <a href="#" style="color: white; text-decoration: none; margin: 0 1rem;">Venues</a>
-            <a href="#" style="color: white; text-decoration: none; margin: 0 1rem;">Contact</a>
-        </nav>
-    </header>
-    <section class="hero">
-        <h1>Book Your Perfect Event</h1>
-        <p>From corporate meetings to weddings, we make event planning effortless</p>
-    </section>
-    <div class="booking-form">
-        <h2 style="margin-bottom: 2rem; text-align: center;">Quick Booking</h2>
-        <form>
-            <div class="form-group">
-                <label>Event Type</label>
-                <select>
-                    <option>Conference</option>
-                    <option>Wedding</option>
-                    <option>Birthday Party</option>
-                    <option>Corporate Event</option>
-                </select>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div class="form-group">
-                    <label>Date</label>
-                    <input type="date">
-                </div>
-                <div class="form-group">
-                    <label>Guests</label>
-                    <select>
-                        <option>10-25</option>
-                        <option>25-50</option>
-                        <option>50-100</option>
-                        <option>100+</option>
-                    </select>
-                </div>
-            </div>
-            <button type="submit" class="btn">Find Venues</button>
-        </form>
-    </div>
-    <section class="events">
-        <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem;">Popular Events</h2>
-        <div class="event-grid">
-            <div class="event-card">
-                <div class="event-img">Corporate Conference</div>
-                <div class="event-info">
-                    <h3>Tech Summit 2025</h3>
-                    <p>🗓️ March 15, 2025 • 📍 Downtown Convention Center</p>
-                    <p style="margin-top: 1rem;">Join industry leaders for a day of innovation and networking.</p>
-                </div>
-            </div>
-            <div class="event-card">
-                <div class="event-img">Wedding Celebration</div>
-                <div class="event-info">
-                    <h3>Garden Wedding Package</h3>
-                    <p>🗓️ Available Year Round • 📍 Riverside Gardens</p>
-                    <p style="margin-top: 1rem;">Beautiful outdoor wedding venue with full service planning.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-</body>
-</html>`
-              },
-              { 
-                title: "Blog Platform", 
-                type: "Website", 
-                color: "#6366F1",
-                code: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechBlog - Latest in Technology</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; }
-        .header { background: #6366F1; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: 700; }
-        .nav { display: flex; gap: 2rem; }
-        .nav a { color: white; text-decoration: none; }
-        .hero { background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; text-align: center; padding: 4rem 2rem; }
-        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
-        .blog { padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; }
-        .post-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
-        .post { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
-        .post:hover { transform: translateY(-5px); }
-        .post-img { height: 200px; background: linear-gradient(45deg, #6366F1, #8B5CF6); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
-        .post-content { padding: 1.5rem; }
-        .post-meta { color: #666; font-size: 0.9rem; margin-bottom: 1rem; }
-        .post h3 { margin-bottom: 0.5rem; color: #333; }
-        .read-more { color: #6366F1; text-decoration: none; font-weight: 600; }
-        .sidebar { background: #f9fafb; padding: 2rem; border-radius: 8px; }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <div class="logo">TechBlog</div>
-        <nav class="nav">
-            <a href="#">Home</a>
-            <a href="#">Categories</a>
-            <a href="#">About</a>
-            <a href="#">Contact</a>
-        </nav>
-    </header>
-    <section class="hero">
-        <h1>Latest in Technology</h1>
-        <p>Stay updated with the newest trends, reviews, and insights in tech</p>
-    </section>
-    <div class="blog">
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;">
-            <div class="post-grid">
-                <article class="post">
-                    <div class="post-img">AI Revolution</div>
-                    <div class="post-content">
-                        <div class="post-meta">January 15, 2025 • By Alex Chen</div>
-                        <h3>The Future of Artificial Intelligence in 2025</h3>
-                        <p>Exploring the latest developments in AI technology and what they mean for businesses and consumers alike...</p>
-                        <a href="#" class="read-more">Read More →</a>
-                    </div>
-                </article>
-                <article class="post">
-                    <div class="post-img">Web Development</div>
-                    <div class="post-content">
-                        <div class="post-meta">January 12, 2025 • By Sarah Kim</div>
-                        <h3>Modern Web Development Trends</h3>
-                        <p>A comprehensive look at the frameworks and tools shaping the future of web development...</p>
-                        <a href="#" class="read-more">Read More →</a>
-                    </div>
-                </article>
-                <article class="post">
-                    <div class="post-img">Cybersecurity</div>
-                    <div class="post-content">
-                        <div class="post-meta">January 10, 2025 • By Mike Johnson</div>
-                        <h3>Cybersecurity Best Practices for 2025</h3>
-                        <p>Essential security measures every business should implement to protect against modern threats...</p>
-                        <a href="#" class="read-more">Read More →</a>
-                    </div>
-                </article>
-            </div>
-            <aside class="sidebar">
-                <h3 style="margin-bottom: 1rem;">Popular Categories</h3>
-                <ul style="list-style: none;">
-                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;"><a href="#" style="text-decoration: none; color: #6366F1;">Artificial Intelligence</a></li>
-                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;"><a href="#" style="text-decoration: none; color: #6366F1;">Web Development</a></li>
-                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;"><a href="#" style="text-decoration: none; color: #6366F1;">Mobile Apps</a></li>
-                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;"><a href="#" style="text-decoration: none; color: #6366F1;">Cybersecurity</a></li>
-                </ul>
-            </aside>
-        </div>
-    </div>
-</body>
-</html>`
               <div
                 key={`${template.title}-${index}`}
                 onClick={(e) => {
@@ -2576,70 +2104,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-
-      {/* Simple Footer */}
-      <div
-        style={{
-          marginTop: "60px",
-          textAlign: "center",
-          padding: "40px 24px",
-          borderTop: "1px solid rgba(255,255,255,0.1)",
-          color: "rgba(255,255,255,0.6)",
-          fontSize: "14px",
-        }}
-      >
-        <div style={{ marginBottom: "20px" }}>
-          <a
-            href="#"
-            style={{
-              color: "inherit",
-              textDecoration: "none",
-              margin: "0 16px",
-            }}
-          >
-            About
-          </a>
-          <button
-            onClick={() => setShowPricing(true)}
-            style={{
-              background: "none",
-              border: "none",
-              color: "inherit",
-              textDecoration: "none",
-              margin: "0 16px",
-              cursor: "pointer",
-              fontSize: "14px",
-            }}
-          >
-            Pricing
-          </button>
-          <a
-            href="#"
-            style={{
-              color: "inherit",
-              textDecoration: "none",
-              margin: "0 16px",
-            }}
-          >
-            Templates
-          </a>
-          <a
-            href="#"
-            style={{
-              color: "inherit",
-              textDecoration: "none",
-              margin: "0 16px",
-            }}
-          >
-            Support
-          </a>
-        </div>
-        <div>
-          © 2025 Adorrable.dev - Made for everyone with a touch of Africa 🌍
-        </div>
-      </div>
-    </main>
-  );
 
       {/* Simple Footer */}
       <div
@@ -3316,7 +2780,7 @@ export default function Home() {
                 by Stephane Boghossian
               </p>
             </div>
-            
+
             <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
               <button
                 onClick={handleOpenProject}
@@ -3334,7 +2798,7 @@ export default function Home() {
               >
                 Open Project
               </button>
-              
+
               <button
                 onClick={handleRemixTemplate}
                 style={{
@@ -3603,7 +3067,7 @@ export default function Home() {
         width: "100%",
         maxWidth: compact ? "100%" : "800px",
         borderRadius: compact ? "12px" : "28px",
-        border: "1px solid rgba(255, 255, 255, 0.1)",
+        border: "1px solid rgba(255,255,255,0.1)",
         background: "rgba(255,255,255,0.05)",
         padding: compact ? "16px" : "40px",
         boxShadow: compact
@@ -4237,7 +3701,7 @@ export default function Home() {
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)">
                       <circle cx="12" cy="12" r="3"/>
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33V9a1.65 1.65 0 0 0 1-1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                     </svg>
                     Settings
                   </button>
