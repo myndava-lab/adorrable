@@ -19,10 +19,17 @@ export default function InspirationalWidget() {
   const [enabled, setEnabled] = useState(true);
   const [index, setIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     setIndex(Math.floor(Math.random() * QUOTES.length));
+    
+    // Start appearing animation after component mounts
+    setTimeout(() => {
+      setIsVisible(true);
+    }, 100);
   }, []);
 
   useEffect(() => {
@@ -35,59 +42,103 @@ export default function InspirationalWidget() {
     return () => clearInterval(interval);
   }, [enabled, mounted]);
 
+  const handleHide = () => {
+    setIsAnimatingOut(true);
+    setTimeout(() => {
+      setEnabled(false);
+    }, 7000); // 7 seconds disappearing effect
+  };
+
   if (!enabled || !mounted) return null;
 
   return (
-    <div style={{
-      position: "fixed",
-      bottom: "20px",
-      right: "20px",
-      padding: "16px",
-      background: "linear-gradient(135deg, #10B981, #059669)",
-      color: "white",
-      borderRadius: "12px",
-      boxShadow: "0 8px 32px rgba(16, 185, 129, 0.3)",
-      maxWidth: "280px",
-      fontSize: "14px",
-      zIndex: 1000,
-      backdropFilter: "blur(10px)",
-      border: "1px solid rgba(255,255,255,0.1)"
-    }}>
-      <p style={{ margin: "0 0 12px 0", lineHeight: "1.4" }}>{QUOTES[index].text}</p>
-      <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }}>
-        <button 
-          style={{
-            background: "none",
-            border: "none",
-            color: "rgba(255,255,255,0.8)",
-            fontSize: "12px",
-            textDecoration: "underline",
-            cursor: "pointer",
-            padding: "0"
-          }}
-          onClick={() => setEnabled(false)}
-        >
-          Hide
-        </button>
-        <button 
-          style={{
-            background: "none",
-            border: "none",
-            color: "rgba(255,255,255,0.8)",
-            fontSize: "12px",
-            textDecoration: "underline",
-            cursor: "pointer",
-            padding: "0"
-          }}
-          onClick={() => setIndex((prev) => (prev + 1) % QUOTES.length)}
-        >
-          Next
-        </button>
+    <>
+      <style jsx>{`
+        @keyframes slideInFromRight {
+          0% {
+            transform: translateX(100%) scale(0.8);
+            opacity: 0;
+          }
+          100% {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes fadeOutSlideDown {
+          0% {
+            transform: translateX(0) translateY(0) scale(1);
+            opacity: 1;
+          }
+          100% {
+            transform: translateX(50%) translateY(100px) scale(0.7);
+            opacity: 0;
+          }
+        }
+        
+        .inspirational-widget {
+          animation: ${isVisible && !isAnimatingOut ? 'slideInFromRight 6s cubic-bezier(0.16, 1, 0.3, 1)' : ''};
+          animation: ${isAnimatingOut ? 'fadeOutSlideDown 7s cubic-bezier(0.55, 0, 0.45, 1)' : ''};
+        }
+      `}</style>
+      
+      <div 
+        className="inspirational-widget"
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          padding: "16px",
+          background: "linear-gradient(135deg, #10B981, #059669)",
+          color: "white",
+          borderRadius: "12px",
+          boxShadow: "0 8px 32px rgba(16, 185, 129, 0.3)",
+          maxWidth: "280px",
+          fontSize: "14px",
+          zIndex: 1000,
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          transform: isVisible ? "translateX(0) scale(1)" : "translateX(100%) scale(0.8)",
+          opacity: isVisible ? 1 : 0,
+          transition: isVisible && !isAnimatingOut ? "none" : "all 0.3s ease"
+        }}
+      >
+        <p style={{ margin: "0 0 12px 0", lineHeight: "1.4" }}>{QUOTES[index].text}</p>
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}>
+          <button 
+            style={{
+              background: "none",
+              border: "none",
+              color: "rgba(255,255,255,0.8)",
+              fontSize: "12px",
+              textDecoration: "underline",
+              cursor: "pointer",
+              padding: "0"
+            }}
+            onClick={handleHide}
+          >
+            Hide
+          </button>
+          <button 
+            style={{
+              background: "none",
+              border: "none",
+              color: "rgba(255,255,255,0.8)",
+              fontSize: "12px",
+              textDecoration: "underline",
+              cursor: "pointer",
+              padding: "0"
+            }}
+            onClick={() => setIndex((prev) => (prev + 1) % QUOTES.length)}
+          >
+            Next
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
