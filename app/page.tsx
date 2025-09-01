@@ -242,6 +242,8 @@ export default function Home() {
   const [isResizing, setIsResizing] = useState(false);
   const [activeTab, setActiveTab] = useState<"chat" | "code">("chat");
   const [showPricing, setShowPricing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
 
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
@@ -268,7 +270,14 @@ export default function Home() {
       "Create an e-commerce site for handmade African crafts",
       "Build a website for a European luxury goods company",
       "Design a US-based SaaS product landing page",
-      "Create an online store for Asian artisanal products"
+      "Create an online store for Asian artisanal products",
+      "Develop a Nordic minimalist design agency portfolio",
+      "Build an Australian outdoor gear e-commerce site",
+      "Create a Japanese tea ceremony booking platform",
+      "Design a German engineering consultancy website",
+      "Build a Brazilian carnival event management site",
+      "Create an Indian spice marketplace platform",
+      "Design a Canadian maple syrup farm website"
     ],
     French: [
       "Créer une page d'accueil pour une marque de mode de Lagos",
@@ -278,7 +287,14 @@ export default function Home() {
       "Créer un site e-commerce pour l'artisanat africain fait main",
       "Construire un site pour une entreprise européenne de produits de luxe",
       "Concevoir une page de destination pour un produit SaaS basé aux États-Unis",
-      "Créer une boutique en ligne pour des produits artisanaux asiatiques"
+      "Créer une boutique en ligne pour des produits artisanaux asiatiques",
+      "Développer un portfolio d'agence de design minimaliste nordique",
+      "Construire un site e-commerce d'équipement de plein air australien",
+      "Créer une plateforme de réservation de cérémonie du thé japonaise",
+      "Concevoir un site web de conseil en ingénierie allemand",
+      "Construire un site de gestion d'événements de carnaval brésilien",
+      "Créer une plateforme de marché d'épices indiennes",
+      "Concevoir un site web de ferme de sirop d'érable canadien"
     ],
     Swahili: [
       "Unda ukurasa wa kwanza wa biashara ya mavazi ya Lagos",
@@ -286,9 +302,16 @@ export default function Home() {
       "Buni ukurasa wa kwanza wa kampuni ya teknolojia",
       "Fanya tovuti ya portfolio kwa mpiga picha wa Nigeria",
       "Unda tovuti ya biashara kwa sanaa za Afrika",
-      "Jenga tovuti ya kampuni ya bidhaa za kifahari za Ulaya",
-      "Buni ukurasa wa kutua kwa bidhaa ya SaaS ya Marekani",
-      "Unda duka la mtandaoni kwa bidhaa za ufundi za Asia"
+      "Jenga tovuti kwa kampuni ya bidhaa za kifahari za Ulaya",
+      "Buni ukurasa wa bidhaa za SaaS za Marekani",
+      "Unda duka la mtandaoni kwa bidhaa za sanaa za Asia",
+      "Tengeneza portfolio ya wakala wa kubuni wa Nordic",
+      "Jenga tovuti ya biashara ya vifaa vya nje vya Australia",
+      "Unda jukwaa la kuhifadhi sherehe za chai za Kijapani",
+      "Buni tovuti ya ushauri wa uhandisi wa Kijerumani",
+      "Jenga tovuti ya usimamizi wa sherehe za carnival za Brazil",
+      "Unda jukwaa la soko la bizari za Kihindi",
+      "Buni tovuti ya shamba la syrup ya mapple ya Canada"
     ],
     Pidgin: [
       "Make landing page for Lagos fashion brand wey get product grid",
@@ -298,8 +321,15 @@ export default function Home() {
       "Create e-commerce site for handmade African crafts",
       "Build website for European luxury goods company",
       "Design US-based SaaS product landing page",
-      "Create online store for Asian artisanal products"
-    ],
+      "Create online store for Asian artisan products",
+      "Develop Nordic minimalist design agency portfolio",
+      "Build Australian outdoor gear e-commerce site",
+      "Create Japanese tea ceremony booking platform",
+      "Design German engineering consultancy website",
+      "Build Brazilian carnival event management site",
+      "Create Indian spice marketplace platform",
+      "Design Canadian maple syrup farm website"
+    ]
   };
 
   // Sample generated code for initial demo
@@ -645,68 +675,73 @@ export default function Home() {
 
   // Stable placeholder typewriter effect
   useEffect(() => {
-    if (!mounted) return;
+    try {
+      if (!mounted) return;
 
-    if (placeholderTimerRef.current) {
-      clearTimeout(placeholderTimerRef.current);
-    }
-    if (cursorTimerRef.current) {
-      clearInterval(cursorTimerRef.current);
-    }
-    const currentMessages = placeholderMessages[language];
-    console.log("Language:", language);
-    console.log("Current messages:", currentMessages);
-    console.log("All placeholder messages:", placeholderMessages);
-    let messageIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-    let currentMessage =
-      currentMessages && currentMessages.length > 0
-        ? currentMessages[messageIndex % currentMessages.length]
-        : "Create something amazing";
-
-    setPlaceholderText("");
-
-    const typePlaceholder = () => {
-      if (!isDeleting) {
-        if (charIndex < currentMessage.length) {
-          setPlaceholderText(currentMessage.slice(0, charIndex + 1));
-          charIndex++;
-          placeholderTimerRef.current = setTimeout(typePlaceholder, 80);
-        } else {
-          placeholderTimerRef.current = setTimeout(() => {
-            isDeleting = true;
-            typePlaceholder();
-          }, 3000);
-        }
-      } else {
-        if (charIndex > 0) {
-          setPlaceholderText(currentMessage.slice(0, charIndex - 1));
-          charIndex--;
-          placeholderTimerRef.current = setTimeout(typePlaceholder, 40);
-        } else {
-          isDeleting = false;
-          messageIndex = (messageIndex + 1) % currentMessages.length;
-          currentMessage = currentMessages[messageIndex];
-          placeholderTimerRef.current = setTimeout(typePlaceholder, 500);
-        }
-      }
-    };
-
-    placeholderTimerRef.current = setTimeout(typePlaceholder, 500);
-
-    cursorTimerRef.current = setInterval(() => {
-      setShowCursor((prev) => !prev);
-    }, 530);
-
-    return () => {
       if (placeholderTimerRef.current) {
         clearTimeout(placeholderTimerRef.current);
       }
       if (cursorTimerRef.current) {
         clearInterval(cursorTimerRef.current);
       }
-    };
+      const currentMessages = placeholderMessages[language] || placeholderMessages.English;
+      console.log("Language:", language);
+      console.log("Current messages:", currentMessages);
+      console.log("All placeholder messages:", placeholderMessages);
+      let messageIndex = 0;
+      let charIndex = 0;
+      let isDeleting = false;
+      let currentMessage =
+        currentMessages && currentMessages.length > 0
+          ? currentMessages[messageIndex % currentMessages.length]
+          : "Create something amazing";
+
+      setPlaceholderText("");
+
+      const typePlaceholder = () => {
+        if (!isDeleting) {
+          if (charIndex < currentMessage.length) {
+            setPlaceholderText(currentMessage.slice(0, charIndex + 1));
+            charIndex++;
+            placeholderTimerRef.current = setTimeout(typePlaceholder, 80);
+          } else {
+            placeholderTimerRef.current = setTimeout(() => {
+              isDeleting = true;
+              typePlaceholder();
+            }, 3000);
+          }
+        } else {
+          if (charIndex > 0) {
+            setPlaceholderText(currentMessage.slice(0, charIndex - 1));
+            charIndex--;
+            placeholderTimerRef.current = setTimeout(typePlaceholder, 40);
+          } else {
+            isDeleting = false;
+            messageIndex = (messageIndex + 1) % currentMessages.length;
+            currentMessage = currentMessages[messageIndex];
+            placeholderTimerRef.current = setTimeout(typePlaceholder, 500);
+          }
+        }
+      };
+
+      placeholderTimerRef.current = setTimeout(typePlaceholder, 500);
+
+      cursorTimerRef.current = setInterval(() => {
+        setShowCursor((prev) => !prev);
+      }, 530);
+
+      return () => {
+        if (placeholderTimerRef.current) {
+          clearTimeout(placeholderTimerRef.current);
+        }
+        if (cursorTimerRef.current) {
+          clearInterval(cursorTimerRef.current);
+        }
+      };
+    } catch (err) {
+      console.error('Error in placeholder effect:', err);
+      setError('Failed to load placeholder text');
+    }
   }, [mounted, language]);
 
   // Enter key handler
@@ -2210,6 +2245,36 @@ export default function Home() {
     </div>
   );
 
+  useEffect(() => {
+    try {
+      console.log('Language:', language)
+      const messages = placeholderMessages[language] || placeholderMessages.English
+      setChatMessages(prev => prev.map(msg => ({...msg, language: language}))) // Update language for existing messages
+      console.log('Current messages:', messages)
+      console.log('All placeholder messages:', placeholderMessages)
+      setError(null)
+    } catch (err) {
+      console.error('Error in language effect:', err)
+      setError('Failed to load language content')
+    }
+  }, [language]);
+
+  useEffect(() => {
+    if (chatMessages.length === 0) return
+
+    try {
+      const interval = setInterval(() => {
+        setMessageIndex((prev) => (prev + 1) % chatMessages.length)
+      }, 3000)
+
+      return () => clearInterval(interval)
+    } catch (err) {
+      console.error('Error in message rotation:', err)
+      setError('Failed to rotate messages')
+    }
+  }, [chatMessages]);
+
+
   return (
     <div
       style={{
@@ -2220,6 +2285,21 @@ export default function Home() {
         overflow: viewMode === "chat" ? "auto" : "hidden",
       }}
     >
+      {error && (
+        <div style={{
+          position: "fixed",
+          top: "20px",
+          right: "20px",
+          background: "#ef4444",
+          color: "white",
+          padding: "12px 20px",
+          borderRadius: "8px",
+          zIndex: 1000,
+          fontWeight: "500"
+        }}>
+          {error}
+        </div>
+      )}
       {/* Background Effects */}
       <div
         style={{
