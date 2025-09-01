@@ -675,6 +675,8 @@ export default function Home() {
 
   // Stable placeholder typewriter effect
   useEffect(() => {
+    if (!mounted) return;
+
     // Clear existing timers
     if (placeholderTimerRef.current) {
       clearTimeout(placeholderTimerRef.current);
@@ -683,15 +685,11 @@ export default function Home() {
       clearInterval(cursorTimerRef.current);
     }
 
-    if (!mounted) return;
-
     const currentMessages = placeholderMessages[language] || placeholderMessages.English;
     let messageIndex = 0;
     let charIndex = 0;
     let isDeleting = false;
-    let currentMessage = currentMessages && currentMessages.length > 0
-      ? currentMessages[messageIndex % currentMessages.length]
-      : "Create something amazing";
+    let currentMessage = currentMessages[messageIndex % currentMessages.length];
 
     setPlaceholderText("");
 
@@ -724,20 +722,27 @@ export default function Home() {
     // Start the placeholder animation
     placeholderTimerRef.current = setTimeout(typePlaceholder, 500);
 
-    // Start cursor blinking
+    return () => {
+      if (placeholderTimerRef.current) {
+        clearTimeout(placeholderTimerRef.current);
+      }
+    };
+  }, [mounted, language]);
+
+  // Separate cursor blinking effect
+  useEffect(() => {
+    if (!mounted) return;
+
     cursorTimerRef.current = setInterval(() => {
       setShowCursor((prev) => !prev);
     }, 530);
 
     return () => {
-      if (placeholderTimerRef.current) {
-        clearTimeout(placeholderTimerRef.current);
-      }
       if (cursorTimerRef.current) {
         clearInterval(cursorTimerRef.current);
       }
     };
-  }, [mounted, language]);
+  }, [mounted]);
 
   // Enter key handler
   useEffect(() => {
