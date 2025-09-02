@@ -20,6 +20,20 @@ const nextConfig = {
       '@': path.resolve(__dirname),
     };
 
+    // Treat raw text-like files as emitted assets (URL), not inlined strings
+    config.module.rules.push({
+      test: /\.(md|sql|txt)$/i,
+      type: 'asset/resource',
+      generator: { filename: 'static/assets/[hash][ext][query]' },
+    });
+
+    // Handle SVGs properly instead of inlining as strings
+    config.module.rules.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      use: [{ loader: '@svgr/webpack', options: { icon: true } }],
+    });
+
     // Basic fallbacks for client-side
     if (!isServer) {
       config.resolve.fallback = {
