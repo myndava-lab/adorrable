@@ -99,6 +99,12 @@ ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE credit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE price_config ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can view own credit logs" ON credit_logs;
+DROP POLICY IF EXISTS "Anyone can view active pricing" ON price_config;
+
 -- Profiles policies
 CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
