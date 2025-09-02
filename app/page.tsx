@@ -52,7 +52,7 @@ export default function Home() {
       description: "A sleek, responsive portfolio website with smooth animations and modern design.",
       category: "Portfolio",
       author: "Sarah Chen",
-      downloads: 2840,
+      downloads: 2640,
       rating: 4.9,
       tags: ["Portfolio", "Responsive", "Modern", "Animations"],
       difficulty: "Intermediate",
@@ -153,7 +153,7 @@ export default function Home() {
       description: "An elegant restaurant landing page with menu showcase and reservation system.",
       category: "Restaurant",
       author: "Emma Thompson",
-      downloads: 3150,
+      downloads: 4156,
       rating: 4.8,
       tags: ["Restaurant", "Menu", "Reservation", "Food"],
       difficulty: "Beginner",
@@ -333,79 +333,127 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(120,119,198,0.3),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(120,119,198,0.15),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.03\"%3E%3Ccircle cx=\"7\" cy=\"7\" r=\"1\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20" />
-      </div>
+    <div className="min-h-screen overflow-hidden relative">
+      {/* Background with gradient and noise texture */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: `
+            radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 40% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+            linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #1e293b 75%, #0f172a 100%)
+          `,
+        }}
+      />
+      
+      {/* Subtle grid overlay */}
+      <div 
+        className="absolute inset-0 opacity-20"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(148,163,184,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(148,163,184,0.03) 1px, transparent 1px)
+          `,
+          backgroundSize: '24px 24px'
+        }}
+      />
 
       {/* Navigation */}
-      <nav className="relative z-50 flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
+      <nav className="relative z-50 flex items-center justify-between px-6 lg:px-8 py-6 max-w-7xl mx-auto">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center shadow-lg">
             <span className="text-white font-bold text-sm">A</span>
           </div>
           <span className="text-white text-xl font-semibold tracking-tight">Adorrable</span>
         </div>
 
         <div className="hidden md:flex items-center space-x-8 text-gray-300">
-          <a href="#features" className="hover:text-white transition-colors duration-200 font-medium">Features</a>
-          <a href="#templates" className="hover:text-white transition-colors duration-200 font-medium">Templates</a>
-          <a href="#pricing" className="hover:text-white transition-colors duration-200 font-medium">Pricing</a>
-          <a href="#docs" className="hover:text-white transition-colors duration-200 font-medium">Docs</a>
+          <a href="#features" className="hover:text-white transition-colors duration-300 font-medium text-sm">Features</a>
+          <a href="#templates" className="hover:text-white transition-colors duration-300 font-medium text-sm">Templates</a>
+          <a href="#pricing" className="hover:text-white transition-colors duration-300 font-medium text-sm">Pricing</a>
+          <a href="#docs" className="hover:text-white transition-colors duration-300 font-medium text-sm">Docs</a>
         </div>
 
-        <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+        <button className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm">
           Sign In
         </button>
       </nav>
 
       {/* Hero Section */}
-      <div className="relative z-10 pt-16 pb-24 px-8 max-w-7xl mx-auto">
+      <div className="relative z-10 pt-8 pb-24 px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-white via-blue-100 to-cyan-300 bg-clip-text text-transparent leading-tight mb-8">
-            Build something with
-            <br />
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Adorrable
-            </span>
-          </h1>
+          {/* Main Heading */}
+          <div className="mb-8">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+                Build something with
+              </span>
+              <br />
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                Adorrable
+              </span>
+            </h1>
+          </div>
 
-          <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed mb-12">
+          <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed mb-12 opacity-90">
             Create apps and culturally intelligent websites by chatting with AI
           </p>
 
-          {/* Main Input Section */}
+          {/* Main Input Card */}
           <div className="max-w-4xl mx-auto">
-            <div className="relative bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-6 shadow-2xl">
-              {/* Top Input Bar */}
-              <div className="flex items-center mb-6">
-                <div className="flex-1 relative">
-                  <input
-                    type="text"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Ask Adorrable to create a business website..."
-                    className="w-full bg-slate-900/50 border border-slate-600/50 rounded-2xl px-6 py-4 text-white placeholder-gray-400 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-200"
-                    onKeyPress={(e) => e.key === "Enter" && handleGenerate()}
-                  />
+            <div 
+              className="relative border border-slate-700/50 rounded-3xl p-8 shadow-2xl backdrop-blur-xl"
+              style={{
+                background: 'rgba(30, 41, 59, 0.4)',
+                backdropFilter: 'blur(20px)',
+              }}
+            >
+              {/* Input Field */}
+              <div className="mb-6">
+                <input
+                  type="text"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Ask Adorrable to create a business website..."
+                  className="w-full bg-slate-800/60 border border-slate-600/50 rounded-2xl px-6 py-5 text-white placeholder-gray-400 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                  onKeyPress={(e) => e.key === "Enter" && handleGenerate()}
+                />
+              </div>
+
+              {/* Enhanced Prompt Suggestion */}
+              <div className="mb-6 p-4 bg-slate-800/40 border border-slate-600/30 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-sm">Try this:</span>
+                  <button 
+                    onClick={() => setPrompt("Design a tech startup homepage with testimonials and pricing...")}
+                    className="text-blue-400 hover:text-blue-300 text-sm transition-colors duration-200"
+                  >
+                    Use
+                  </button>
                 </div>
+                <p className="text-gray-300 text-sm mt-2 italic">
+                  "Design a tech startup homepage with testimonials and pricing..."
+                </p>
               </div>
 
               {/* Language Selection and Generate Button */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-gray-400 text-sm font-medium">Language:</span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center flex-wrap gap-2">
+                  <div className="flex items-center space-x-2 mr-4">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                    </svg>
+                    <span className="text-gray-400 text-sm font-medium">Language:</span>
+                  </div>
                   {languages.map((lang) => (
                     <button
                       key={lang}
                       onClick={() => setSelectedLanguage(lang)}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
                         selectedLanguage === lang
-                          ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                          : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50 hover:text-white'
+                          ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg transform scale-105'
+                          : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50 hover:text-white border border-slate-600/30 hover:border-slate-500/50'
                       }`}
                     >
                       {lang}
@@ -416,7 +464,7 @@ export default function Home() {
                 <button
                   onClick={handleGenerate}
                   disabled={isGenerating || !prompt.trim()}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-8 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:transform-none disabled:cursor-not-allowed flex items-center space-x-2"
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:transform-none disabled:cursor-not-allowed flex items-center space-x-2 min-w-[140px] justify-center"
                 >
                   {isGenerating ? (
                     <>
@@ -436,9 +484,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Credits Info */}
+          {/* Credits Section */}
           <div className="mt-8 flex justify-center">
-            <div className="bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-2xl px-6 py-3 flex items-center space-x-4">
+            <div className="bg-slate-800/30 backdrop-blur-xl border border-slate-700/40 rounded-2xl px-6 py-3 flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-gray-300 text-sm">
@@ -449,17 +497,17 @@ export default function Home() {
                 onClick={() => setShowPricing(true)}
                 className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors duration-200 underline underline-offset-2"
               >
-                Buy More
+                Get More
               </button>
             </div>
           </div>
         </div>
 
-        {/* Generated Code Section */}
+        {/* Generated Code Display */}
         {showCode && generatedCode && (
           <div className="max-w-6xl mx-auto mt-16">
-            <div className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
-              <div className="flex justify-between items-center mb-6">
+            <div className="bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <h3 className="text-2xl font-semibold text-white flex items-center space-x-3">
                   <div className="w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -471,7 +519,7 @@ export default function Home() {
                 <div className="flex space-x-3">
                   <button
                     onClick={openInNewTab}
-                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -481,7 +529,7 @@ export default function Home() {
                   </button>
                   <button
                     onClick={downloadCode}
-                    className="bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 hover:text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-200 border border-slate-600/50 hover:border-slate-500/50 flex items-center space-x-2"
+                    className="bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 hover:text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-300 border border-slate-600/50 hover:border-slate-500/50 flex items-center space-x-2"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -490,58 +538,65 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-              <pre className="bg-slate-900/50 border border-slate-700/50 rounded-2xl p-6 text-gray-300 text-sm overflow-auto max-h-96 leading-relaxed">
-                {generatedCode}
-              </pre>
+              <div className="bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 overflow-hidden">
+                <pre className="text-gray-300 text-sm overflow-auto max-h-96 leading-relaxed whitespace-pre-wrap">
+                  {generatedCode}
+                </pre>
+              </div>
             </div>
           </div>
         )}
 
         {/* Community Templates Section */}
-        <div id="templates" className="mt-24">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-white mb-4">From the Community</h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Discover professionally crafted templates built by our community
-            </p>
+        <div id="templates" className="mt-32">
+          <div className="flex items-center justify-between mb-12 max-w-7xl mx-auto">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">From the Community</h2>
+              <p className="text-lg text-gray-300 max-w-2xl">
+                Discover professionally crafted templates built by our community
+              </p>
+            </div>
+            <div className="text-gray-400 text-sm">
+              {communityTemplates.length} templates
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
             {communityTemplates.map((template) => (
               <div
                 key={template.id}
                 onClick={() => handleTemplateClick(template)}
-                className="group relative bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-6 cursor-pointer transition-all duration-300 hover:transform hover:scale-[1.02] hover:shadow-2xl hover:border-slate-600/50"
+                className="group relative bg-slate-800/40 backdrop-blur-xl border border-slate-700/40 rounded-3xl overflow-hidden cursor-pointer transition-all duration-500 hover:transform hover:scale-[1.02] hover:shadow-2xl hover:border-slate-600/60 hover:bg-slate-800/60"
               >
                 {/* Template Preview Image */}
-                <div className="relative h-48 mb-6 rounded-2xl overflow-hidden">
+                <div className="relative h-48 overflow-hidden">
                   <img
                     src={template.preview}
                     alt={template.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent"></div>
 
                   {/* Category Badge */}
                   <div className="absolute top-4 left-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      template.id === "1" ? "bg-blue-500/80 text-white" :
-                      template.id === "2" ? "bg-green-500/80 text-white" :
+                    <span className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm ${
+                      template.category === "Portfolio" ? "bg-blue-500/80 text-white" :
+                      template.category === "E-commerce" ? "bg-green-500/80 text-white" :
                       "bg-purple-500/80 text-white"
                     }`}>
                       {template.category}
                     </span>
                   </div>
 
-                  {/* Stats */}
+                  {/* Quick Stats */}
                   <div className="absolute bottom-4 right-4 flex items-center space-x-3 text-white text-xs">
-                    <div className="flex items-center space-x-1">
-                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="flex items-center space-x-1 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-lg">
+                      <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
                       <span>{template.rating}</span>
                     </div>
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-lg">
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
@@ -550,19 +605,32 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Template Info */}
-                <div>
-                  <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors duration-200">
-                    {template.title}
-                  </h3>
+                {/* Template Content */}
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors duration-300 leading-tight">
+                      {template.title}
+                    </h3>
+                    <span className="bg-slate-700/50 text-gray-300 px-2 py-1 rounded-lg text-xs font-medium ml-2 whitespace-nowrap">
+                      {template.difficulty}
+                    </span>
+                  </div>
                   <p className="text-gray-400 text-sm leading-relaxed mb-4 line-clamp-2">
                     {template.description}
                   </p>
 
-                  {/* Author and Difficulty */}
-                  <div className="flex justify-between items-center text-xs text-gray-500">
-                    <span>by {template.author}</span>
-                    <span className="bg-slate-700/50 px-2 py-1 rounded-lg">{template.difficulty}</span>
+                  {/* Author and Stats */}
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center space-x-1">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span>by {template.author}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+                      <span>{new Date(template.createdAt).toLocaleDateString()}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -573,10 +641,10 @@ export default function Home() {
 
       {/* Community Template Modal */}
       {showModal && selectedTemplate && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div
             ref={modalRef}
-            className="bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-auto shadow-2xl"
+            className="bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 max-w-5xl w-full max-h-[90vh] overflow-auto shadow-2xl"
           >
             <div className="flex justify-between items-start mb-8">
               <div className="flex-1">
@@ -597,7 +665,7 @@ export default function Home() {
                     <span>by {selectedTemplate.author}</span>
                   </span>
                   <span className="flex items-center space-x-2">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                     <span>{selectedTemplate.rating} rating</span>
@@ -615,7 +683,7 @@ export default function Home() {
                   setShowModal(false);
                   setSelectedTemplate(null);
                 }}
-                className="text-gray-400 hover:text-white transition-colors duration-200 ml-4"
+                className="text-gray-400 hover:text-white transition-colors duration-200 ml-4 p-2 hover:bg-slate-700/50 rounded-lg"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -624,20 +692,20 @@ export default function Home() {
             </div>
 
             {/* Code Preview */}
-            <div className="bg-slate-900/50 border border-slate-700/50 rounded-2xl p-6 mb-8">
+            <div className="bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 mb-8">
               <h3 className="text-white text-lg font-semibold mb-4 flex items-center space-x-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                 </svg>
                 <span>Code Preview</span>
               </h3>
-              <pre className="text-gray-300 text-sm overflow-auto max-h-64 leading-relaxed">
+              <pre className="text-gray-300 text-sm overflow-auto max-h-64 leading-relaxed bg-slate-800/50 p-4 rounded-xl">
                 {selectedTemplate.code.substring(0, 800)}...
               </pre>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-end space-x-4">
+            <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
               <button
                 onClick={() => {
                   const blob = new Blob([selectedTemplate.code], { type: 'text/html' });
@@ -650,7 +718,7 @@ export default function Home() {
                   document.body.removeChild(a);
                   URL.revokeObjectURL(url);
                 }}
-                className="bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 hover:text-white px-8 py-3 rounded-xl font-medium transition-all duration-200 border border-slate-600/50 hover:border-slate-500/50 flex items-center space-x-2"
+                className="bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 hover:text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 border border-slate-600/50 hover:border-slate-500/50 flex items-center justify-center space-x-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -660,7 +728,7 @@ export default function Home() {
               <button
                 onClick={handleUseTemplate}
                 disabled={isGeneratingTemplate}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-8 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:transform-none disabled:cursor-not-allowed flex items-center space-x-2"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:transform-none disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               >
                 {isGeneratingTemplate ? (
                   <>
@@ -683,13 +751,13 @@ export default function Home() {
 
       {/* Pricing Modal */}
       {showPricing && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 max-w-md w-full shadow-2xl">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold text-white">Get More Credits</h2>
               <button
                 onClick={() => setShowPricing(false)}
-                className="text-gray-400 hover:text-white transition-colors duration-200"
+                className="text-gray-400 hover:text-white transition-colors duration-200 p-2 hover:bg-slate-700/50 rounded-lg"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -711,7 +779,7 @@ export default function Home() {
                   onClick={() => {
                     window.location.href = '/payments/local';
                   }}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
                   Purchase Credits
                 </button>
