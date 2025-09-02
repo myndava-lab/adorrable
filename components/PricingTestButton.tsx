@@ -61,12 +61,12 @@ Go to the main page and click "Sign in with Google"`)
 📈 Granted 10 credits: ${grantData.newBalance} total
 📉 Deducted 1 credit: ${deductData.newBalance} final balance`)
         } else {
-          const deductError = await deductResponse.text()
-          setResult(`❌ Credit deduction failed: ${deductError}`)
+          const deductError = await deductResponse.json().catch(() => ({ error: 'Unknown error' }))
+          setResult(`❌ Credit deduction failed: ${deductError.error || 'Unknown error'}`)
         }
       } else {
-        const grantError = await grantResponse.text()
-        setResult(`❌ Credit granting failed: ${grantError}`)
+        const grantError = await grantResponse.json().catch(() => ({ error: 'Unknown error' }))
+        setResult(`❌ Credit granting failed: ${grantError.error || 'Unknown error'}`)
       }
     } catch (err: any) {
       setResult(`❌ Pricing test error: ${err.message}`)

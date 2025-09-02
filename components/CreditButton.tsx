@@ -29,12 +29,11 @@ Go to the main page and click "Sign in with Google"`)
       if (response.ok) {
         const data = await response.json()
         setResult(`✅ Credits API working!
-User: ${data.profile.email}
-Credits: ${data.profile.credits}
-ID: ${data.profile.id}`)
+Current credits: ${data.credits}
+Subscription tier: ${data.tier}`)
       } else {
-        const error = await response.text()
-        setResult(`❌ Credits API failed: ${error}`)
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        setResult(`❌ Credits API failed: ${errorData.error || 'Unknown error'}`)
       }
     } catch (err: any) {
       setResult(`❌ Credits test error: ${err.message}`)

@@ -37,10 +37,11 @@ Go to the main page and click "Sign in with Google"`)
         setResult(`✅ AI Generation working!
 Success: ${data.success}
 Credits used: ${data.creditsUsed}
+Credits remaining: ${data.creditsRemaining}
 HTML generated: ${data.html?.length || 0} characters`)
       } else {
-        const error = await response.text()
-        setResult(`❌ AI Generation failed: ${error}`)
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        setResult(`❌ AI Generation failed: ${errorData.error || 'Unknown error'}`)
       }
     } catch (err: any) {
       setResult(`❌ AI test error: ${err.message}`)
