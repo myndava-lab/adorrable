@@ -467,7 +467,17 @@ export default function Home() {
                 padding: "4px",
                 marginLeft: "16px",
                 borderRadius: "6px",
-                transition: "all 0.2s",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.color = "white";
+                e.target.style.background = "rgba(239, 68, 68, 0.2)";
+                e.target.style.transform = "scale(1.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = "rgba(148, 163, 184, 0.6)";
+                e.target.style.background = "none";
+                e.target.style.transform = "scale(1)";
               }}
             >
               ×
@@ -610,7 +620,19 @@ export default function Home() {
                 borderRadius: "10px",
                 cursor: "pointer",
                 fontSize: "14px",
-                transition: "all 0.2s",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = "linear-gradient(135deg, rgba(148, 163, 184, 0.3) 0%, rgba(148, 163, 184, 0.2) 100%)";
+                e.target.style.borderColor = "rgba(148, 163, 184, 0.5)";
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(148, 163, 184, 0.1) 100%)";
+                e.target.style.borderColor = "rgba(148, 163, 184, 0.3)";
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "none";
               }}
             >
               Open Project
@@ -625,8 +647,18 @@ export default function Home() {
                 borderRadius: "10px",
                 cursor: "pointer",
                 fontSize: "14px",
-                transition: "all 0.2s",
+                transition: "all 0.2s ease",
                 boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)";
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = "0 6px 20px rgba(59, 130, 246, 0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)";
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.3)";
               }}
             >
               Remix
@@ -876,7 +908,19 @@ export default function Home() {
             cursor: "pointer",
             fontSize: "14px",
             width: "100%",
-            transition: "all 0.2s",
+            transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.background = "rgba(148, 163, 184, 0.1)";
+            e.target.style.color = "white";
+            e.target.style.borderColor = "rgba(148, 163, 184, 0.5)";
+            e.target.style.transform = "translateY(-2px)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = "none";
+            e.target.style.color = "rgba(148, 163, 184, 0.8)";
+            e.target.style.borderColor = "rgba(148, 163, 184, 0.3)";
+            e.target.style.transform = "translateY(0)";
           }}
         >
           Maybe Later
@@ -1001,10 +1045,20 @@ export default function Home() {
                     color: "rgba(148, 163, 184, 0.8)",
                     textDecoration: "none",
                     fontSize: "14px",
-                    transition: "color 0.2s",
+                    transition: "all 0.2s ease",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
                   }}
-                  onMouseEnter={(e) => (e.target.style.color = "white")}
-                  onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.8)")}
+                  onMouseEnter={(e) => {
+                    e.target.style.color = "white";
+                    e.target.style.background = "rgba(59, 130, 246, 0.1)";
+                    e.target.style.transform = "translateY(-1px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.color = "rgba(148, 163, 184, 0.8)";
+                    e.target.style.background = "transparent";
+                    e.target.style.transform = "translateY(0)";
+                  }}
                 >
                   Features
                 </a>
@@ -1014,10 +1068,20 @@ export default function Home() {
                     color: "rgba(148, 163, 184, 0.8)",
                     textDecoration: "none",
                     fontSize: "14px",
-                    transition: "color 0.2s",
+                    transition: "all 0.2s ease",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
                   }}
-                  onMouseEnter={(e) => (e.target.style.color = "white")}
-                  onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.8)")}
+                  onMouseEnter={(e) => {
+                    e.target.style.color = "white";
+                    e.target.style.background = "rgba(59, 130, 246, 0.1)";
+                    e.target.style.transform = "translateY(-1px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.color = "rgba(148, 163, 184, 0.8)";
+                    e.target.style.background = "transparent";
+                    e.target.style.transform = "translateY(0)";
+                  }}
                 >
                   Templates
                 </a>
@@ -1029,10 +1093,20 @@ export default function Home() {
                     color: "rgba(148, 163, 184, 0.8)",
                     fontSize: "14px",
                     cursor: "pointer",
-                    transition: "color 0.2s",
+                    transition: "all 0.2s ease",
+                    padding: "4px 8px",
+                    borderRadius: "6px",
                   }}
-                  onMouseEnter={(e) => (e.target.style.color = "white")}
-                  onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.8)")}
+                  onMouseEnter={(e) => {
+                    e.target.style.color = "white";
+                    e.target.style.background = "rgba(148, 163, 184, 0.1)";
+                    e.target.style.transform = "translateY(-1px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.color = "rgba(148, 163, 184, 0.8)";
+                    e.target.style.background = "none";
+                    e.target.style.transform = "translateY(0)";
+                  }}
                 >
                   Pricing
                 </button>
@@ -1042,10 +1116,20 @@ export default function Home() {
                     color: "rgba(148, 163, 184, 0.8)",
                     textDecoration: "none",
                     fontSize: "14px",
-                    transition: "color 0.2s",
+                    transition: "all 0.2s ease",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
                   }}
-                  onMouseEnter={(e) => (e.target.style.color = "white")}
-                  onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.8)")}
+                  onMouseEnter={(e) => {
+                    e.target.style.color = "white";
+                    e.target.style.background = "rgba(59, 130, 246, 0.1)";
+                    e.target.style.transform = "translateY(-1px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.color = "rgba(148, 163, 184, 0.8)";
+                    e.target.style.background = "transparent";
+                    e.target.style.transform = "translateY(0)";
+                  }}
                 >
                   Docs
                 </a>
@@ -1078,6 +1162,19 @@ export default function Home() {
                         fontSize: "12px",
                         cursor: "pointer",
                         textDecoration: "underline",
+                        transition: "all 0.2s ease",
+                        padding: "2px 4px",
+                        borderRadius: "4px",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.color = "#059669";
+                        e.target.style.background = "rgba(16, 185, 129, 0.1)";
+                        e.target.style.transform = "scale(1.05)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.color = "#10b981";
+                        e.target.style.background = "none";
+                        e.target.style.transform = "scale(1)";
                       }}
                     >
                       Get more
@@ -1093,7 +1190,21 @@ export default function Home() {
                       borderRadius: "10px",
                       fontSize: "14px",
                       cursor: "pointer",
-                      transition: "all 0.2s",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = "rgba(148, 163, 184, 0.2)";
+                      e.target.style.color = "white";
+                      e.target.style.borderColor = "rgba(148, 163, 184, 0.4)";
+                      e.target.style.transform = "translateY(-2px)";
+                      e.target.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.2)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = "rgba(148, 163, 184, 0.1)";
+                      e.target.style.color = "rgba(148, 163, 184, 0.8)";
+                      e.target.style.borderColor = "rgba(148, 163, 184, 0.2)";
+                      e.target.style.transform = "translateY(0)";
+                      e.target.style.boxShadow = "none";
                     }}
                   >
                     Sign Out
@@ -1111,8 +1222,18 @@ export default function Home() {
                     fontSize: "14px",
                     fontWeight: "500",
                     cursor: "pointer",
-                    transition: "all 0.2s",
+                    transition: "all 0.2s ease",
                     boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)";
+                    e.target.style.transform = "translateY(-2px)";
+                    e.target.style.boxShadow = "0 6px 20px rgba(59, 130, 246, 0.4)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)";
+                    e.target.style.transform = "translateY(0)";
+                    e.target.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.3)";
                   }}
                 >
                   Sign In
@@ -1297,13 +1418,27 @@ export default function Home() {
                     fontSize: "16px",
                     fontWeight: "500",
                     cursor: isLoading || !prompt.trim() ? "not-allowed" : "pointer",
-                    transition: "all 0.2s",
+                    transition: "all 0.2s ease",
                     display: "flex",
                     alignItems: "center",
                     gap: "8px",
                     boxShadow: isLoading || !prompt.trim()
                       ? "none"
                       : "0 4px 15px rgba(59, 130, 246, 0.3)",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isLoading && prompt.trim()) {
+                      e.target.style.background = "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)";
+                      e.target.style.transform = "translateY(-2px)";
+                      e.target.style.boxShadow = "0 6px 20px rgba(59, 130, 246, 0.4)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isLoading && prompt.trim()) {
+                      e.target.style.background = "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)";
+                      e.target.style.transform = "translateY(0)";
+                      e.target.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.3)";
+                    }
                   }}
                 >
                   {isLoading ? "Generating..." : "Generate"}
@@ -1359,8 +1494,18 @@ export default function Home() {
                       display: "flex",
                       alignItems: "center",
                       gap: "6px",
-                      transition: "all 0.2s",
+                      transition: "all 0.2s ease",
                       boxShadow: "0 4px 15px rgba(16, 185, 129, 0.3)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = "linear-gradient(135deg, #059669 0%, #047857 100%)";
+                      e.target.style.transform = "translateY(-2px)";
+                      e.target.style.boxShadow = "0 6px 20px rgba(16, 185, 129, 0.4)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+                      e.target.style.transform = "translateY(0)";
+                      e.target.style.boxShadow = "0 4px 15px rgba(16, 185, 129, 0.3)";
                     }}
                   >
                     <span>📁</span>
@@ -1376,8 +1521,18 @@ export default function Home() {
                       borderRadius: "8px",
                       fontSize: "14px",
                       cursor: "pointer",
-                      transition: "all 0.2s",
+                      transition: "all 0.2s ease",
                       boxShadow: "0 4px 15px rgba(239, 68, 68, 0.3)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = "linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)";
+                      e.target.style.transform = "translateY(-2px)";
+                      e.target.style.boxShadow = "0 6px 20px rgba(239, 68, 68, 0.4)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)";
+                      e.target.style.transform = "translateY(0)";
+                      e.target.style.boxShadow = "0 4px 15px rgba(239, 68, 68, 0.3)";
                     }}
                   >
                     Close
@@ -1563,10 +1718,20 @@ export default function Home() {
                   textDecoration: "none",
                   margin: "0 20px",
                   fontSize: "14px",
-                  transition: "color 0.2s",
+                  transition: "all 0.2s ease",
+                  padding: "4px 8px",
+                  borderRadius: "6px",
                 }}
-                onMouseEnter={(e) => (e.target.style.color = "white")}
-                onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.7)")}
+                onMouseEnter={(e) => {
+                  e.target.style.color = "white";
+                  e.target.style.background = "rgba(59, 130, 246, 0.1)";
+                  e.target.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = "rgba(148, 163, 184, 0.7)";
+                  e.target.style.background = "transparent";
+                  e.target.style.transform = "translateY(0)";
+                }}
               >
                 About
               </a>
@@ -1580,10 +1745,20 @@ export default function Home() {
                   margin: "0 20px",
                   cursor: "pointer",
                   fontSize: "14px",
-                  transition: "color 0.2s",
+                  transition: "all 0.2s ease",
+                  padding: "4px 8px",
+                  borderRadius: "6px",
                 }}
-                onMouseEnter={(e) => (e.target.style.color = "white")}
-                onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.7)")}
+                onMouseEnter={(e) => {
+                  e.target.style.color = "white";
+                  e.target.style.background = "rgba(59, 130, 246, 0.1)";
+                  e.target.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = "rgba(148, 163, 184, 0.7)";
+                  e.target.style.background = "transparent";
+                  e.target.style.transform = "translateY(0)";
+                }}
               >
                 Pricing
               </button>
@@ -1594,10 +1769,20 @@ export default function Home() {
                   textDecoration: "none",
                   margin: "0 20px",
                   fontSize: "14px",
-                  transition: "color 0.2s",
+                  transition: "all 0.2s ease",
+                  padding: "4px 8px",
+                  borderRadius: "6px",
                 }}
-                onMouseEnter={(e) => (e.target.style.color = "white")}
-                onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.7)")}
+                onMouseEnter={(e) => {
+                  e.target.style.color = "white";
+                  e.target.style.background = "rgba(59, 130, 246, 0.1)";
+                  e.target.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = "rgba(148, 163, 184, 0.7)";
+                  e.target.style.background = "transparent";
+                  e.target.style.transform = "translateY(0)";
+                }}
               >
                 Templates
               </a>
@@ -1608,10 +1793,20 @@ export default function Home() {
                   textDecoration: "none",
                   margin: "0 20px",
                   fontSize: "14px",
-                  transition: "color 0.2s",
+                  transition: "all 0.2s ease",
+                  padding: "4px 8px",
+                  borderRadius: "6px",
                 }}
-                onMouseEnter={(e) => (e.target.style.color = "white")}
-                onMouseLeave={(e) => (e.target.style.color = "rgba(148, 163, 184, 0.7)")}
+                onMouseEnter={(e) => {
+                  e.target.style.color = "white";
+                  e.target.style.background = "rgba(59, 130, 246, 0.1)";
+                  e.target.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = "rgba(148, 163, 184, 0.7)";
+                  e.target.style.background = "transparent";
+                  e.target.style.transform = "translateY(0)";
+                }}
               >
                 Support
               </a>
