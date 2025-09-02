@@ -1,11 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
 export default function PricingTestButton() {
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<string | null>(null)
+  const [session, setSession] = useState<any>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   const testPricing = async () => {
     setIsLoading(true)
@@ -13,7 +26,18 @@ export default function PricingTestButton() {
 
     try {
       console.log('🔍 Starting Pricing test...')
-      const response = await fetch('/api/test')
+      
+      if (!session) {
+        setResult('❌ User not authenticated. Please sign in first.\nGo to the main page and click "Sign in with Google"')
+        setIsLoading(false)
+        return
+      }
+
+      const response = await fetch('/api/test', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      })
       console.log('Pricing test response status:', response.status)
 
       const data = await response.json()

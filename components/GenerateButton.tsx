@@ -1,11 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
 export default function GenerateButton() {
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<string | null>(null)
+  const [session, setSession] = useState<any>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   const testGeneration = async () => {
     setIsLoading(true)
@@ -13,6 +26,13 @@ export default function GenerateButton() {
 
     try {
       console.log('🔍 Starting AI Generation test...')
+      
+      if (!session) {
+        setResult('❌ User not authenticated. Please sign in first.\nGo to the main page and click "Sign in with Google"')
+        setIsLoading(false)
+        return
+      }
+
       const response = await fetch('/api/ai/generate', {
         method: 'POST',
         headers: {
