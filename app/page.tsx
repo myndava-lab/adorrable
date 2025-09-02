@@ -382,14 +382,40 @@ const translations = {
   }
 };
 
-const EXAMPLE_PROMPTS = [
-  "Design a Lagos restaurant homepage with WhatsApp CTA & Paystack checkout…",
-  "Build a Nairobi tech startup landing page with M-Pesa integration…",
-  "Create a Mumbai fashion store with UPI payments & Hindi support…",
-  "Design a London consulting firm website with Stripe & GDPR compliance…",
-  "Build a Cape Town tourism site with local payment options…",
-  "Create a Berlin e-commerce store with EU payment regulations…"
-];
+const EXAMPLE_PROMPTS = {
+  English: [
+    "Design a Lagos restaurant homepage with WhatsApp CTA & Paystack checkout…",
+    "Build a Nairobi tech startup landing page with M-Pesa integration…",
+    "Create a Mumbai fashion store with UPI payments & Hindi support…",
+    "Design a London consulting firm website with Stripe & GDPR compliance…",
+    "Build a Cape Town tourism site with local payment options…",
+    "Create a Berlin e-commerce store with EU payment regulations…"
+  ],
+  French: [
+    "Concevez une page d'accueil de restaurant à Lagos avec CTA WhatsApp et paiement Paystack…",
+    "Créez une page de startup tech de Nairobi avec intégration M-Pesa…",
+    "Créez un magasin de mode de Mumbai avec paiements UPI et support Hindi…",
+    "Concevez un site de cabinet de conseil londonien avec Stripe et conformité RGPD…",
+    "Créez un site touristique du Cap avec options de paiement locales…",
+    "Créez un magasin e-commerce berlinois avec réglementations de paiement UE…"
+  ],
+  Swahili: [
+    "Buni ukurasa wa nyumbani wa mgahawa wa Lagos na WhatsApp CTA na Paystack…",
+    "Jenga ukurasa wa startup ya teknolojia ya Nairobi na ushirikiano wa M-Pesa…",
+    "Unda duka la mitindo la Mumbai na malipo ya UPI na msaada wa Kihindi…",
+    "Buni tovuti ya kampuni ya ushauri ya London na Stripe na utii wa GDPR…",
+    "Jenga tovuti ya utalii ya Cape Town na chaguo za malipo za ndani…",
+    "Unda duka la e-commerce la Berlin na kanuni za malipo za EU…"
+  ],
+  Pidgin: [
+    "Design Lagos restaurant homepage with WhatsApp CTA & Paystack checkout…",
+    "Build Nairobi tech startup page with M-Pesa integration…",
+    "Create Mumbai fashion store with UPI payments & Hindi support…",
+    "Design London consulting firm website with Stripe & GDPR compliance…",
+    "Build Cape Town tourism site with local payment options…",
+    "Create Berlin e-commerce store with EU payment regulations…"
+  ]
+};
 
 function Logo({ label }: { label: string }) {
   return (
@@ -499,6 +525,14 @@ export default function AdorrableLanding() {
   
   // Get current translations
   const t = translations[lang];
+
+  // Reset typewriter effect when language changes
+  useEffect(() => {
+    setCurrentPrompt("");
+    setCharIndex(0);
+    setPromptIndex(0);
+    setIsDeleting(false);
+  }, [lang]);
   const [currentPrompt, setCurrentPrompt] = useState("");
   const [promptIndex, setPromptIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
@@ -539,7 +573,8 @@ export default function AdorrableLanding() {
 
   // Typewriter effect
   useEffect(() => {
-    const promptText = EXAMPLE_PROMPTS[promptIndex];
+    const currentLangPrompts = EXAMPLE_PROMPTS[lang];
+    const promptText = currentLangPrompts[promptIndex];
     const typingSpeed = isDeleting ? 50 : 100;
     const delayBetweenPrompts = 2000;
 
@@ -554,12 +589,12 @@ export default function AdorrableLanding() {
         setTimeout(() => setIsDeleting(true), delayBetweenPrompts);
       } else if (isDeleting && charIndex === 0) {
         setIsDeleting(false);
-        setPromptIndex((promptIndex + 1) % EXAMPLE_PROMPTS.length);
+        setPromptIndex((promptIndex + 1) % currentLangPrompts.length);
       }
     }, typingSpeed);
 
     return () => clearTimeout(timer);
-  }, [charIndex, isDeleting, promptIndex]);
+  }, [charIndex, isDeleting, promptIndex, lang]);
 
   const fetchUserProfile = async (userId: string) => {
     try {
@@ -737,7 +772,7 @@ export default function AdorrableLanding() {
                   <MessageSquare className="h-6 w-6 text-white/60 flex-shrink-0 mt-1" />
                   <textarea
                     className="w-full bg-transparent text-lg text-white placeholder:text-white/50 focus:outline-none resize-none leading-relaxed"
-                    placeholder={user ? t.hero.placeholder : (currentPrompt + (charIndex === EXAMPLE_PROMPTS[promptIndex]?.length ? "" : "|"))}
+                    placeholder={user ? t.hero.placeholder : (currentPrompt + (charIndex === EXAMPLE_PROMPTS[lang][promptIndex]?.length ? "" : "|"))}
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     rows={4}
