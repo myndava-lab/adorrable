@@ -4,6 +4,7 @@ import { testDatabaseConnection, getUserProfile, grantCredits, deductCredits, cr
 import OpenAI from 'openai'
 
 export async function GET() {
+  console.log('Starting comprehensive API tests...')
   const testResults = {
     timestamp: new Date().toISOString(),
     tests: [] as any[]
@@ -55,12 +56,19 @@ export async function GET() {
   }
 
   try {
+    console.log('Testing OpenAI API...')
     if (!process.env.OPENAI_API_KEY) {
+      console.log('❌ OpenAI API Key not found')
       aiTest.status = 'fail'
       aiTest.details = { error: 'OPENAI_API_KEY environment variable not set' }
     } else {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+      console.log('✅ OpenAI API Key found, creating client...')
+      const openai = new OpenAI({ 
+        apiKey: process.env.OPENAI_API_KEY,
+        timeout: 30000 // 30 second timeout
+      })
       
+      console.log('Sending request to OpenAI...')
       // Test with a simple completion
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
@@ -69,8 +77,10 @@ export async function GET() {
         temperature: 0
       })
       
+      console.log('OpenAI response received:', completion)
       const response = completion.choices[0]?.message?.content
       if (response && response.trim().length > 0) {
+        console.log('✅ OpenAI test passed')
         aiTest.status = 'pass'
         aiTest.details = { 
           response: response.trim(),
@@ -78,17 +88,20 @@ export async function GET() {
           usage: completion.usage
         }
       } else {
+        console.log('❌ OpenAI returned empty response')
         aiTest.status = 'fail'
         aiTest.details = { error: 'Empty response from OpenAI', completion }
       }
     }
   } catch (error) {
+    console.log('❌ OpenAI test failed with error:', error)
     aiTest.status = 'fail'
     if (error instanceof Error) {
       aiTest.details = { 
         error: error.message,
         code: (error as any).code,
-        type: (error as any).type
+        type: (error as any).type,
+        stack: error.stack
       }
     } else {
       aiTest.details = { error: 'Unknown error', details: String(error) }
@@ -104,25 +117,36 @@ export async function GET() {
   }
 
   try {
+    console.log('Testing Credit System...')
     const testUserId = 'test-user-' + Date.now()
     const testEmail = `test-${Date.now()}@adorrable.dev`
     
+    console.log('Creating test user profile:', { testUserId, testEmail })
     // First create a test user profile
-    const { createUserProfile } = await import('@/lib/supabaseServer')
     const profile = await createUserProfile(testUserId, testEmail, 'Test User')
     
     if (!profile) {
+      console.log('❌ Failed to create test user profile')
       creditTest.status = 'fail'
       creditTest.details = { error: 'Failed to create test user profile' }
     } else {
+      console.log('✅ Test user profile created:', profile)
+      
       // Test granting credits
+      console.log('Testing credit granting...')
       const grantResult = await grantCredits(testUserId, 5, 'Test credit grant')
+      console.log('Grant result:', grantResult)
       
       if (grantResult.success) {
+        console.log('✅ Credit granting successful')
+        
         // Test deducting credits
+        console.log('Testing credit deduction...')
         const deductResult = await deductCredits(testUserId, 2, 'Test credit deduction')
+        console.log('Deduct result:', deductResult)
         
         if (deductResult.success) {
+          console.log('✅ Credit system test passed')
           creditTest.status = 'pass'
           creditTest.details = {
             userId: testUserId,
@@ -132,6 +156,7 @@ export async function GET() {
             finalBalance: deductResult.newBalance
           }
         } else {
+          console.log('❌ Credit deduction failed')
           creditTest.status = 'fail'
           creditTest.details = { 
             error: 'Credit deduction failed', 
@@ -140,6 +165,7 @@ export async function GET() {
           }
         }
       } else {
+        console.log('❌ Credit granting failed')
         creditTest.status = 'fail'
         creditTest.details = { 
           error: 'Credit granting failed', 
@@ -149,6 +175,7 @@ export async function GET() {
       }
     }
   } catch (error) {
+    console.log('❌ Credit system test failed with error:', error)
     creditTest.status = 'fail'
     creditTest.details = { 
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -157,5 +184,6 @@ export async function GET() {
   }
   testResults.tests.push(creditTest)
 
+  console.log('Test results:', testResults)
   return NextResponse.json(testResults)
 }
