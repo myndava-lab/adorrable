@@ -24,8 +24,16 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   }
 })
 
-// Regular client for user operations
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Use the same singleton pattern for server-side client
+declare global {
+  var __supabaseServer: ReturnType<typeof createClient> | undefined
+}
+
+export const supabase = globalThis.__supabaseServer ?? createClient(supabaseUrl, supabaseAnonKey)
+
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.__supabaseServer = supabase
+}
 
 // Server client for SSR/middleware
 export function createServerSupabaseClient(
