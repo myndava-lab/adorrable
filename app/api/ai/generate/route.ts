@@ -75,11 +75,45 @@ const getCulturalConfig = (language: string, region?: string) => {
 
 export async function POST(req: NextRequest) {
   try {
+    // Check authentication
+    const authHeader = req.headers.get('authorization')
+    if (!authHeader) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Get user from token
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    }
+
     const { prompt, language = "English", images = [] } = await req.json();
 
     if (!prompt || prompt.trim().length === 0) {
       return NextResponse.json(
         { error: "Prompt is required" },
+        { status: 400 },
+      );
+    }
+
+    // Check and deduct credits
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('credits')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile || profile.credits < 1) {
+      return NextResponse.json(
+        { error: "Insufficient credits" },
         { status: 400 },
       );
     }
@@ -144,12 +178,29 @@ Generate a complete HTML file with embedded CSS and JavaScript that creates a be
 
     const generatedCode = completion.choices[0].message.content;
 
+    // Deduct credits after successful generation
+    await supabase
+      .from('profiles')
+      .update({ credits: profile.credits - 1 })
+      .eq('id', user.id)
+
+    // Log the credit usage
+    await supabase
+      .from('credit_logs')
+      .insert({
+        profile_id: user.id,
+        delta: -1,
+        reason: 'AI website generation',
+        meta: { prompt: prompt.substring(0, 100), language }
+      })
+
     // Parse and structure the response
     const template = {
       id: Date.now(),
       title: prompt,
       language: language,
       code: generatedCode,
+      html: generatedCode,
       images: images,
       createdAt: new Date().toISOString(),
       metadata: {
@@ -162,6 +213,8 @@ Generate a complete HTML file with embedded CSS and JavaScript that creates a be
     return NextResponse.json({
       success: true,
       template: template,
+      creditsUsed: 1,
+      creditsRemaining: profile.credits - 1,
       message: `Template generated successfully in ${language}`,
     });
   } catch (error: any) {

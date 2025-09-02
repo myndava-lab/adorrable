@@ -48,9 +48,8 @@ export async function GET(request: NextRequest) {
     // Get user profile with credits and subscription tier
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('credits, subscription_tier')
-      // Assuming 'user_id' is the correct column name in the profiles table for linking to auth users
-      .eq('user_id', user.id)
+      .select('credits')
+      .eq('id', user.id)
       .single()
 
     if (profileError || !profile) {
@@ -62,7 +61,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       credits: profile.credits,
-      tier: profile.subscription_tier || 'free'
+      tier: 'free'
     })
 
   } catch (error) {
@@ -93,16 +92,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid action or amount' }, { status: 400 })
     }
 
-    // Get current credits from the profile
-    const { data: profile, error: profileError } = await supabase
+    // Get current credits from the profile, create if doesn't exist
+    let { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('credits')
-      // Assuming 'user_id' is the correct column name in the profiles table for linking to auth users
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .single()
 
-    if (profileError || !profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+    if (profileError && profileError.code === 'PGRST116') {
+      // Profile doesn't exist, create it
+      const { data: newProfile, error: createError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email || '',
+          credits: 4 // Default credits
+        })
+        .select('credits')
+        .single()
+
+      if (createError) {
+        console.error('Error creating profile:', createError)
+        return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
+      }
+      profile = newProfile
+    } else if (profileError) {
+      console.error('Error fetching profile:', profileError)
+      return NextResponse.json({ error: 'Profile error' }, { status: 500 })
     }
 
     let newBalance = profile.credits
@@ -124,22 +140,21 @@ export async function POST(request: NextRequest) {
     const { error: updateError } = await supabase
       .from('profiles')
       .update({ credits: newBalance })
-      .eq('user_id', user.id) // Assuming 'user_id' is the correct column
+      .eq('id', user.id)
 
     if (updateError) {
       console.error('Error updating credits:', updateError)
       return NextResponse.json({ error: 'Failed to update credits' }, { status: 500 })
     }
 
-    // Log the transaction in the credit_transactions table
+    // Log the transaction in the credit_logs table
     const { error: logError } = await supabase
-      .from('credit_transactions')
+      .from('credit_logs')
       .insert({
-        user_id: user.id,
-        amount: action === 'deduct' ? -amount : amount, // Store deduction as negative
-        type: action,
-        description: reason || `Credits ${action}`, // Use provided reason or a default description
-        metadata: meta || {} // Store any additional metadata
+        profile_id: user.id,
+        delta: action === 'deduct' ? -amount : amount,
+        reason: reason || `Credits ${action}`,
+        meta: meta || {}
       })
 
     if (logError) {
