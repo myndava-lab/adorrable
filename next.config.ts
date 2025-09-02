@@ -2,13 +2,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: [],
+  // Minimal config to avoid webpack issues
+  typescript: {
+    ignoreBuildErrors: false,
   },
-  // Remove output standalone for development
-  trailingSlash: false,
-  // Ensure proper asset handling
-  assetPrefix: '',
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+  // Disable problematic features temporarily
+  swcMinify: false,
 };
 
 export default nextConfig;
