@@ -331,24 +331,6 @@ export default function Home() {
     window.open(url, '_blank');
   };
 
-  const downloadCode = () => {
-    const blob = new Blob([generatedCode], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'adorrable-generated-website.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const openInNewTab = () => {
-    const blob = new Blob([generatedCode], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
       {/* Animated background elements */}
