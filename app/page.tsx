@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -33,6 +33,15 @@ const stagger = {
 };
 
 const LANGS = ["English", "French", "Swahili", "Pidgin"] as const;
+
+const EXAMPLE_PROMPTS = [
+  "Design a Lagos restaurant homepage with WhatsApp CTA & Paystack checkout…",
+  "Build a Nairobi tech startup landing page with M-Pesa integration…",
+  "Create a Mumbai fashion store with UPI payments & Hindi support…",
+  "Design a London consulting firm website with Stripe & GDPR compliance…",
+  "Build a Cape Town tourism site with local payment options…",
+  "Create a Berlin e-commerce store with EU payment regulations…"
+];
 
 function Logo({ label }: { label: string }) {
   return (
@@ -136,6 +145,34 @@ function PriceCard({
 
 export default function AdorrableLanding() {
   const [lang, setLang] = useState<(typeof LANGS)[number]>("English");
+  const [currentPrompt, setCurrentPrompt] = useState("");
+  const [promptIndex, setPromptIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Typewriter effect
+  useEffect(() => {
+    const prompt = EXAMPLE_PROMPTS[promptIndex];
+    const typingSpeed = isDeleting ? 50 : 100;
+    const delayBetweenPrompts = 2000;
+
+    const timer = setTimeout(() => {
+      if (!isDeleting && charIndex < prompt.length) {
+        setCurrentPrompt(prompt.slice(0, charIndex + 1));
+        setCharIndex(charIndex + 1);
+      } else if (isDeleting && charIndex > 0) {
+        setCurrentPrompt(prompt.slice(0, charIndex - 1));
+        setCharIndex(charIndex - 1);
+      } else if (!isDeleting && charIndex === prompt.length) {
+        setTimeout(() => setIsDeleting(true), delayBetweenPrompts);
+      } else if (isDeleting && charIndex === 0) {
+        setIsDeleting(false);
+        setPromptIndex((promptIndex + 1) % EXAMPLE_PROMPTS.length);
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timer);
+  }, [charIndex, isDeleting, promptIndex]);
 
   return (
     <div className="min-h-screen bg-[#0B0F19] text-white">
@@ -208,18 +245,40 @@ export default function AdorrableLanding() {
             </p>
 
             {/* Prompt Input Box */}
-            <div className={`${cardClass} mx-auto max-w-4xl p-6 mb-8`}>
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="flex grow items-center gap-3 rounded-xl bg-black/40 px-4 py-4">
-                  <MessageSquare className="h-5 w-5 text-white/60 flex-shrink-0" />
-                  <input
-                    className="w-full bg-transparent text-white placeholder:text-white/50 focus:outline-none"
-                    placeholder="Design a Lagos restaurant homepage with WhatsApp CTA & Paystack checkout…"
+            <div className={`${cardClass} mx-auto max-w-5xl p-8 mb-8`}>
+              <div className="flex flex-col gap-6">
+                <div className="flex items-start gap-4 rounded-2xl bg-black/40 px-6 py-6 min-h-[120px]">
+                  <MessageSquare className="h-6 w-6 text-white/60 flex-shrink-0 mt-1" />
+                  <textarea
+                    className="w-full bg-transparent text-lg text-white placeholder:text-white/50 focus:outline-none resize-none leading-relaxed"
+                    placeholder={currentPrompt + (charIndex === EXAMPLE_PROMPTS[promptIndex]?.length ? "" : "|")}
+                    rows={4}
                   />
                 </div>
-                <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/90 px-6 py-4 font-semibold text-black transition hover:bg-white whitespace-nowrap">
-                  Generate <ArrowRight className="h-4 w-4" />
-                </button>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {LANGS.map((l) => (
+                      <button
+                        key={l}
+                        onClick={() => setLang(l)}
+                        className={`rounded-full px-4 py-2 text-sm transition-all ${
+                          lang === l
+                            ? "bg-white text-black"
+                            : "border border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
+                        }`}
+                      >
+                        {l}
+                      </button>
+                    ))}
+                    <div className="ml-2 flex items-center gap-2 text-sm text-white/60">
+                      <Languages className="h-4 w-4" />
+                      {lang}
+                    </div>
+                  </div>
+                  <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/90 px-8 py-4 text-lg font-semibold text-black transition hover:bg-white whitespace-nowrap shadow-lg">
+                    Generate Website <ArrowRight className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
               
               <div className="mt-4 flex flex-wrap items-center gap-2">
