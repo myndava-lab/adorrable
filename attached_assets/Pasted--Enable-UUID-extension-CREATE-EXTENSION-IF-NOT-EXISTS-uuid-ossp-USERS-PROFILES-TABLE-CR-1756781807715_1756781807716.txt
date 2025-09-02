@@ -1,0 +1,134 @@
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- USERS/PROFILES TABLE
+CREATE TABLE IF NOT EXISTS profiles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email TEXT UNIQUE NOT NULL,
+    display_name TEXT,
+    credits INTEGER DEFAULT 4,
+    avatar_url TEXT,
+    timezone TEXT DEFAULT 'UTC',
+    language TEXT DEFAULT 'en',
+    subscription_tier TEXT DEFAULT 'free',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- CREDIT LOGS TABLE
+CREATE TABLE IF NOT EXISTS credit_logs (
+    id SERIAL PRIMARY KEY,
+    profile_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    delta INTEGER NOT NULL,
+    reason TEXT NOT NULL,
+    balance_after INTEGER NOT NULL,
+    meta JSONB DEFAULT '{}',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- PRICE CONFIGURATION TABLE
+CREATE TABLE IF NOT EXISTS price_config (
+    id SERIAL PRIMARY KEY,
+    package_name TEXT UNIQUE NOT NULL,
+    credits INTEGER NOT NULL,
+    price_usd DECIMAL(10,2) NOT NULL,
+    price_ngn DECIMAL(12,2),
+    popular BOOLEAN DEFAULT false,
+    active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- PAYMENT TRANSACTIONS TABLE
+CREATE TABLE IF NOT EXISTS payment_transactions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    profile_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    package_name TEXT NOT NULL,
+    amount DECIMAL(12,2) NOT NULL,
+    currency TEXT NOT NULL,
+    status TEXT CHECK (status IN ('pending', 'completed', 'failed', 'refunded')) DEFAULT 'pending',
+    provider TEXT CHECK (provider IN ('paystack', 'nowpayments', 'bank_transfer')),
+    provider_reference TEXT,
+    provider_response JSONB DEFAULT '{}',
+    credits_granted INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Functions for credit management
+CREATE OR REPLACE FUNCTION grant_credits_and_log(
+    user_id UUID,
+    credit_amount INTEGER,
+    log_reason TEXT,
+    log_meta JSONB DEFAULT '{}'
+)
+RETURNS JSON AS $$
+DECLARE
+    current_credits INTEGER;
+    new_balance INTEGER;
+BEGIN
+    -- Get current credits
+    SELECT credits INTO current_credits FROM profiles WHERE id = user_id;
+    
+    IF NOT FOUND THEN
+        RETURN json_build_object('success', false, 'error', 'User not found');
+    END IF;
+    
+    -- Calculate new balance
+    new_balance := current_credits + credit_amount;
+    
+    -- Update user credits
+    UPDATE profiles SET credits = new_balance, updated_at = now() WHERE id = user_id;
+    
+    -- Log the transaction
+    INSERT INTO credit_logs (profile_id, delta, reason, balance_after, meta)
+    VALUES (user_id, credit_amount, log_reason, new_balance, log_meta);
+    
+    RETURN json_build_object('success', true, 'new_balance', new_balance);
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION deduct_credits_and_log(
+    user_id UUID,
+    credit_amount INTEGER,
+    log_reason TEXT,
+    log_meta JSONB DEFAULT '{}'
+)
+RETURNS JSON AS $$
+DECLARE
+    current_credits INTEGER;
+    new_balance INTEGER;
+BEGIN
+    -- Get current credits
+    SELECT credits INTO current_credits FROM profiles WHERE id = user_id;
+    
+    IF NOT FOUND THEN
+        RETURN json_build_object('success', false, 'error', 'User not found');
+    END IF;
+    
+    -- Check if user has enough credits
+    IF current_credits < credit_amount THEN
+        RETURN json_build_object('success', false, 'error', 'Insufficient credits');
+    END IF;
+    
+    -- Calculate new balance
+    new_balance := current_credits - credit_amount;
+    
+    -- Update user credits
+    UPDATE profiles SET credits = new_balance, updated_at = now() WHERE id = user_id;
+    
+    -- Log the transaction
+    INSERT INTO credit_logs (profile_id, delta, reason, balance_after, meta)
+    VALUES (user_id, -credit_amount, log_reason, new_balance, log_meta);
+    
+    RETURN json_build_object('success', true, 'new_balance', new_balance);
+END;
+$$ LANGUAGE plpgsql;
+
+-- Insert default pricing configurations
+INSERT INTO price_config (package_name, credits, price_usd, price_ngn, popular) VALUES
+('Basic Pack', 10, 5.00, 7500.00, false),
+('Pro Pack', 25, 10.00, 15000.00, true),
+('Power Pack', 60, 20.00, 30000.00, false),
+('Enterprise Pack', 150, 45.00, 67500.00, false)
+ON CONFLICT (package_name) DO NOTHING;
