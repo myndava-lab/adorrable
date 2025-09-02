@@ -1,19 +1,25 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://abckmjcxrlgikepbqucz.supabase.co'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2ttamN4cmxnaWtlcGJxdWN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY1MzI5MjQsImV4cCI6MjA3MjEwODkyNH0.WK3Rw8cKj1XkrmknkU1e3-n7h-bzSeEHhI-zJJo9muA'
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+// Global variable to ensure only one client instance
+let supabaseInstance: any = null
+
+function createSupabaseClient() {
+  if (supabaseInstance) {
+    return supabaseInstance
+  }
+
+  supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    }
+  })
+
+  return supabaseInstance
 }
 
-// Create a single instance that will be reused
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    storageKey: 'supabase.auth.token',
-  }
-})
+export const supabase = createSupabaseClient()

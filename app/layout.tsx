@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import InspirationalWidget from "@/components/InspirationalWidget";
-import CrispChat from "@/components/CrispChat";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -38,7 +37,6 @@ export default function RootLayout({
       <body className={`${inter.variable} antialiased min-h-screen bg-offwhite text-charcoal`} style={{ margin: 0, padding: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
         <main className="min-h-screen">{children}</main>
         <InspirationalWidget />
-        <CrispChat />
       </body>
     </html>
   );
