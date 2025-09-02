@@ -1,0 +1,137 @@
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- USERS PROFILES TABLE
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  display_name TEXT,
+  credits INT NOT NULL DEFAULT 4,
+  avatar_url TEXT,
+  timezone TEXT DEFAULT 'UTC',
+  language TEXT DEFAULT 'English',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- CREDITS LOG TABLE
+CREATE TABLE IF NOT EXISTS credit_logs (
+  id BIGSERIAL PRIMARY KEY,
+  profile_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  delta INT NOT NULL,
+  reason TEXT NOT NULL,
+  balance_after INT NOT NULL,
+  meta JSONB DEFAULT '{}'::JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- PRICE CONFIGURATION TABLE
+CREATE TABLE IF NOT EXISTS price_config (
+  id BIGSERIAL PRIMARY KEY,
+  package_name TEXT NOT NULL UNIQUE,
+  credits INT NOT NULL,
+  price_usd DECIMAL(10,2) NOT NULL,
+  price_ngn DECIMAL(10,2),
+  popular BOOLEAN DEFAULT FALSE,
+  active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- PAYMENT TRANSACTIONS TABLE
+CREATE TABLE IF NOT EXISTS payment_transactions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  profile_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  package_name TEXT NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  currency TEXT NOT NULL DEFAULT 'USD',
+  status TEXT NOT NULL DEFAULT 'pending',
+  provider TEXT NOT NULL,
+  provider_reference TEXT,
+  provider_response JSONB DEFAULT '{}'::JSONB,
+  credits_granted INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create indexes
+CREATE INDEX IF NOT EXISTS credit_logs_profile_id_idx ON credit_logs(profile_id);
+CREATE INDEX IF NOT EXISTS credit_logs_created_at_idx ON credit_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS payment_transactions_profile_id_idx ON payment_transactions(profile_id);
+CREATE INDEX IF NOT EXISTS payment_transactions_status_idx ON payment_transactions(status);
+
+-- Enable RLS
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE credit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE price_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payment_transactions ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies
+CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can view own credit logs" ON credit_logs FOR SELECT USING (EXISTS (SELECT 1 FROM profiles WHERE profiles.id = credit_logs.profile_id AND profiles.id = auth.uid()));
+CREATE POLICY "Anyone can view price config" ON price_config FOR SELECT USING (active = TRUE);
+CREATE POLICY "Users can view own transactions" ON payment_transactions FOR SELECT USING (EXISTS (SELECT 1 FROM profiles WHERE profiles.id = payment_transactions.profile_id AND profiles.id = auth.uid()));
+
+-- Credit management functions
+CREATE OR REPLACE FUNCTION grant_credits_and_log(
+  user_id UUID,
+  credit_amount INT,
+  log_reason TEXT,
+  log_meta JSONB DEFAULT '{}'::JSONB
+) RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  new_balance INT;
+BEGIN
+  UPDATE profiles SET credits = credits + credit_amount, updated_at = NOW() WHERE id = user_id RETURNING credits INTO new_balance;
+  IF new_balance IS NULL THEN
+    RETURN jsonb_build_object('success', false, 'error', 'User not found');
+  END IF;
+  INSERT INTO credit_logs (profile_id, delta, reason, balance_after, meta) VALUES (user_id, credit_amount, log_reason, new_balance, log_meta);
+  RETURN jsonb_build_object('success', true, 'new_balance', new_balance, 'delta', credit_amount);
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION deduct_credits_and_log(
+  user_id UUID,
+  credit_amount INT,
+  log_reason TEXT,
+  log_meta JSONB DEFAULT '{}'::JSONB
+) RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  current_balance INT;
+  new_balance INT;
+BEGIN
+  SELECT credits INTO current_balance FROM profiles WHERE id = user_id;
+  IF current_balance IS NULL THEN
+    RETURN jsonb_build_object('success', false, 'error', 'User not found');
+  END IF;
+  IF current_balance < credit_amount THEN
+    RETURN jsonb_build_object('success', false, 'error', 'Insufficient credits', 'current_balance', current_balance, 'required', credit_amount);
+  END IF;
+  UPDATE profiles SET credits = credits - credit_amount, updated_at = NOW() WHERE id = user_id RETURNING credits INTO new_balance;
+  INSERT INTO credit_logs (profile_id, delta, reason, balance_after, meta) VALUES (user_id, -credit_amount, log_reason, new_balance, log_meta);
+  RETURN jsonb_build_object('success', true, 'new_balance', new_balance, 'delta', -credit_amount);
+END;
+$$;
+
+-- Insert default pricing
+INSERT INTO price_config (package_name, credits, price_usd, price_ngn, popular) VALUES
+  ('Starter', 50, 9.99, 15000, false),
+  ('Creator', 200, 29.99, 45000, true),
+  ('Business', 500, 59.99, 90000, false),
+  ('Enterprise', 1000, 99.99, 150000, false)
+ON CONFLICT (package_name) DO NOTHING;
+
+-- Update triggers
+CREATE OR REPLACE FUNCTION update_updated_at_column() RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_price_config_updated_at BEFORE UPDATE ON price_config FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_payment_transactions_updated_at BEFORE UPDATE ON payment_transactions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
