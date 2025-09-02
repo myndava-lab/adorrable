@@ -240,3 +240,93 @@ export async function POST(req: NextRequest) {
     )
   }
 }
+import { NextRequest, NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
+import { getUserProfile, deductCredits } from '@/lib/supabaseServer'
+
+export async function POST(request: NextRequest) {
+  try {
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    )
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { prompt, language } = await request.json()
+
+    if (!prompt) {
+      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 })
+    }
+
+    // Check user credits
+    const profile = await getUserProfile(user.id)
+    if (!profile || profile.credits < 1) {
+      return NextResponse.json({ error: 'Insufficient credits' }, { status: 400 })
+    }
+
+    // Deduct credits
+    const creditResult = await deductCredits(
+      user.id, 
+      1, 
+      'AI website generation',
+      { prompt, language }
+    )
+
+    if (!creditResult.success) {
+      return NextResponse.json({ error: 'Failed to deduct credits' }, { status: 400 })
+    }
+
+    // Simulate AI generation (replace with actual AI integration later)
+    const generatedWebsite = {
+      id: `site_${Date.now()}`,
+      title: `Generated Website`,
+      description: prompt,
+      language: language,
+      html: `
+        <!DOCTYPE html>
+        <html lang="${language === 'English' ? 'en' : 'fr'}">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Generated Website</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+            .container { max-width: 1200px; margin: 0 auto; }
+            h1 { color: #333; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Your Generated Website</h1>
+            <p>Based on your prompt: "${prompt}"</p>
+            <p>Language: ${language}</p>
+            <p>Generated at: ${new Date().toISOString()}</p>
+          </div>
+        </body>
+        </html>
+      `,
+      createdAt: new Date().toISOString(),
+      creditsUsed: 1
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      website: generatedWebsite,
+      creditsRemaining: creditResult.newBalance
+    })
+
+  } catch (error) {
+    console.error('AI generation error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

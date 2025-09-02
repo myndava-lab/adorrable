@@ -15,6 +15,8 @@ import {
   Paperclip,
   Github,
 } from "lucide-react";
+import { supabase } from '../lib/supabase';
+import AuthModal from '../components/AuthModal';
 
 const gradientText =
   "bg-gradient-to-r from-[#60A5FA] via-[#A78BFA] to-[#34D399] bg-clip-text text-transparent";
@@ -138,7 +140,10 @@ function PriceCard({
           </li>
         ))}
       </ul>
-      <button className="mt-6 w-full rounded-xl bg-white/90 px-4 py-2 text-sm font-semibold text-black transition hover:bg-white">
+      <button 
+        onClick={() => !user ? setIsAuthModalOpen(true) : alert('Payment integration coming soon!')}
+        className="mt-6 w-full rounded-xl bg-white/90 px-4 py-2 text-sm font-semibold text-black transition hover:bg-white"
+      >
         {cta}
       </button>
     </motion.div>
@@ -151,21 +156,54 @@ export default function AdorrableLanding() {
   const [promptIndex, setPromptIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [prompt, setPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Authentication effect
+  useEffect(() => {
+    // Get initial session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      if (session?.user) {
+        await fetchUserProfile(session.user.id);
+      }
+      setLoading(false);
+    };
+
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user || null);
+      if (session?.user) {
+        await fetchUserProfile(session.user.id);
+      } else {
+        setUserProfile(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Typewriter effect
   useEffect(() => {
-    const prompt = EXAMPLE_PROMPTS[promptIndex];
+    const promptText = EXAMPLE_PROMPTS[promptIndex];
     const typingSpeed = isDeleting ? 50 : 100;
     const delayBetweenPrompts = 2000;
 
     const timer = setTimeout(() => {
-      if (!isDeleting && charIndex < prompt.length) {
-        setCurrentPrompt(prompt.slice(0, charIndex + 1));
+      if (!isDeleting && charIndex < promptText.length) {
+        setCurrentPrompt(promptText.slice(0, charIndex + 1));
         setCharIndex(charIndex + 1);
       } else if (isDeleting && charIndex > 0) {
-        setCurrentPrompt(prompt.slice(0, charIndex - 1));
+        setCurrentPrompt(promptText.slice(0, charIndex - 1));
         setCharIndex(charIndex - 1);
-      } else if (!isDeleting && charIndex === prompt.length) {
+      } else if (!isDeleting && charIndex === promptText.length) {
         setTimeout(() => setIsDeleting(true), delayBetweenPrompts);
       } else if (isDeleting && charIndex === 0) {
         setIsDeleting(false);
@@ -175,6 +213,78 @@ export default function AdorrableLanding() {
 
     return () => clearTimeout(timer);
   }, [charIndex, isDeleting, promptIndex]);
+
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const response = await fetch('/api/credits', {
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUserProfile(data.profile);
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
+
+  const handleGenerateWebsite = async () => {
+    if (!user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    if (!prompt.trim()) {
+      alert('Please enter a description of your website');
+      return;
+    }
+
+    if (userProfile?.credits < 1) {
+      alert('You need at least 1 credit to generate a website. Please purchase more credits.');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const response = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        },
+        body: JSON.stringify({
+          prompt,
+          language: lang
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Handle successful generation
+        alert('Website generated successfully!');
+        // Refresh user profile to update credits
+        await fetchUserProfile(user.id);
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to generate website');
+      }
+    } catch (error) {
+      console.error('Error generating website:', error);
+      alert('Failed to generate website');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleAuthSuccess = () => {
+    setIsAuthModalOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-[#0B0F19] text-white">
@@ -203,12 +313,39 @@ export default function AdorrableLanding() {
             </a>
           </nav>
           <div className="flex items-center gap-3">
-            <button className="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-white/90 hover:bg-white/10 transition-colors">
-              Sign In
-            </button>
-            <button className="rounded-xl bg-gradient-to-r from-indigo-500 to-emerald-400 px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-shadow">
-              Get Started
-            </button>
+            {loading ? (
+              <div className="h-8 w-16 bg-white/10 rounded animate-pulse" />
+            ) : user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-white/70">
+                  {userProfile?.credits || 0} credits
+                </span>
+                <span className="text-sm text-white/90">
+                  {user.email}
+                </span>
+                <button 
+                  onClick={handleSignOut}
+                  className="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-white/90 hover:bg-white/10 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <>
+                <button 
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-white/90 hover:bg-white/10 transition-colors"
+                >
+                  Sign In
+                </button>
+                <button 
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="rounded-xl bg-gradient-to-r from-indigo-500 to-emerald-400 px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-shadow"
+                >
+                  Get Started
+                </button>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -253,8 +390,11 @@ export default function AdorrableLanding() {
                   <MessageSquare className="h-6 w-6 text-white/60 flex-shrink-0 mt-1" />
                   <textarea
                     className="w-full bg-transparent text-lg text-white placeholder:text-white/50 focus:outline-none resize-none leading-relaxed"
-                    placeholder={currentPrompt + (charIndex === EXAMPLE_PROMPTS[promptIndex]?.length ? "" : "|")}
+                    placeholder={user ? "Describe your website..." : (currentPrompt + (charIndex === EXAMPLE_PROMPTS[promptIndex]?.length ? "" : "|"))}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
                     rows={4}
+                    disabled={!user}
                   />
                   <div className="flex flex-col gap-3 flex-shrink-0 mt-1">
                     <button 
@@ -286,8 +426,13 @@ export default function AdorrableLanding() {
                         {l}
                       </button>
                     ))}
-                    <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/90 px-8 py-4 text-lg font-semibold text-black transition hover:bg-white whitespace-nowrap shadow-lg ml-4">
-                      Generate Website <ArrowRight className="h-5 w-5" />
+                    <button 
+                      onClick={handleGenerateWebsite}
+                      disabled={isGenerating || (!user && !prompt.trim())}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/90 px-8 py-4 text-lg font-semibold text-black transition hover:bg-white whitespace-nowrap shadow-lg ml-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isGenerating ? 'Generating...' : 'Generate Website'} 
+                      {!isGenerating && <ArrowRight className="h-5 w-5" />}
                     </button>
                   </div>
                 </div>
@@ -434,10 +579,16 @@ export default function AdorrableLanding() {
               Join creators shipping culture‑aware websites that convert better in every market.
             </p>
             <div className="flex flex-wrap items-center gap-4">
-              <button className="rounded-xl bg-white px-6 py-3 font-semibold text-black hover:bg-white/90 transition-colors">
-                Start Free
+              <button 
+                onClick={() => !user ? setIsAuthModalOpen(true) : handleGenerateWebsite()}
+                className="rounded-xl bg-white px-6 py-3 font-semibold text-black hover:bg-white/90 transition-colors"
+              >
+                {user ? 'Generate Website' : 'Start Free'}
               </button>
-              <button className="rounded-xl border border-white/20 bg-white/10 px-6 py-3 text-white/90 hover:bg-white/15 transition-colors">
+              <button 
+                onClick={() => alert('Templates gallery coming soon!')}
+                className="rounded-xl border border-white/20 bg-white/10 px-6 py-3 text-white/90 hover:bg-white/15 transition-colors"
+              >
                 View Templates
               </button>
             </div>
@@ -503,6 +654,13 @@ export default function AdorrableLanding() {
           © {new Date().getFullYear()} Adorrable.dev — Myndava AI Systems LLC. All rights reserved.
         </div>
       </footer>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }

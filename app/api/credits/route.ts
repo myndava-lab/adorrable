@@ -42,6 +42,33 @@ export async function GET(request: NextRequest) {
     }
 
     let profile = await getUserProfile(user.id)
+    
+    // Create profile if it doesn't exist
+    if (!profile) {
+      profile = await createUserProfile(
+        user.id, 
+        user.email || '', 
+        user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
+      )
+    }
+
+    if (!profile) {
+      return NextResponse.json({ error: 'Failed to create or fetch profile' }, { status: 500 })
+    }
+
+    // Get recent credit logs
+    const logs = await getCreditLogs(user.id, 10)
+
+    return NextResponse.json({
+      profile,
+      logs
+    })
+
+  } catch (error) {
+    console.error('Error in credits API:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
 
     // If no profile exists, create one
     if (!profile) {
