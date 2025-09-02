@@ -38,6 +38,350 @@ const stagger = {
 
 const LANGS = ["English", "French", "Swahili", "Pidgin"] as const;
 
+// Translations object
+const translations = {
+  English: {
+    navbar: {
+      features: "Features",
+      templates: "Templates",
+      pricing: "Pricing",
+      docs: "Docs",
+      signIn: "Sign In",
+      getStarted: "Get Started",
+      signOut: "Sign Out",
+      credits: "credits"
+    },
+    hero: {
+      badge: "AI website builder • Culture‑intelligent",
+      title: "Build something with Adorrable",
+      subtitle: "Create stunning, culturally‑intelligent websites by simply chatting with AI. Local tone, local payments, global quality.",
+      placeholder: "Describe your website...",
+      generateButton: "Generate Website",
+      generating: "Generating..."
+    },
+    features: {
+      title: "Built for global conversion",
+      subtitle: "Culture‑aware templates, right payment rails, performance best‑practices. No guesswork.",
+      culturalTemplates: {
+        title: "Cultural Templates",
+        desc: "Localized color, typography, and copy for each region. Nigeria, Kenya, India, US, EU & more."
+      },
+      chatToBuild: {
+        title: "Chat‑to‑Build",
+        desc: "Describe your business; get a full site with sections, imagery, SEO and legal pages."
+      },
+      rightPayments: {
+        title: "Right Payments",
+        desc: "Paystack, M‑Pesa, UPI, Stripe. Auto‑matched per region. Switch anytime."
+      },
+      blazingPerformance: {
+        title: "Blazing Performance",
+        desc: "Next.js 14 + edge caching. Lighthouse‑friendly with smooth motion."
+      }
+    },
+    community: {
+      title: "From the community",
+      subtitle: "Real templates created with Adorrable. Remix in one click."
+    },
+    pricing: {
+      title: "Simple, flexible pricing",
+      subtitle: "Start free. Upgrade when you need unlimited culture packs.",
+      starter: {
+        title: "Starter",
+        price: "$9",
+        features: [
+          "4 cultural templates / month",
+          "Basic AI generations",
+          "Email support"
+        ],
+        cta: "Choose Starter"
+      },
+      growth: {
+        title: "Growth",
+        price: "$29",
+        features: ["Unlimited templates", "Advanced AI", "Priority support"],
+        cta: "Choose Growth"
+      },
+      lifetime: {
+        title: "Lifetime",
+        price: "$399",
+        features: ["All future culture packs", "Unlimited AI", "VIP community access"],
+        cta: "Become Co‑founder"
+      }
+    },
+    cta: {
+      title: "Ready to build globally‑loved sites?",
+      subtitle: "Join creators shipping culture‑aware websites that convert better in every market.",
+      startFree: "Start Free",
+      viewTemplates: "View Templates"
+    },
+    footer: {
+      description: "Culturally‑intelligent AI website builder.",
+      product: "Product",
+      payments: "Payments",
+      compliance: "Compliance",
+      gdprReady: "GDPR / NDPR ready",
+      dataResidency: "Data residency aware",
+      copyright: "All rights reserved."
+    }
+  },
+  French: {
+    navbar: {
+      features: "Fonctionnalités",
+      templates: "Modèles",
+      pricing: "Tarification",
+      docs: "Documentation",
+      signIn: "Se connecter",
+      getStarted: "Commencer",
+      signOut: "Se déconnecter",
+      credits: "crédits"
+    },
+    hero: {
+      badge: "Créateur de sites web IA • Intelligence culturelle",
+      title: "Construisez quelque chose avec Adorrable",
+      subtitle: "Créez des sites web époustouflants et culturellement intelligents en discutant simplement avec l'IA. Ton local, paiements locaux, qualité mondiale.",
+      placeholder: "Décrivez votre site web...",
+      generateButton: "Générer le site web",
+      generating: "Génération en cours..."
+    },
+    features: {
+      title: "Conçu pour la conversion mondiale",
+      subtitle: "Modèles sensibles à la culture, bonnes voies de paiement, meilleures pratiques de performance. Pas de devinettes.",
+      culturalTemplates: {
+        title: "Modèles culturels",
+        desc: "Couleur, typographie et contenu localisés pour chaque région. Nigeria, Kenya, Inde, États-Unis, UE et plus."
+      },
+      chatToBuild: {
+        title: "Chat‑pour‑Construire",
+        desc: "Décrivez votre entreprise ; obtenez un site complet avec sections, imagerie, SEO et pages légales."
+      },
+      rightPayments: {
+        title: "Bons paiements",
+        desc: "Paystack, M‑Pesa, UPI, Stripe. Auto‑adapté par région. Changez à tout moment."
+      },
+      blazingPerformance: {
+        title: "Performance fulgurante",
+        desc: "Next.js 14 + mise en cache edge. Compatible Lighthouse avec mouvement fluide."
+      }
+    },
+    community: {
+      title: "De la communauté",
+      subtitle: "Vrais modèles créés avec Adorrable. Remixez en un clic."
+    },
+    pricing: {
+      title: "Tarification simple et flexible",
+      subtitle: "Commencez gratuitement. Mettez à niveau quand vous avez besoin de packs culture illimités.",
+      starter: {
+        title: "Débutant",
+        price: "9$",
+        features: [
+          "4 modèles culturels / mois",
+          "Générations IA de base",
+          "Support par email"
+        ],
+        cta: "Choisir Débutant"
+      },
+      growth: {
+        title: "Croissance",
+        price: "29$",
+        features: ["Modèles illimités", "IA avancée", "Support prioritaire"],
+        cta: "Choisir Croissance"
+      },
+      lifetime: {
+        title: "À vie",
+        price: "399$",
+        features: ["Tous les futurs packs culture", "IA illimitée", "Accès communauté VIP"],
+        cta: "Devenir Co‑fondateur"
+      }
+    },
+    cta: {
+      title: "Prêt à créer des sites aimés mondialement ?",
+      subtitle: "Rejoignez les créateurs qui livrent des sites web sensibles à la culture qui convertissent mieux sur chaque marché.",
+      startFree: "Commencer gratuitement",
+      viewTemplates: "Voir les modèles"
+    },
+    footer: {
+      description: "Créateur de sites web IA culturellement intelligent.",
+      product: "Produit",
+      payments: "Paiements",
+      compliance: "Conformité",
+      gdprReady: "RGPD / NDPR prêt",
+      dataResidency: "Sensible à la résidence des données",
+      copyright: "Tous droits réservés."
+    }
+  },
+  Swahili: {
+    navbar: {
+      features: "Vipengele",
+      templates: "Mifano",
+      pricing: "Bei",
+      docs: "Hati",
+      signIn: "Ingia",
+      getStarted: "Anza",
+      signOut: "Toka",
+      credits: "mikopo"
+    },
+    hero: {
+      badge: "Mjenzi wa tovuti wa AI • Akili ya kitamaduni",
+      title: "Jenga kitu na Adorrable",
+      subtitle: "Unda tovuti za kupendeza na zenye akili ya kitamaduni kwa kuzungumza tu na AI. Sauti ya ndani, malipo ya ndani, ubora wa kimataifa.",
+      placeholder: "Elezea tovuti yako...",
+      generateButton: "Tengeneza Tovuti",
+      generating: "Inajengi..."
+    },
+    features: {
+      title: "Imejengwa kwa ubadilishaji wa kimataifa",
+      subtitle: "Mifano inayofahamu utamaduni, njia sahihi za malipo, mazoea bora ya utendaji. Hakuna mchezo wa kukisia.",
+      culturalTemplates: {
+        title: "Mifano ya Kitamaduni",
+        desc: "Rangi, uchapishaji na nakala zilizoundwa kwa kila eneo. Nigeria, Kenya, India, Marekani, EU na zaidi."
+      },
+      chatToBuild: {
+        title: "Mazungumzo‑kwa‑Kujenga",
+        desc: "Elezea biashara yako; pata tovuti kamili na sehemu, picha, SEO na kurasa za kisheria."
+      },
+      rightPayments: {
+        title: "Malipo Sahihi",
+        desc: "Paystack, M‑Pesa, UPI, Stripe. Yanaoanishwa kiotomatiki kwa eneo. Badilisha wakati wowote."
+      },
+      blazingPerformance: {
+        title: "Utendaji wa Kuchoma",
+        desc: "Next.js 14 + uhifadhi wa ukingo. Rafiki wa Lighthouse na mwendo laini."
+      }
+    },
+    community: {
+      title: "Kutoka kwa jamii",
+      subtitle: "Mifano ya kweli iliyoundwa na Adorrable. Changanya kwa kubofya mara moja."
+    },
+    pricing: {
+      title: "Bei rahisi na yenye kubadilika",
+      subtitle: "Anza bure. Pandisha unapohitaji vifurushi vya utamaduni visivyo na kikomo.",
+      starter: {
+        title: "Mwanzoni",
+        price: "$9",
+        features: [
+          "Mifano 4 ya kitamaduni / mwezi",
+          "Uzalishaji wa msingi wa AI",
+          "Msaada wa barua pepe"
+        ],
+        cta: "Chagua Mwanzoni"
+      },
+      growth: {
+        title: "Ukuaji",
+        price: "$29",
+        features: ["Mifano isiyopungua", "AI ya hali ya juu", "Msaada wa kipaumbele"],
+        cta: "Chagua Ukuaji"
+      },
+      lifetime: {
+        title: "Maisha yote",
+        price: "$399",
+        features: ["Vifurushi vyote vya baadaye vya utamaduni", "AI isiyopungua", "Ufikiaji wa jamii ya VIP"],
+        cta: "Kuwa Mwanzilishi Mwenza"
+      }
+    },
+    cta: {
+      title: "Uko tayari kujenga tovuti zinazopendwa kimataifa?",
+      subtitle: "Jiunge na wabunifu wanaosafirisha tovuti zinazojua utamaduni ambazo zinabadilisha vizuri katika kila soko.",
+      startFree: "Anza Bure",
+      viewTemplates: "Ona Mifano"
+    },
+    footer: {
+      description: "Mjenzi wa tovuti wa AI wa kitamaduni.",
+      product: "Bidhaa",
+      payments: "Malipo",
+      compliance: "Utii",
+      gdprReady: "GDPR / NDPR tayari",
+      dataResidency: "Unafahamu makazi ya data",
+      copyright: "Haki zote zimehifadhiwa."
+    }
+  },
+  Pidgin: {
+    navbar: {
+      features: "Wetin dey inside",
+      templates: "Templates",
+      pricing: "How much e cost",
+      docs: "Papers",
+      signIn: "Enter",
+      getStarted: "Start am",
+      signOut: "Comot",
+      credits: "credits"
+    },
+    hero: {
+      badge: "AI website builder • Sabi culture well well",
+      title: "Build something with Adorrable",
+      subtitle: "Create fine fine websites wey sabi culture by just talk to AI. Local style, local payment, world-class quality.",
+      placeholder: "Talk about your website...",
+      generateButton: "Generate Website",
+      generating: "Dey generate am..."
+    },
+    features: {
+      title: "Built for worldwide conversion",
+      subtitle: "Templates wey sabi culture, correct payment methods, best performance practices. No guesswork.",
+      culturalTemplates: {
+        title: "Culture Templates",
+        desc: "Color, font, and content wey fit each region. Nigeria, Kenya, India, US, EU and more."
+      },
+      chatToBuild: {
+        title: "Chat‑to‑Build",
+        desc: "Talk about your business; get complete site with sections, pictures, SEO and legal pages."
+      },
+      rightPayments: {
+        title: "Correct Payments",
+        desc: "Paystack, M‑Pesa, UPI, Stripe. E go automatically match your region. Change anytime."
+      },
+      blazingPerformance: {
+        title: "Fire Performance",
+        desc: "Next.js 14 + edge caching. Lighthouse-friendly with smooth movement."
+      }
+    },
+    community: {
+      title: "From the community",
+      subtitle: "Real templates wey people create with Adorrable. Remix with one click."
+    },
+    pricing: {
+      title: "Simple, flexible pricing",
+      subtitle: "Start free. Upgrade when you need unlimited culture packs.",
+      starter: {
+        title: "Starter",
+        price: "$9",
+        features: [
+          "4 culture templates / month",
+          "Basic AI generations",
+          "Email support"
+        ],
+        cta: "Choose Starter"
+      },
+      growth: {
+        title: "Growth",
+        price: "$29",
+        features: ["Unlimited templates", "Advanced AI", "Priority support"],
+        cta: "Choose Growth"
+      },
+      lifetime: {
+        title: "Lifetime",
+        price: "$399",
+        features: ["All future culture packs", "Unlimited AI", "VIP community access"],
+        cta: "Become Co‑founder"
+      }
+    },
+    cta: {
+      title: "Ready to build websites wey people go love worldwide?",
+      subtitle: "Join creators wey dey ship culture-aware websites wey convert better for every market.",
+      startFree: "Start Free",
+      viewTemplates: "See Templates"
+    },
+    footer: {
+      description: "AI website builder wey sabi culture.",
+      product: "Product",
+      payments: "Payments",
+      compliance: "Compliance",
+      gdprReady: "GDPR / NDPR ready",
+      dataResidency: "Data residency aware",
+      copyright: "All rights reserved."
+    }
+  }
+};
+
 const EXAMPLE_PROMPTS = [
   "Design a Lagos restaurant homepage with WhatsApp CTA & Paystack checkout…",
   "Build a Nairobi tech startup landing page with M-Pesa integration…",
@@ -152,6 +496,9 @@ function PriceCard({
 
 export default function AdorrableLanding() {
   const [lang, setLang] = useState<(typeof LANGS)[number]>("English");
+  
+  // Get current translations
+  const t = translations[lang];
   const [currentPrompt, setCurrentPrompt] = useState("");
   const [promptIndex, setPromptIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
@@ -300,16 +647,16 @@ export default function AdorrableLanding() {
           </div>
           <nav className="hidden items-center gap-8 md:flex">
             <a className="text-sm text-white/80 hover:text-white transition-colors" href="#features">
-              Features
+              {t.navbar.features}
             </a>
             <a className="text-sm text-white/80 hover:text-white transition-colors" href="#templates">
-              Templates
+              {t.navbar.templates}
             </a>
             <a className="text-sm text-white/80 hover:text-white transition-colors" href="#pricing">
-              Pricing
+              {t.navbar.pricing}
             </a>
             <a className="text-sm text-white/80 hover:text-white transition-colors" href="#docs">
-              Docs
+              {t.navbar.docs}
             </a>
           </nav>
           <div className="flex items-center gap-3">
@@ -318,7 +665,7 @@ export default function AdorrableLanding() {
             ) : user ? (
               <div className="flex items-center gap-3">
                 <span className="text-sm text-white/70">
-                  {userProfile?.credits || 0} credits
+                  {userProfile?.credits || 0} {t.navbar.credits}
                 </span>
                 <span className="text-sm text-white/90">
                   {user.email}
@@ -327,7 +674,7 @@ export default function AdorrableLanding() {
                   onClick={handleSignOut}
                   className="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-white/90 hover:bg-white/10 transition-colors"
                 >
-                  Sign Out
+                  {t.navbar.signOut}
                 </button>
               </div>
             ) : (
@@ -336,13 +683,13 @@ export default function AdorrableLanding() {
                   onClick={() => setIsAuthModalOpen(true)}
                   className="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-white/90 hover:bg-white/10 transition-colors"
                 >
-                  Sign In
+                  {t.navbar.signIn}
                 </button>
                 <button 
                   onClick={() => setIsAuthModalOpen(true)}
                   className="rounded-xl bg-gradient-to-r from-indigo-500 to-emerald-400 px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-shadow"
                 >
-                  Get Started
+                  {t.navbar.getStarted}
                 </button>
               </>
             )}
@@ -372,15 +719,15 @@ export default function AdorrableLanding() {
           >
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70">
               <Sparkles className="h-4 w-4 text-emerald-300" />
-              AI website builder • Culture‑intelligent
+              {t.hero.badge}
             </div>
             
             <h1 className={`text-5xl font-extrabold tracking-tight sm:text-7xl mb-6 ${gradientText}`}>
-              Build something with Adorrable
+              {t.hero.title}
             </h1>
             
             <p className="mx-auto max-w-2xl text-xl text-white/70 mb-12 leading-relaxed">
-              Create stunning, culturally‑intelligent websites by simply chatting with AI. Local tone, local payments, global quality.
+              {t.hero.subtitle}
             </p>
 
             {/* Prompt Input Box */}
@@ -390,7 +737,7 @@ export default function AdorrableLanding() {
                   <MessageSquare className="h-6 w-6 text-white/60 flex-shrink-0 mt-1" />
                   <textarea
                     className="w-full bg-transparent text-lg text-white placeholder:text-white/50 focus:outline-none resize-none leading-relaxed"
-                    placeholder={user ? "Describe your website..." : (currentPrompt + (charIndex === EXAMPLE_PROMPTS[promptIndex]?.length ? "" : "|"))}
+                    placeholder={user ? t.hero.placeholder : (currentPrompt + (charIndex === EXAMPLE_PROMPTS[promptIndex]?.length ? "" : "|"))}
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     rows={4}
@@ -452,7 +799,7 @@ export default function AdorrableLanding() {
                       disabled={isGenerating || !prompt.trim()}
                       className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/90 px-8 py-4 text-lg font-semibold text-black transition hover:bg-white whitespace-nowrap shadow-lg ml-4 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isGenerating ? 'Generating...' : 'Generate Website'} 
+                      {isGenerating ? t.hero.generating : t.hero.generateButton} 
                       {!isGenerating && <ArrowRight className="h-5 w-5" />}
                     </button>
                   </div>
@@ -476,33 +823,33 @@ export default function AdorrableLanding() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
             <div className="mx-auto mb-16 max-w-3xl text-center">
               <h2 className={`text-4xl font-bold mb-4 ${gradientText}`}>
-                Built for global conversion
+                {t.features.title}
               </h2>
               <p className="text-xl text-white/70">
-                Culture‑aware templates, right payment rails, performance best‑practices. No guesswork.
+                {t.features.subtitle}
               </p>
             </div>
             
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
               <Feature
                 icon={Globe}
-                title="Cultural Templates"
-                desc="Localized color, typography, and copy for each region. Nigeria, Kenya, India, US, EU & more."
+                title={t.features.culturalTemplates.title}
+                desc={t.features.culturalTemplates.desc}
               />
               <Feature
                 icon={Sparkles}
-                title="Chat‑to‑Build"
-                desc="Describe your business; get a full site with sections, imagery, SEO and legal pages."
+                title={t.features.chatToBuild.title}
+                desc={t.features.chatToBuild.desc}
               />
               <Feature
                 icon={CreditCard}
-                title="Right Payments"
-                desc="Paystack, M‑Pesa, UPI, Stripe. Auto‑matched per region. Switch anytime."
+                title={t.features.rightPayments.title}
+                desc={t.features.rightPayments.desc}
               />
               <Feature
                 icon={Zap}
-                title="Blazing Performance"
-                desc="Next.js 14 + edge caching. Lighthouse‑friendly with smooth motion."
+                title={t.features.blazingPerformance.title}
+                desc={t.features.blazingPerformance.desc}
               />
             </div>
           </motion.div>
@@ -512,10 +859,10 @@ export default function AdorrableLanding() {
         <section id="templates" className={`${sectionClass} py-20`}>
           <div className="mx-auto mb-12 max-w-3xl text-center">
             <h2 className={`text-4xl font-bold mb-4 ${gradientText}`}>
-              From the community
+              {t.community.title}
             </h2>
             <p className="text-xl text-white/70">
-              Real templates created with Adorrable. Remix in one click.
+              {t.community.subtitle}
             </p>
           </div>
           
@@ -551,10 +898,10 @@ export default function AdorrableLanding() {
         <section id="pricing" className={`${sectionClass} py-20`}>
           <div className="mx-auto mb-12 max-w-3xl text-center">
             <h2 className={`text-4xl font-bold mb-4 ${gradientText}`}>
-              Simple, flexible pricing
+              {t.pricing.title}
             </h2>
             <p className="text-xl text-white/70">
-              Start free. Upgrade when you need unlimited culture packs.
+              {t.pricing.subtitle}
             </p>
           </div>
           
@@ -566,27 +913,23 @@ export default function AdorrableLanding() {
             className="grid gap-8 md:grid-cols-3"
           >
             <PriceCard
-              title="Starter"
-              price="$9"
-              features={[
-                "4 cultural templates / month",
-                "Basic AI generations",
-                "Email support",
-              ]}
-              cta="Choose Starter"
+              title={t.pricing.starter.title}
+              price={t.pricing.starter.price}
+              features={t.pricing.starter.features}
+              cta={t.pricing.starter.cta}
             />
             <PriceCard
-              title="Growth"
-              price="$29"
-              features={["Unlimited templates", "Advanced AI", "Priority support"]}
-              cta="Choose Growth"
+              title={t.pricing.growth.title}
+              price={t.pricing.growth.price}
+              features={t.pricing.growth.features}
+              cta={t.pricing.growth.cta}
             />
             <PriceCard
-              title="Lifetime"
-              price="$399"
-              features={["All future culture packs", "Unlimited AI", "VIP community access"]}
+              title={t.pricing.lifetime.title}
+              price={t.pricing.lifetime.price}
+              features={t.pricing.lifetime.features}
               highlight
-              cta="Become Co‑founder"
+              cta={t.pricing.lifetime.cta}
             />
           </motion.div>
         </section>
@@ -595,22 +938,22 @@ export default function AdorrableLanding() {
         <section className="relative overflow-hidden py-20">
           <div className="absolute inset-0 -z-10 bg-gradient-to-r from-indigo-600/20 via-fuchsia-500/20 to-emerald-400/20" />
           <div className={`${sectionClass} ${cardClass} flex flex-col items-center gap-6 py-12 text-center`}>
-            <h3 className="text-3xl font-bold">Ready to build globally‑loved sites?</h3>
+            <h3 className="text-3xl font-bold">{t.cta.title}</h3>
             <p className="max-w-2xl text-lg text-white/80">
-              Join creators shipping culture‑aware websites that convert better in every market.
+              {t.cta.subtitle}
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <button 
                 onClick={() => !user ? setIsAuthModalOpen(true) : handleGenerateWebsite()}
                 className="rounded-xl bg-white px-6 py-3 font-semibold text-black hover:bg-white/90 transition-colors"
               >
-                {user ? 'Generate Website' : 'Start Free'}
+                {user ? t.hero.generateButton : t.cta.startFree}
               </button>
               <button 
                 onClick={() => alert('Templates gallery coming soon!')}
                 className="rounded-xl border border-white/20 bg-white/10 px-6 py-3 text-white/90 hover:bg-white/15 transition-colors"
               >
-                View Templates
+                {t.cta.viewTemplates}
               </button>
             </div>
           </div>
@@ -626,22 +969,22 @@ export default function AdorrableLanding() {
               <span className="font-semibold">Adorrable.dev</span>
             </div>
             <p className="text-sm text-white/60">
-              Culturally‑intelligent AI website builder.
+              {t.footer.description}
             </p>
           </div>
           
           <div>
-            <h4 className="mb-4 text-sm font-semibold text-white/90">Product</h4>
+            <h4 className="mb-4 text-sm font-semibold text-white/90">{t.footer.product}</h4>
             <ul className="space-y-3 text-sm text-white/60">
-              <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-              <li><a href="#templates" className="hover:text-white transition-colors">Templates</a></li>
-              <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
-              <li><a href="#docs" className="hover:text-white transition-colors">Docs</a></li>
+              <li><a href="#features" className="hover:text-white transition-colors">{t.navbar.features}</a></li>
+              <li><a href="#templates" className="hover:text-white transition-colors">{t.navbar.templates}</a></li>
+              <li><a href="#pricing" className="hover:text-white transition-colors">{t.navbar.pricing}</a></li>
+              <li><a href="#docs" className="hover:text-white transition-colors">{t.navbar.docs}</a></li>
             </ul>
           </div>
           
           <div>
-            <h4 className="mb-4 text-sm font-semibold text-white/90">Payments</h4>
+            <h4 className="mb-4 text-sm font-semibold text-white/90">{t.footer.payments}</h4>
             <ul className="space-y-3 text-sm text-white/60">
               <li className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4" /> Stripe
@@ -659,20 +1002,20 @@ export default function AdorrableLanding() {
           </div>
           
           <div>
-            <h4 className="mb-4 text-sm font-semibold text-white/90">Compliance</h4>
+            <h4 className="mb-4 text-sm font-semibold text-white/90">{t.footer.compliance}</h4>
             <ul className="space-y-3 text-sm text-white/60">
               <li className="flex items-center gap-2">
-                <Shield className="h-4 w-4" /> GDPR / NDPR ready
+                <Shield className="h-4 w-4" /> {t.footer.gdprReady}
               </li>
               <li className="flex items-center gap-2">
-                <Shield className="h-4 w-4" /> Data residency aware
+                <Shield className="h-4 w-4" /> {t.footer.dataResidency}
               </li>
             </ul>
           </div>
         </div>
         
         <div className="mt-8 text-center text-xs text-white/50">
-          © {new Date().getFullYear()} Adorrable.dev — Myndava AI Systems LLC. All rights reserved.
+          © {new Date().getFullYear()} Adorrable.dev — Myndava AI Systems LLC. {t.footer.copyright}
         </div>
       </footer>
 
