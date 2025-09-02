@@ -393,207 +393,150 @@ export default function Home() {
         </div>
       </nav>
 
-      <div style={{ padding: "0 24px", maxWidth: "1200px", margin: "0 auto" }}>
-        {/* Hero Section */}
-        <div style={{ 
+      <main
+        style={{
+          minHeight: "100vh",
+          background: "#0B1020",
+          backgroundImage: "linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px)",
+          backgroundSize: "20px 20px",
+          color: "#E5E7EB",
+          fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
           position: "relative",
-          overflow: "hidden",
-          borderRadius: "32px",
-          padding: "48px 24px",
-          marginBottom: "32px"
-        }}>
+        }}
+      >
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(79, 195, 247, 0.15), transparent 70%)",
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          {/* Hero Section */}
           <div style={{ 
-            position: "absolute",
-            inset: "0",
-            backgroundImage: `
-              linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px)
-            `,
-            backgroundSize: "40px 40px",
-            opacity: "0.6",
-            pointerEvents: "none"
-          }} />
-
-          <h1 style={{ 
-            background: "linear-gradient(90deg, #4FC3F7, #7C4DFF)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-            fontFamily: "Urbanist, ui-sans-serif, system-ui",
-            fontWeight: "800",
-            letterSpacing: "-0.025em",
-            fontSize: "40px",
-            lineHeight: "1.1",
-            marginBottom: "16px"
-          }}>
-            Build something with Adorrable
-          </h1>
-
-          <p style={{ 
-            color: "#94A3B8",
-            fontSize: "18px",
-            maxWidth: "512px",
-            marginBottom: "24px"
-          }}>
-            Create apps and culturally intelligent websites by chatting with AI
-          </p>
-
-          {/* Input Section */}
-          <div style={{ 
+            position: "relative",
+            overflow: "hidden",
             borderRadius: "32px",
-            border: "1px solid rgba(148,163,184,0.12)",
-            background: "rgba(14,21,38,0.7)",
-            backdropFilter: "blur(8px)",
-            padding: "12px"
+            padding: "48px 24px",
+            marginBottom: "32px"
           }}>
-            <input
-              type="text"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Ask Adorrable to create a business website…"
-              style={{ 
-                width: "100%",
-                background: "transparent",
-                border: "none",
-                outline: "none",
-                color: "#E5E7EB",
-                fontSize: "16px",
-                padding: "8px"
+            <div style={{ 
+              position: "absolute",
+              inset: "0",
+              backgroundImage: `
+                linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px)
+              `,
+              backgroundSize: "40px 40px",
+              opacity: "0.6",
+              pointerEvents: "none"
+            }} />
+
+            <h1
+              style={{
+                fontSize: "clamp(2.5rem, 5vw, 4rem)",
+                fontWeight: "800",
+                lineHeight: "1.1",
+                marginBottom: "24px",
+                background: "linear-gradient(135deg, #4FC3F7 0%, #7C4DFF 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                letterSpacing: "-0.025em",
               }}
-              onKeyPress={(e) => e.key === "Enter" && handleGenerate()}
-            />
+            >
+              Build something with Adorrable
+            </h1>
 
+            <p
+              style={{
+                fontSize: "clamp(1rem, 2.5vw, 1.25rem)",
+                color: "#94A3B8",
+                lineHeight: "1.6",
+                marginBottom: "40px",
+                maxWidth: "600px",
+                margin: "0 auto 40px",
+              }}
+            >
+              Create apps and culturally intelligent websites by chatting with AI
+            </p>
+
+            {/* Input Section */}
             <div style={{ 
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginTop: "12px"
+              borderRadius: "32px",
+              border: "1px solid rgba(148,163,184,0.12)",
+              background: "rgba(14,21,38,0.7)",
+              backdropFilter: "blur(8px)",
+              padding: "12px"
             }}>
-              {languages.map((language, index) => (
-                <button
-                  key={language}
-                  onClick={() => setSelectedLanguage(language)}
-                  style={{ 
-                    padding: "6px 12px",
-                    borderRadius: "9999px",
-                    border: selectedLanguage === language ? "none" : "1px solid rgba(148,163,184,0.12)",
-                    background: selectedLanguage === language ? "#22C55E" : "transparent",
-                    color: selectedLanguage === language ? "white" : "#94A3B8",
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    transition: "all 0.2s"
-                  }}
-                  onMouseEnter={(e) => {
-                    if (selectedLanguage !== language) {
-                      e.target.style.color = "#E5E7EB";
-                      e.target.style.background = "rgba(255,255,255,0.05)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedLanguage !== language) {
-                      e.target.style.color = "#94A3B8";
-                      e.target.style.background = "transparent";
-                    }
-                  }}
-                >
-                  {language}
-                </button>
-              ))}
-              <button
-                onClick={handleGenerate}
-                disabled={isGenerating || !prompt.trim()}
+              <input
+                type="text"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Ask Adorrable to create a business website…"
                 style={{ 
-                  marginLeft: "auto",
-                  padding: "6px 16px",
-                  borderRadius: "9999px",
-                  background: "#22C55E",
-                  color: "white",
+                  width: "100%",
+                  background: "transparent",
                   border: "none",
-                  fontSize: "14px",
-                  cursor: "pointer",
-                  transition: "all 0.2s"
+                  outline: "none",
+                  color: "#E5E7EB",
+                  fontSize: "16px",
+                  padding: "8px"
                 }}
-                onMouseEnter={(e) => {
-                  if (!isGenerating && prompt.trim()) {
-                    e.target.style.background = "#16A34A";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isGenerating && prompt.trim()) {
-                    e.target.style.background = "#22C55E";
-                  }
-                }}
-              >
-                {isGenerating ? "Generating..." : "Send"}
-              </button>
-            </div>
-          </div>
-        </div>
+                onKeyPress={(e) => e.key === "Enter" && handleGenerate()}
+              />
 
-        {/* Credits Bar */}
-        <div style={{ 
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          fontSize: "14px",
-          marginBottom: "32px"
-        }}>
-          <span style={{ 
-            padding: "4px 12px",
-            borderRadius: "9999px",
-            border: "1px solid rgba(148,163,184,0.12)",
-            color: "#94A3B8"
-          }}>
-            {isLoadingCredits ? "..." : credits} credits remaining
-          </span>
-          <button
-            onClick={() => setShowPricing(true)}
-            style={{ 
-              padding: "6px 12px",
-              borderRadius: "9999px",
-              background: "#22C55E",
-              color: "white",
-              border: "none",
-              fontSize: "14px",
-              cursor: "pointer",
-              transition: "all 0.2s"
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.background = "#16A34A";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = "#22C55E";
-            }}
-          >
-            Buy More
-          </button>
-        </div>
-
-        {/* Generated Code Section */}
-        {showCode && generatedCode && (
-          <div style={{ 
-            background: "rgba(14,21,38,0.6)",
-            border: "1px solid rgba(148,163,184,0.12)",
-            borderRadius: "16px",
-            padding: "24px",
-            marginBottom: "32px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.35)"
-          }}>
-            <div style={{ 
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "16px"
-            }}>
-              <h3 style={{ color: "#E5E7EB", fontSize: "18px", fontWeight: "600" }}>
-                Generated Website
-              </h3>
-              <div style={{ display: "flex", gap: "8px" }}>
+              <div style={{ 
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                marginTop: "12px"
+              }}>
+                {languages.map((lang, index) => (
+                  <button
+                    key={lang}
+                    onClick={() => setSelectedLanguage(lang)}
+                    style={{ 
+                      background: selectedLanguage === lang
+                        ? "#22C55E"
+                        : "transparent",
+                      color: selectedLanguage === lang ? "white" : "#94A3B8",
+                      border: selectedLanguage === lang ? "none" : "1px solid rgba(148, 163, 184, 0.3)",
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      fontWeight: selectedLanguage === lang ? "500" : "400",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedLanguage !== lang) {
+                        e.target.style.color = "#E5E7EB";
+                        e.target.style.background = "rgba(255,255,255,0.05)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedLanguage !== lang) {
+                        e.target.style.color = "#94A3B8";
+                        e.target.style.background = "transparent";
+                      }
+                    }}
+                  >
+                    {lang}
+                  </button>
+                ))}
                 <button
-                  onClick={openInNewTab}
+                  onClick={handleGenerate}
+                  disabled={isGenerating || !prompt.trim()}
                   style={{ 
-                    padding: "8px 16px",
-                    borderRadius: "8px",
+                    marginLeft: "auto",
+                    padding: "6px 16px",
+                    borderRadius: "9999px",
                     background: "#22C55E",
                     color: "white",
                     border: "none",
@@ -602,147 +545,252 @@ export default function Home() {
                     transition: "all 0.2s"
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.background = "#16A34A";
+                    if (!isGenerating && prompt.trim()) {
+                      e.target.style.background = "#16A34A";
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.background = "#22C55E";
+                    if (!isGenerating && prompt.trim()) {
+                      e.target.style.background = "#22C55E";
+                    }
                   }}
                 >
-                  Preview
-                </button>
-                <button
-                  onClick={downloadCode}
-                  style={{ 
-                    padding: "8px 16px",
-                    borderRadius: "8px",
-                    background: "transparent",
-                    color: "#94A3B8",
-                    border: "1px solid rgba(148,163,184,0.12)",
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    transition: "all 0.2s"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.color = "#E5E7EB";
-                    e.target.style.borderColor = "rgba(148,163,184,0.3)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.color = "#94A3B8";
-                    e.target.style.borderColor = "rgba(148,163,184,0.12)";
-                  }}
-                >
-                  Download
+                  {isGenerating ? "Generating..." : "Send"}
                 </button>
               </div>
             </div>
-            <pre style={{ 
-              background: "#0B1020",
-              color: "#E5E7EB",
-              padding: "16px",
-              borderRadius: "8px",
-              fontSize: "14px",
-              overflow: "auto",
-              maxHeight: "400px",
-              border: "1px solid rgba(148,163,184,0.12)"
-            }}>
-              {generatedCode}
-            </pre>
           </div>
-        )}
 
-        {/* Community Templates Section */}
-        <div id="templates" style={{ marginBottom: "48px" }}>
+          {/* Credits Bar */}
           <div style={{ 
             display: "flex",
-            justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "24px"
+            gap: "12px",
+            fontSize: "14px",
+            marginBottom: "32px"
           }}>
-            <h2 style={{ 
-              color: "#E5E7EB",
-              fontSize: "24px",
-              fontWeight: "600"
-            }}>
-              From the Community
-            </h2>
-            <span style={{ 
-              color: "#94A3B8",
-              fontSize: "14px"
-            }}>
-              {communityTemplates.length} templates
-            </span>
-          </div>
-
-          <div style={{ 
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-            gap: "24px"
-          }}>
-            {communityTemplates.map((template) => (
-              <div
-                key={template.id}
-                onClick={() => handleTemplateClick(template)}
-                style={{ 
-                  background: template.id === "3" ? "#F59E0B" : template.id === "2" ? "#10B981" : "rgba(14,21,38,0.6)",
-                  border: "1px solid rgba(148,163,184,0.12)",
-                  borderRadius: "20px",
-                  padding: "24px",
+            <div
+              style={{
+                background: "rgba(34, 197, 94, 0.1)",
+                border: "1px solid rgba(34, 197, 94, 0.3)",
+                borderRadius: "12px",
+                padding: "8px 16px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <span style={{ 
+                color: "#94A3B8"
+              }}>
+                {isLoadingCredits ? "..." : credits} credits remaining
+              </span>
+              <button
+                onClick={() => setShowPricing(true)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#22C55E",
+                  fontSize: "12px",
                   cursor: "pointer",
+                  textDecoration: "underline",
                   transition: "all 0.2s ease",
-                  boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
-                  color: template.id === "3" || template.id === "2" ? "white" : "#E5E7EB"
+                  padding: "2px 4px",
+                  borderRadius: "4px",
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = "translateY(-4px)";
-                  e.target.style.boxShadow = "0 20px 40px rgba(0,0,0,0.5)";
+                  e.target.style.color = "#16A34A";
+                  e.target.style.background = "rgba(34, 197, 94, 0.1)";
+                  e.target.style.transform = "scale(1.05)";
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = "translateY(0)";
-                  e.target.style.boxShadow = "0 10px 30px rgba(0,0,0,0.35)";
+                  e.target.style.color = "#22C55E";
+                  e.target.style.background = "none";
+                  e.target.style.transform = "scale(1)";
                 }}
               >
-                <div style={{ 
-                  fontSize: "12px",
-                  background: template.id === "3" || template.id === "2" ? "rgba(255,255,255,0.2)" : "rgba(148,163,184,0.2)",
-                  padding: "2px 8px",
-                  borderRadius: "9999px",
-                  display: "inline-block",
-                  marginBottom: "12px"
-                }}>
-                  {template.id === "3" ? "Featured" : template.id === "2" ? "Popular" : "Community"}
-                </div>
-                <h3 style={{ 
-                  fontSize: "20px",
-                  fontWeight: "600",
-                  marginBottom: "8px"
-                }}>
-                  {template.title}
+                Buy More
+              </button>
+            </div>
+          </div>
+
+          {/* Generated Code Section */}
+          {showCode && generatedCode && (
+            <div style={{ 
+              background: "#0E1526",
+              border: "1px solid rgba(148,163,184,0.12)",
+              borderRadius: "16px",
+              padding: "24px",
+              marginBottom: "32px",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.35)"
+            }}>
+              <div style={{ 
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "16px"
+              }}>
+                <h3 style={{ color: "#E5E7EB", fontSize: "18px", fontWeight: "600" }}>
+                  Generated Website
                 </h3>
-                <p style={{ 
-                  fontSize: "14px",
-                  opacity: 0.9,
-                  marginBottom: "16px"
-                }}>
-                  {template.description}
-                </p>
-                <div style={{ 
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  fontSize: "12px",
-                  opacity: 0.8
-                }}>
-                  <span>by {template.author}</span>
-                  <div style={{ display: "flex", gap: "12px" }}>
-                    <span>⭐ {template.rating}</span>
-                    <span>↓ {template.downloads.toLocaleString()}</span>
-                  </div>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    onClick={openInNewTab}
+                    style={{ 
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      background: "#22C55E",
+                      color: "white",
+                      border: "none",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                      transition: "all 0.2s"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = "#16A34A";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = "#22C55E";
+                    }}
+                  >
+                    Preview
+                  </button>
+                  <button
+                    onClick={downloadCode}
+                    style={{ 
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      background: "transparent",
+                      color: "#94A3B8",
+                      border: "1px solid rgba(148,163,184,0.12)",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                      transition: "all 0.2s"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.color = "#E5E7EB";
+                      e.target.style.borderColor = "rgba(148,163,184,0.3)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.color = "#94A3B8";
+                      e.target.style.borderColor = "rgba(148,163,184,0.12)";
+                    }}
+                  >
+                    Download
+                  </button>
                 </div>
               </div>
-            ))}
+              <pre style={{ 
+                background: "#0B1020",
+                color: "#E5E7EB",
+                padding: "16px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                overflow: "auto",
+                maxHeight: "400px",
+                border: "1px solid rgba(148,163,184,0.12)"
+              }}>
+                {generatedCode}
+              </pre>
+            </div>
+          )}
+
+          {/* Community Templates Section */}
+          <div id="templates" style={{ marginBottom: "48px" }}>
+            <div style={{ 
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "24px"
+            }}>
+              <h2 style={{ 
+                color: "#E5E7EB",
+                fontSize: "24px",
+                fontWeight: "600"
+              }}>
+                From the Community
+              </h2>
+              <span style={{ 
+                color: "#94A3B8",
+                fontSize: "14px"
+              }}>
+                {communityTemplates.length} templates
+              </span>
+            </div>
+
+            <div style={{ 
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+              gap: "24px"
+            }}>
+              {communityTemplates.map((template) => (
+                <div
+                  key={template.id}
+                  onClick={() => handleTemplateClick(template)}
+                  style={{ 
+                    background: template.id === "3" ? "#F59E0B" : template.id === "2" ? "#10B981" : "#0E1526",
+                    border: "1px solid rgba(30, 41, 59, 0.2)",
+                    borderRadius: "24px",
+                    padding: "32px",
+                    marginBottom: "40px",
+                    backdropFilter: "blur(10px)",
+                    boxShadow: "0 10px 30px rgba(0,0,0,.35)",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    color: template.id === "3" || template.id === "2" ? "white" : "#E5E7EB"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = "translateY(-4px)";
+                    e.target.style.boxShadow = "0 20px 40px rgba(0,0,0,0.5)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = "translateY(0)";
+                    e.target.style.boxShadow = "0 10px 30px rgba(0,0,0,.35)";
+                  }}
+                >
+                  <div style={{ 
+                    fontSize: "12px",
+                    background: template.id === "3" || template.id === "2" ? "rgba(255,255,255,0.2)" : "rgba(148,163,184,0.2)",
+                    padding: "2px 8px",
+                    borderRadius: "9999px",
+                    display: "inline-block",
+                    marginBottom: "12px"
+                  }}>
+                    {template.id === "3" ? "Featured" : template.id === "2" ? "Popular" : "Community"}
+                  </div>
+                  <h3 style={{ 
+                    fontSize: "20px",
+                    fontWeight: "600",
+                    marginBottom: "8px"
+                  }}>
+                    {template.title}
+                  </h3>
+                  <p style={{ 
+                    fontSize: "14px",
+                    opacity: 0.9,
+                    marginBottom: "16px"
+                  }}>
+                    {template.description}
+                  </p>
+                  <div style={{ 
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    fontSize: "12px",
+                    opacity: 0.8
+                  }}>
+                    <span>by {template.author}</span>
+                    <div style={{ display: "flex", gap: "12px" }}>
+                      <span>⭐ {template.rating}</span>
+                      <span>↓ {template.downloads.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Community Template Modal */}
       {showModal && selectedTemplate && (
@@ -923,7 +971,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      )}
+      </main>
 
       {/* Pricing Modal */}
       {showPricing && (
