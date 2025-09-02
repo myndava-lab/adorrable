@@ -1,0 +1,153 @@
+ou’re right—the fix is to stop importing anything from @supabase/auth-helpers-nextjs in middleware.ts and avoid using the Supabase client in middleware at all. Use a lightweight cookie gate instead, and move real auth logic to server components / route handlers with @supabase/ssr.
+
+Here are the exact patches.
+
+1) Clean up deps
+
+Remove the deprecated package:
+
+npm remove @supabase/auth-helpers-nextjs
+
+
+Ensure you have:
+
+npm i @supabase/ssr @supabase/supabase-js
+
+2) Replace middleware.ts (no Supabase import)
+// middleware.ts
+import { NextResponse, NextRequest } from "next/server";
+
+/**
+ * Keep middleware ultra-light. Do NOT import Supabase here.
+ * We only gate non-public routes by checking Supabase auth cookies.
+ */
+const PUBLIC_PATHS = new Set<string>([
+  "/", "/favicon.ico", "/logo.png",
+  "/robots.txt", "/sitemap.xml",
+]);
+
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // Allow Next internals and static assets
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api/public") ||
+    pathname.match(/\\.(?:png|jpg|jpeg|svg|gif|ico|txt|xml|webp|woff2?)$/)
+  ) {
+    return NextResponse.next();
+  }
+
+  // Public pages
+  if (PUBLIC_PATHS.has(pathname)) return NextResponse.next();
+
+  // Minimal auth check via cookies set by Supabase
+  const hasAccess = req.cookies.get("sb-access-token")?.value;
+  const hasRefresh = req.cookies.get("sb-refresh-token")?.value;
+
+  if (!hasAccess && !hasRefresh) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("redirectedFrom", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
+}
+
+/**
+ * Match everything except Next internals and static files.
+ * Adjust if you want to exempt more routes.
+ */
+export const config = {
+  matcher: ["/((?!_next|.*\\..*|api/public).*)"],
+};
+
+3) Use @supabase/ssr outside middleware
+
+Create a server helper the new way:
+
+// lib/supabaseServer.ts
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
+
+export function supaServer() {
+  const cookieStore = cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // anon key for user-context ops
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set() {
+          // No-op on server; Next will set via responses in routes/actions.
+        },
+        remove() {
+          // No-op
+        },
+      },
+    }
+  );
+}
+
+
+For admin/cron tasks that truly need the service role, make a separate helper that you only call in secure server contexts (never in RSC streaming to the client, never in middleware):
+
+// lib/supabaseService.ts (server-only)
+import { createClient } from "@supabase/supabase-js";
+
+export const supaService = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!, // keep ONLY on server
+  { auth: { persistSession: false } }
+);
+
+4) Make sure your API routes run on Node (not edge)
+
+If any route uses Node APIs or the service client, pin runtime:
+
+// example: app/api/template/resolve/route.ts
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+5) Clear cache + rebuild (fixes your ENOENT cache error, too)
+
+In Replit (or local):
+
+rm -rf .next .next/cache node_modules
+npm i
+NODE_ENV=production npx next build
+
+
+If Replit’s FS still complains, disable webpack cache:
+
+// next.config.js
+const nextConfig = {
+  webpack: (config) => {
+    config.cache = false; // stop PackFileCacheStrategy .pack.gz writes
+    return config;
+  },
+};
+module.exports = nextConfig;
+
+6) Env checklist (common gotcha)
+
+Create .env.local with:
+
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...   # server-only usage
+
+
+If any env is used on the client, it must start with NEXT_PUBLIC_.
+
+Why this works
+
+Middleware runs on the Edge and has strict constraints. Importing the old helpers drags in Node-only code and breaks builds. The cookie gate avoids that.
+
+@supabase/ssr is the modern, supported way to use Supabase in App Router server components and API routes, handling cookies correctly.
+
+Separating anon vs service-role clients keeps you safe and deployable.
