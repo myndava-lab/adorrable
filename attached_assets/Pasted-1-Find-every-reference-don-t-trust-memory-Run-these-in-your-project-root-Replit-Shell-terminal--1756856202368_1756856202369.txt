@@ -1,0 +1,117 @@
+1) Find every reference (don’t trust memory)
+
+Run these in your project root (Replit Shell/terminal):
+
+# search source
+grep -RIn "@supabase/auth-helpers-nextjs" --include=\*.{ts,tsx,js,jsx} .
+
+# also check type defs, config, and hidden places
+grep -RIn "@supabase/auth-helpers-nextjs" .
+
+# list all middleware files (there can be more than one!)
+ls -la **/middleware.ts **/_middleware.ts 2>/dev/null || true
+
+
+Common surprises:
+
+A stray pages/_middleware.ts (old Pages Router) in addition to app/middleware.ts.
+
+A second middleware.ts inside /app/(group)/middleware.ts.
+
+An import in lib/supabaseClient.ts, lib/auth.ts, or app/api/auth/*.
+
+A tsconfig path alias pointing to an old file that still imports it.
+
+2) Remove the package for real (and its lock residue)
+npm remove @supabase/auth-helpers-nextjs
+rm -rf node_modules package-lock.json .next .next/cache
+npm i
+
+3) Replace any old helpers with the modern ones
+a) Client (browser) supabase
+// lib/supabaseClient.ts
+import { createClient } from "@supabase/supabase-js";
+
+export const supaBrowser = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
+);
+
+b) Server (RSC / route handlers) supabase via @supabase/ssr
+// lib/supabaseServer.ts
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
+
+export function supaServer() {
+  const cookieStore = cookies();
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get: (name: string) => cookieStore.get(name)?.value,
+        set: () => {}, remove: () => {},
+      },
+    }
+  );
+}
+
+c) Service-role (server-only, e.g., cron/admin)
+// lib/supabaseService.ts
+import { createClient } from "@supabase/supabase-js";
+export const supaService = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { auth: { persistSession: false } }
+);
+
+4) Make middleware minimal (NO imports from Supabase)
+// middleware.ts
+import { NextResponse, type NextRequest } from "next/server";
+
+const PUBLIC = new Set<string>(["/","/favicon.ico","/logo.png","/robots.txt","/sitemap.xml"]);
+
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api/public") ||
+    pathname.match(/\\.(?:png|jpg|jpeg|svg|gif|ico|txt|xml|webp|woff2?)$/)
+  ) return NextResponse.next();
+
+  if (PUBLIC.has(pathname)) return NextResponse.next();
+
+  const hasAccess = req.cookies.get("sb-access-token")?.value;
+  const hasRefresh = req.cookies.get("sb-refresh-token")?.value;
+
+  if (!hasAccess && !hasRefresh) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("redirectedFrom", pathname);
+    return NextResponse.redirect(url);
+  }
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/((?!_next|.*\\..*|api/public).*)"],
+};
+
+5) Delete any duplicate/legacy middleware
+
+If the search in step 1 listed pages/_middleware.ts or another middleware.ts, delete or rename it:
+
+git rm -f pages/_middleware.ts 2>/dev/null || rm -f pages/_middleware.ts
+git rm -f app/**/middleware.ts 2>/dev/null || true
+# keep ONLY your root /middleware.ts from step 4
+
+6) Clear caches again and rebuild
+rm -rf .next .next/cache node_modules
+npm i
+NODE_ENV=production npx next build
+
+7) Guard against alias leaks
+
+Sometimes tsconfig.json path aliases point to an old file that still imports the deprecated package. Open tsconfig.json and check "paths"—make sure no alias (e.g., "@/lib/auth") points to a stale file. Fix or delete the file, then rebuild.

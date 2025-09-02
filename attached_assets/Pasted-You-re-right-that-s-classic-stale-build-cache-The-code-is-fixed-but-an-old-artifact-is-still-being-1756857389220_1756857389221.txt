@@ -1,0 +1,81 @@
+You’re right—that’s classic stale build cache. The code is fixed, but an old artifact is still being read. Do this exact reset (it’s safe):
+
+🔧 One-shot hard reset (Replit/local)
+# 0) Stop the dev server first (Ctrl+C)
+
+# 1) Purge all Next/Webpack caches + node_modules
+rm -rf .next .next/cache node_modules .turbo .vercel .eslintcache
+
+# 2) Clear npm cache (harmless but thorough)
+npm cache clean --force
+
+# 3) Reinstall fresh
+npm i
+
+# 4) Build WITHOUT cache once to evict stale pack files
+npx next build --no-cache
+
+# 5) Run dev again
+npm run dev
+
+🛡️ Make it stick (prevent future cache ghosts)
+
+In next.config.js, add a tiny safeguard to disable Webpack’s persistent pack cache (it’s what’s referencing old files) and keep logs clean:
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  webpack: (config, { dev }) => {
+    // Disable PackFileCacheStrategy (prevents .pack.gz ENOENT & stale imports)
+    config.cache = false;
+
+    // Optional: quiet infra warnings about cache packs
+    if (config.infrastructureLogging) {
+      config.infrastructureLogging.level = 'error';
+    }
+    return config;
+  },
+  // If you use remote images, keep your patterns here
+  images: {
+    remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }],
+  },
+};
+module.exports = nextConfig;
+
+
+Also add a cache-free build script so CI/Replit never reuses stale packs:
+
+// package.json
+{
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build --no-cache",
+    "start": "next start -p 3001"
+  }
+}
+
+🔍 Double-check there’s no hidden reference
+
+Run these searches just once to be sure nothing else imports the old package:
+
+# search your source
+grep -RIn "@supabase/auth-helpers-nextjs" --include=\*.{ts,tsx,js,jsx} .
+
+# (rare) search everything including config, compiled leftovers
+grep -RIn "@supabase/auth-helpers-nextjs" .
+
+
+If either prints a path, delete/patch that file. Common culprits:
+
+a stray pages/_middleware.ts
+
+a second app/**/middleware.ts
+
+an old helper in lib/auth.ts or lib/supabaseClient.ts
+
+🧪 Sanity test
+
+After the reset, npx next build --no-cache should succeed with no reference to the deprecated package.
+
+Start dev: npm run dev and trigger a full page reload.
+
+If deploying, ensure your CI/host also does a clean build (no cache), e.g. on Vercel set a build command that doesn’t reuse cache the first time.
