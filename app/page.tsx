@@ -860,7 +860,7 @@ export default function AdorrableLanding() {
               <h2 className={`text-4xl font-bold mb-4 ${gradientText}`}>
                 {t.features.title}
               </h2>
-              <p className="text-xl text-white/70">
+              <p className="text-xl text-white/70 mt-6">
                 {t.features.subtitle}
               </p>
             </div>
