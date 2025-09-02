@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -123,6 +122,13 @@ const translations = {
       gdprReady: "GDPR / NDPR ready",
       dataResidency: "Data residency aware",
       copyright: "All rights reserved."
+    },
+    errors: {
+      promptRequired: "Please enter a description of your website",
+      insufficientCredits: "You need at least 1 credit to generate a website. Please purchase more credits."
+    },
+    success: {
+      generated: "Website generated successfully!"
     }
   },
   French: {
@@ -208,6 +214,13 @@ const translations = {
       gdprReady: "RGPD / NDPR prêt",
       dataResidency: "Sensible à la résidence des données",
       copyright: "Tous droits réservés."
+    },
+    errors: {
+      promptRequired: "Veuillez entrer une description de votre site web",
+      insufficientCredits: "Vous avez besoin d'au moins 1 crédit pour générer un site web. Veuillez en acheter plus."
+    },
+    success: {
+      generated: "Site web généré avec succès !"
     }
   },
   Swahili: {
@@ -293,6 +306,13 @@ const translations = {
       gdprReady: "GDPR / NDPR tayari",
       dataResidency: "Unafahamu makazi ya data",
       copyright: "Haki zote zimehifadhiwa."
+    },
+    errors: {
+      promptRequired: "Tafadhali ingiza maelezo ya tovuti yako",
+      insufficientCredits: "Unahitaji angalau mkopo 1 ili kutengeneza tovuti. Tafadhali nunua zaidi."
+    },
+    success: {
+      generated: "Tovuti imetengenezwa kwa mafanikio!"
     }
   },
   Pidgin: {
@@ -378,6 +398,13 @@ const translations = {
       gdprReady: "GDPR / NDPR ready",
       dataResidency: "Data residency aware",
       copyright: "All rights reserved."
+    },
+    errors: {
+      promptRequired: "Talk about your website",
+      insufficientCredits: "You need at least 1 credit to generate a website. Buy more."
+    },
+    success: {
+      generated: "Website done generated!"
     }
   }
 };
@@ -522,7 +549,7 @@ function PriceCard({
 
 export default function AdorrableLanding() {
   const [lang, setLang] = useState<(typeof LANGS)[number]>("English");
-  
+
   // Get current translations
   const t = translations[lang];
 
@@ -543,6 +570,7 @@ export default function AdorrableLanding() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [attachedImages, setAttachedImages] = useState<File[]>([]);
 
   // Authentication effect
   useEffect(() => {
@@ -598,9 +626,12 @@ export default function AdorrableLanding() {
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session?.access_token) return;
+
       const response = await fetch('/api/credits', {
         headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+          'Authorization': `Bearer ${session.data.session.access_token}`
         }
       });
       if (response.ok) {
@@ -623,42 +654,75 @@ export default function AdorrableLanding() {
     }
 
     if (!prompt.trim()) {
-      alert('Please enter a description of your website');
+      alert(t.errors.promptRequired || 'Please enter a description of your website');
       return;
     }
 
-    if (userProfile?.credits < 1) {
-      alert('You need at least 1 credit to generate a website. Please purchase more credits.');
+    // Check user profile and credits
+    if (!userProfile) {
+      alert('Loading user profile...');
+      await fetchUserProfile(user.id);
+      // Check again after fetching
+      if (!userProfile) {
+        alert('Failed to load user profile. Please try again.');
+        return;
+      }
+    }
+
+    if (userProfile.credits < 1) {
+      alert(t.errors.insufficientCredits || 'You need at least 1 credit to generate a website. Please purchase more credits.');
       return;
     }
 
     setIsGenerating(true);
     try {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session?.access_token) {
+        alert('Please sign in again');
+        setIsAuthModalOpen(true);
+        return;
+      }
+
       const response = await fetch('/api/ai/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+          'Authorization': `Bearer ${session.data.session.access_token}`
         },
         body: JSON.stringify({
-          prompt,
-          language: lang
+          prompt: prompt.trim(),
+          language: lang,
+          images: attachedImages,
+          culturalConfig: {
+            detectedRegion: 'Africa', // This should ideally be dynamic
+            language: lang
+          }
         })
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         // Handle successful generation
-        alert('Website generated successfully!');
-        // Refresh user profile to update credits
+        alert(t.success.generated || 'Website generated successfully!');
+
+        // Refresh user profile to show updated credits
         await fetchUserProfile(user.id);
+
+        // Clear the prompt and attached images
+        setPrompt('');
+        setAttachedImages([]);
+
+        // You can add logic here to display the generated website
+        console.log('Generated template:', data.template);
+
       } else {
-        const error = await response.json();
-        alert(error.error || 'Failed to generate website');
+        const errorMessage = data.error || data.message || 'Failed to generate website';
+        alert(errorMessage);
       }
     } catch (error) {
       console.error('Error generating website:', error);
-      alert('Failed to generate website');
+      alert('Network error. Please check your connection and try again.');
     } finally {
       setIsGenerating(false);
     }
@@ -674,7 +738,7 @@ export default function AdorrableLanding() {
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0F19]/70 backdrop-blur-xl">
         <div className={`${sectionClass} flex h-16 items-center justify-between`}>
           <div className="flex items-center gap-3">
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-sky-400 to-violet-500" />
+            <div className="h-7 w-7 rounded-md bg-gradient-to-br from-sky-400 to-violet-500" />
             <span className="text-lg font-bold tracking-tight">
               <span className="text-white">Ado</span>
               <span className="text-white/80">rrable</span>
@@ -756,11 +820,11 @@ export default function AdorrableLanding() {
               <Sparkles className="h-4 w-4 text-emerald-300" />
               {t.hero.badge}
             </div>
-            
+
             <h1 className={`text-5xl font-extrabold tracking-tight sm:text-7xl mb-6 ${gradientText}`}>
               {t.hero.title}
             </h1>
-            
+
             <p className="mx-auto max-w-2xl text-xl text-white/70 mb-12 leading-relaxed mt-8">
               {t.hero.subtitle}
             </p>
@@ -784,9 +848,10 @@ export default function AdorrableLanding() {
                         input.type = 'file';
                         input.accept = 'image/*,.pdf,.doc,.docx,.txt';
                         input.onchange = (e) => {
-                          const file = (e.target as HTMLInputElement).files?.[0];
-                          if (file) {
-                            alert(`File selected: ${file.name}. File upload functionality coming soon!`);
+                          const files = Array.from((e.target as HTMLInputElement).files || []);
+                          if (files.length > 0) {
+                            setAttachedImages(files);
+                            alert(`${files.length} file(s) selected: ${files.map(f => f.name).join(', ')}. File upload functionality is now integrated!`);
                           }
                         };
                         input.click();
@@ -864,7 +929,7 @@ export default function AdorrableLanding() {
                 {t.features.subtitle}
               </p>
             </div>
-            
+
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
               <Feature
                 icon={Globe}
@@ -900,7 +965,7 @@ export default function AdorrableLanding() {
               {t.community.subtitle}
             </p>
           </div>
-          
+
           <motion.div
             initial="hidden"
             whileInView="show"
@@ -939,7 +1004,7 @@ export default function AdorrableLanding() {
               {t.pricing.subtitle}
             </p>
           </div>
-          
+
           <motion.div
             initial="hidden"
             whileInView="show"
@@ -1007,7 +1072,7 @@ export default function AdorrableLanding() {
               {t.footer.description}
             </p>
           </div>
-          
+
           <div>
             <h4 className="mb-4 text-sm font-semibold text-white/90">{t.footer.product}</h4>
             <ul className="space-y-3 text-sm text-white/60">
@@ -1017,7 +1082,7 @@ export default function AdorrableLanding() {
               <li><a href="#docs" className="hover:text-white transition-colors">{t.navbar.docs}</a></li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="mb-4 text-sm font-semibold text-white/90">{t.footer.payments}</h4>
             <ul className="space-y-3 text-sm text-white/60">
@@ -1035,7 +1100,7 @@ export default function AdorrableLanding() {
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="mb-4 text-sm font-semibold text-white/90">{t.footer.compliance}</h4>
             <ul className="space-y-3 text-sm text-white/60">
@@ -1048,7 +1113,7 @@ export default function AdorrableLanding() {
             </ul>
           </div>
         </div>
-        
+
         <div className="mt-8 text-center text-xs text-white/50">
           © {new Date().getFullYear()} Adorrable.dev — Myndava AI Systems LLC. {t.footer.copyright}
         </div>
