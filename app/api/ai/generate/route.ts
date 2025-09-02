@@ -330,3 +330,73 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+export async function POST(request: NextRequest) {
+  try {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
+      return NextResponse.json({ error: 'No authorization header' }, { status: 401 });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Verify the token with Supabase
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { prompt, language } = body;
+
+    if (!prompt) {
+      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
+    }
+
+    // Check user credits
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('credits')
+      .eq('user_id', user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
+
+    if (profile.credits < 1) {
+      return NextResponse.json({ error: 'Insufficient credits' }, { status: 403 });
+    }
+
+    // For testing purposes, return a mock response
+    // In production, this would call OpenAI API
+    const mockResponse = {
+      success: true,
+      html: `<html><body><h1>Test Website: ${prompt}</h1><p>Language: ${language}</p></body></html>`,
+      creditsUsed: 1
+    };
+
+    // Deduct credits (in real implementation)
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ credits: profile.credits - 1 })
+      .eq('user_id', user.id);
+
+    if (updateError) {
+      console.error('Error updating credits:', updateError);
+    }
+
+    return NextResponse.json(mockResponse);
+  } catch (error) {
+    console.error('AI Generation API error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

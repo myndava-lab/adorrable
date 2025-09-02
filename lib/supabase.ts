@@ -11,7 +11,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
     url: !!supabaseUrl,
     key: !!supabaseAnonKey
   })
-  throw new Error('Supabase configuration is required')
+  
+  // Don't throw in browser environment, just log
+  if (typeof window === 'undefined') {
+    throw new Error('Supabase configuration is required')
+  }
 }
 
 // Create client instance
@@ -19,5 +23,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
   }
 })

@@ -14,9 +14,9 @@ export default function GenerateButton() {
 
     try {
       // Check if user is authenticated
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      const { data: { session }, error: authError } = await supabase.auth.getSession()
       
-      if (authError || !user) {
+      if (authError || !session?.user) {
         setResult('❌ User not authenticated')
         return
       }
@@ -25,7 +25,7 @@ export default function GenerateButton() {
       const response = await fetch('/api/ai/generate', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${user.session?.access_token || ''}`,
+          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({

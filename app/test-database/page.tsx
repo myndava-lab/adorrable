@@ -25,11 +25,22 @@ export default function TestDatabasePage() {
               <strong>Supabase Anon Key:</strong> {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing'}
             </div>
             <div>
+              <strong>Service Role Key:</strong> {process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ Set' : '❌ Missing'}
+            </div>
+            <div>
               <strong>OpenAI API Key:</strong> {process.env.OPENAI_API_KEY ? '✅ Set' : '❌ Missing'}
             </div>
             <div>
               <strong>NextAuth Secret:</strong> {process.env.NEXTAUTH_SECRET ? '✅ Set' : '❌ Missing'}
             </div>
+            <div>
+              <strong>Admin Email:</strong> {process.env.ADMIN_EMAIL ? '✅ Set' : '❌ Missing'}
+            </div>
+          </div>
+          <div className="mt-4 p-4 bg-yellow-100 rounded">
+            <p className="text-sm">
+              <strong>Note:</strong> If you see environment variables as missing, make sure your .env.local file matches your Replit secrets, and restart the development server.
+            </p>
           </div>
         </div>
       </div>

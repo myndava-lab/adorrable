@@ -14,9 +14,9 @@ export default function CreditButton() {
 
     try {
       // Check if user is authenticated
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      const { data: { session }, error: authError } = await supabase.auth.getSession()
       
-      if (authError || !user) {
+      if (authError || !session?.user) {
         setResult('❌ User not authenticated')
         return
       }
@@ -24,7 +24,7 @@ export default function CreditButton() {
       // Test credits API
       const response = await fetch('/api/credits', {
         headers: {
-          'Authorization': `Bearer ${user.session?.access_token || ''}`
+          'Authorization': `Bearer ${session.access_token}`
         }
       })
 
