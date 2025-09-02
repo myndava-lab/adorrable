@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     // Test 1: Credits API
     try {
       console.log('Testing Credits API...')
-      const creditsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/api/credits`, {
+      const creditsResponse = await fetch(`http://localhost:3001/api/credits?test=true`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     // Test 2: AI Generation API
     try {
       console.log('Testing AI Generation API...')
-      const aiResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/api/ai/generate`, {
+      const aiResponse = await fetch(`http://localhost:3001/api/ai/generate`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -109,9 +109,7 @@ export async function GET(request: NextRequest) {
       
       // Check if tables exist
       const { data: tables, error: tablesError } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public')
+        .rpc('get_public_tables')
 
       debugResults.tests.push({
         name: 'Database Schema Debug',
