@@ -614,7 +614,7 @@ export default function Home() {
                 transition: "all 0.2s",
               }}
             >
-              Download
+              Open Project
             </button>
             <button
               onClick={handleUseTemplate}
@@ -630,7 +630,7 @@ export default function Home() {
                 boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
               }}
             >
-              Use Template
+              Remix
             </button>
           </div>
         </div>
