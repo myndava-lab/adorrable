@@ -51,7 +51,7 @@ export default function DebugButton() {
           resultText += '\n'
         })
 
-        setResult(resultText)
+        setResult(formatDebugResults(data))
       } else {
         setResult(`❌ Debug failed: ${data.error || 'Unknown error'}`)
       }
@@ -61,6 +61,30 @@ export default function DebugButton() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const formatDebugResults = (data: any) => {
+    if (!data.tests) return JSON.stringify(data, null, 2)
+    
+    let output = `🔍 DEBUG ANALYSIS RESULTS:\n\n`
+    
+    data.tests.forEach((test: any, index: number) => {
+      const statusIcon = test.status === 'pass' ? '✅' : test.status === 'fail' ? '❌' : '⏳'
+      output += `${index + 1}. ${test.name}: ${statusIcon} ${test.status.toUpperCase()}\n`
+      
+      if (test.details) {
+        Object.entries(test.details).forEach(([key, value]: [string, any]) => {
+          if (typeof value === 'object' && value !== null) {
+            output += `   ${key}: ${JSON.stringify(value, null, 2)}\n`
+          } else {
+            output += `   ${key}: ${value}\n`
+          }
+        })
+      }
+      output += '\n'
+    })
+    
+    return output
   }
 
   return (
