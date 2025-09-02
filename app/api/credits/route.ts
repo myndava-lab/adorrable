@@ -1,16 +1,15 @@
-
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin, getUserProfile, grantCredits, deductCredits, getCreditLogs } from '@/lib/supabaseServer'
 
 export async function GET(request: NextRequest) {
   try {
-    // For demo purposes, we'll use a mock user ID
+    // For demo purposes, we'll use a mock user ID in proper UUID format
     // In production, you'd extract this from the JWT token
-    const mockUserId = 'demo-user-id'
-    
+    const mockUserId = '550e8400-e29b-41d4-a716-446655440000'
+
     // Get user profile with current credits
     const profile = await getUserProfile(mockUserId)
-    
+
     if (!profile) {
       // Create demo user if doesn't exist
       const newProfile = await supabaseAdmin
@@ -23,11 +22,11 @@ export async function GET(request: NextRequest) {
         })
         .select()
         .single()
-      
+
       if (newProfile.error) {
         return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
       }
-      
+
       return NextResponse.json({
         success: true,
         credits: newProfile.data.credits,
@@ -75,10 +74,10 @@ export async function POST(request: NextRequest) {
 
     // For demo purposes, we'll use a mock user ID
     // In production, you'd extract this from the JWT token
-    const mockUserId = 'demo-user-id'
+    const mockUserId = '550e8400-e29b-41d4-a716-446655440000'
 
     let result
-    
+
     if (action === 'grant') {
       result = await grantCredits(mockUserId, amount, reason, meta)
     } else if (action === 'deduct') {
