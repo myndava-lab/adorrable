@@ -1,47 +1,40 @@
-import { NextResponse, NextRequest } from "next/server";
 
-/**
- * Keep middleware ultra-light. Do NOT import Supabase here.
- * We only gate non-public routes by checking Supabase auth cookies.
- */
-const PUBLIC_PATHS = new Set<string>([
-  "/", "/favicon.ico", "/logo.png",
-  "/robots.txt", "/sitemap.xml",
-]);
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+export async function middleware(request: NextRequest) {
+  // Simple cookie-based auth gate - no Supabase imports needed
+  const authCookie = request.cookies.get('sb-access-token') || 
+                    request.cookies.get('sb-refresh-token') ||
+                    request.cookies.get('supabase-auth-token')
 
-  // Allow Next internals and static assets
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api/public") ||
-    pathname.match(/\\.(?:png|jpg|jpeg|svg|gif|ico|txt|xml|webp|woff2?)$/)
-  ) {
-    return NextResponse.next();
+  const isAuthPage = request.nextUrl.pathname.startsWith('/auth')
+  const isProtectedPage = request.nextUrl.pathname.startsWith('/dashboard') ||
+                         request.nextUrl.pathname.startsWith('/profile') ||
+                         request.nextUrl.pathname.startsWith('/settings')
+
+  // Allow public routes
+  if (!isProtectedPage) {
+    return NextResponse.next()
   }
 
-  // Public pages
-  if (PUBLIC_PATHS.has(pathname)) return NextResponse.next();
-
-  // Minimal auth check via cookies set by Supabase
-  const hasAccess = req.cookies.get("sb-access-token")?.value;
-  const hasRefresh = req.cookies.get("sb-refresh-token")?.value;
-
-  if (!hasAccess && !hasRefresh) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("redirectedFrom", pathname);
-    return NextResponse.redirect(url);
+  // Redirect to home if no auth cookie on protected pages
+  if (isProtectedPage && !authCookie) {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
-  return NextResponse.next();
+  return NextResponse.next()
 }
 
-/**
- * Match everything except Next internals and static files.
- * Adjust if you want to exempt more routes.
- */
 export const config = {
-  matcher: ["/((?!_next|.*\\..*|api/public).*)"],
-};
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
+}
