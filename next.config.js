@@ -2,10 +2,7 @@ const path = require('path');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Disable experimental features that can cause instability
-  experimental: {
-    appDir: true,
-  },
+  
 
   // Optimize compiler settings
   compiler: {
@@ -32,6 +29,13 @@ const nextConfig = {
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
       use: [{ loader: '@svgr/webpack', options: { icon: true } }],
+    });
+
+    // Exclude attached_assets from webpack processing to prevent bundle bloat
+    config.module.rules.push({
+      test: /attached_assets\//,
+      type: 'asset/resource',
+      generator: { filename: 'static/assets/[name][ext][query]' },
     });
 
     // Basic fallbacks for client-side
