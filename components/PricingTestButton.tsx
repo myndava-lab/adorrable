@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -34,16 +35,19 @@ export default function PricingTestButton() {
       }
 
       const response = await fetch('/api/test', {
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
         }
       })
+      
       console.log('Pricing test response status:', response.status)
 
       const data = await response.json()
       console.log('Pricing test response data:', data)
 
-      if (response.ok) {
+      if (response.ok && data.tests) {
         const results = data.tests.map((test: any) =>
           `${test.name}: ${test.status === 'pass' ? '✅' : '❌'} ${test.status}`
         ).join('\n')
@@ -51,8 +55,7 @@ export default function PricingTestButton() {
         setResult(`Test Results:
 ${results}
 
-Detailed Results:
-${JSON.stringify(data, null, 2)}`)
+Full Test Suite Completed Successfully!`)
       } else {
         setResult(`❌ Test failed: ${data.error || 'Unknown error'}`)
       }

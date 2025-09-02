@@ -1,7 +1,7 @@
+
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
 
 export default function DatabaseTestButton() {
   const [isLoading, setIsLoading] = useState(false)
@@ -12,18 +12,30 @@ export default function DatabaseTestButton() {
     setResult(null)
 
     try {
-      const response = await fetch('/api/health')
+      console.log('🔍 Testing database connection...')
+      const response = await fetch('/api/health', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      console.log('Database test response status:', response.status)
 
       if (response.ok) {
         const data = await response.json()
+        console.log('Database test response data:', data)
         setResult(`✅ Database connected successfully!
 Status: ${data.status}
+Database: ${data.database ? 'Connected' : 'Not Connected'}
 Time: ${data.timestamp}`)
       } else {
-        const error = await response.text()
-        setResult(`❌ Database connection failed: ${error}`)
+        const errorText = await response.text()
+        console.error('Database test failed:', errorText)
+        setResult(`❌ Database connection failed: ${errorText}`)
       }
     } catch (err: any) {
+      console.error('Database test error:', err)
       setResult(`❌ Database connection failed: ${err.message}`)
     } finally {
       setIsLoading(false)
@@ -42,7 +54,7 @@ Time: ${data.timestamp}`)
       </button>
       {result && (
         <div className="mt-2 p-2 rounded bg-gray-100">
-          <pre className="text-sm">{result}</pre>
+          <pre className="text-sm whitespace-pre-wrap">{result}</pre>
         </div>
       )}
     </div>

@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -9,20 +10,9 @@ export default function GenerateButton() {
   const [session, setSession] = useState<any>(null)
 
   useEffect(() => {
-    const getSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        if (error) {
-          console.error('Error getting session:', error)
-        } else {
-          setSession(session)
-        }
-      } catch (error) {
-        console.error('Error in getSession:', error)
-      }
-    }
-
-    getSession()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
@@ -47,33 +37,30 @@ export default function GenerateButton() {
       const response = await fetch('/api/ai/generate', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          prompt: 'Test website for a modern bakery in Lagos',
+          prompt: 'Create a simple test HTML page with a blue header',
           language: 'English'
         })
       })
-
+      
       console.log('AI Generation response status:', response.status)
 
+      const data = await response.json()
+      console.log('AI Generation response data:', data)
+
       if (response.ok) {
-        const data = await response.json()
-        console.log('AI Generation response data:', data)
         setResult(`✅ AI Generation working!
-Success: ${data.success}
-Credits used: ${data.creditsUsed}
-Credits remaining: ${data.creditsRemaining}
-HTML generated: ${data.html?.length || 0} characters`)
+Generated HTML length: ${data.html?.length || 0} characters
+Credits remaining: ${data.creditsRemaining || 'N/A'}`)
       } else {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        console.error('AI Generation error data:', errorData)
-        setResult(`❌ AI Generation failed: ${errorData.error || 'Unknown error'}`)
+        setResult(`❌ ${data.error || 'AI Generation failed'}`)
       }
     } catch (err: any) {
       console.error('❌ AI Generation test error:', err)
-      setResult(`❌ AI test error: ${err.message}`)
+      setResult(`❌ AI Generation test error: ${err.message}`)
     } finally {
       setIsLoading(false)
     }
@@ -91,7 +78,7 @@ HTML generated: ${data.html?.length || 0} characters`)
       </button>
       {result && (
         <div className="mt-2 p-2 rounded bg-gray-100">
-          <pre className="text-sm">{result}</pre>
+          <pre className="text-sm whitespace-pre-wrap">{result}</pre>
         </div>
       )}
     </div>

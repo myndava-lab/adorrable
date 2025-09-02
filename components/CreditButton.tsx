@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -34,10 +35,13 @@ export default function CreditButton() {
       }
 
       const response = await fetch('/api/credits', {
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
         }
       })
+      
       console.log('Credits API response status:', response.status)
 
       const data = await response.json()
@@ -46,7 +50,8 @@ export default function CreditButton() {
       if (response.ok) {
         setResult(`✅ Credits API working!
 Current credits: ${data.credits}
-Profile: ${JSON.stringify(data.profile, null, 2)}`)
+User ID: ${data.profile?.id || 'N/A'}
+Email: ${data.profile?.email || 'N/A'}`)
       } else {
         setResult(`❌ ${data.error || 'Credits API failed'}`)
       }
@@ -70,7 +75,7 @@ Profile: ${JSON.stringify(data.profile, null, 2)}`)
       </button>
       {result && (
         <div className="mt-2 p-2 rounded bg-gray-100">
-          <pre className="text-sm">{result}</pre>
+          <pre className="text-sm whitespace-pre-wrap">{result}</pre>
         </div>
       )}
     </div>
