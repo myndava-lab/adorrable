@@ -2,6 +2,7 @@
 import DatabaseTestButton from '@/components/DatabaseTestButton'
 import CreditButton from '@/components/CreditButton'
 import GenerateButton from '@/components/GenerateButton'
+import PricingTestButton from '@/components/PricingTestButton'
 
 export default function TestDatabasePage() {
   return (
@@ -9,10 +10,11 @@ export default function TestDatabasePage() {
       <div className="max-w-4xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-center mb-8">Database & API Testing</h1>
         
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
           <DatabaseTestButton />
           <CreditButton />
           <GenerateButton />
+          <PricingTestButton />
         </div>
 
         <div className="mt-8 p-6 bg-blue-50 rounded-lg">
