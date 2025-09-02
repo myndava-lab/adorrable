@@ -1,4 +1,3 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable optimizations for production
@@ -22,41 +21,31 @@ const nextConfig = {
       net: false,
       tls: false,
     };
-    
-    // Fix chunk loading timeouts and hydration issues
+
+    // Fix chunk loading issues
     if (!isServer) {
+      config.optimization = config.optimization || {};
       config.optimization.splitChunks = {
         chunks: 'all',
-        maxSize: 200000,
+        maxSize: 150000,
         cacheGroups: {
-          default: {
-            minChunks: 2,
-            priority: -20,
-            reuseExistingChunk: true,
-          },
+          default: false,
+          vendors: false,
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
-            priority: -10,
             chunks: 'all',
-            enforce: true,
-            maxSize: 200000,
-          },
-          framework: {
-            chunks: 'all',
-            name: 'framework',
-            test: /(?<!node_modules.*)[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-            priority: 40,
             enforce: true,
           },
         },
       };
-      
-      // Increase chunk load timeout and add retry logic
-      config.output.chunkLoadTimeout = 300000;
-      config.output.crossOriginLoading = 'anonymous';
+
+      // Increase timeout significantly
+      config.output = config.output || {};
+      config.output.chunkLoadTimeout = 600000; // 10 minutes
+      config.output.publicPath = '/_next/';
     }
-    
+
     return config;
   },
 };
