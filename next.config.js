@@ -1,14 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Basic config without complex optimizations
-  experimental: {
-    optimizePackageImports: ['lucide-react'],
-  },
+  // Minimal config for stability
+  reactStrictMode: false,
 
-  // Minimal webpack config
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
+    // Disable caching that's causing issues
+    config.cache = false;
+
+    // Simplify module resolution
     config.resolve.fallback = {
-      ...config.resolve.fallback,
       fs: false,
       net: false,
       tls: false,
@@ -17,3 +17,5 @@ const nextConfig = {
     return config;
   },
 };
+
+module.exports = nextConfig;
