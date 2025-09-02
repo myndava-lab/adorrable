@@ -1,4 +1,3 @@
-
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
@@ -36,25 +35,7 @@ export default function RootLayout({
           {children}
         </div>
         <DynamicCrispChat />
-        
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Prevent hydration timing issues
-              window.__NEXT_HYDRATION_CB = function() {
-                console.log('Hydration complete');
-              };
-              
-              // Force reload on chunk load error
-              window.addEventListener('error', function(e) {
-                if (e.message && e.message.includes('ChunkLoadError')) {
-                  console.log('Chunk load error detected, reloading...');
-                  setTimeout(() => window.location.reload(), 100);
-                }
-              });
-            `,
-          }}
-        />
+
       </body>
     </html>
   )
