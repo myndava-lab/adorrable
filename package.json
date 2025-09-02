@@ -12,6 +12,8 @@
     "@monaco-editor/react": "^4.6.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.56.1",
+    "framer-motion": "^12.23.12",
+    "lucide-react": "^0.542.0",
     "multer": "^1.4.5-lts.1",
     "next": "14.2.15",
     "next-intl": "^3.20.0",

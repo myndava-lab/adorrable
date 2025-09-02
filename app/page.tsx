@@ -1,798 +1,415 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
-import dynamic from "next/dynamic";
-import { supabase } from "@/lib/supabase";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  Star,
+  Sparkles,
+  Globe,
+  Languages,
+  Shield,
+  Zap,
+  CreditCard,
+  MessageSquare,
+} from "lucide-react";
 
-const CrispChat = dynamic(() => import("../components/CrispChat"), {
-  ssr: false,
-});
+/**
+ * Drop this file into /app/(marketing)/page.tsx or any route.
+ * Tailwind required. Framer Motion + lucide-react icons recommended.
+ * Design goals: glassy navbar, bold gradient hero, animated accents,
+ * language toggles, marquee logos, feature grid, community cards,
+ * premium pricing with Lifetime Co‑founder, CTA, elegant footer.
+ */
 
-type Language = "English" | "French" | "Swahili" | "Pidgin";
+const gradientText =
+  "bg-gradient-to-r from-[#60A5FA] via-[#A78BFA] to-[#34D399] bg-clip-text text-transparent";
 
-interface CommunityTemplate {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  author: string;
-  downloads: number;
-  rating: number;
-  tags: string[];
-  difficulty: string;
-  createdAt: string;
-  preview: string;
-  code: string;
+const cardClass =
+  "rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)]";
+
+const sectionClass = "mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+};
+
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
+
+const LANGS = ["English", "French", "Swahili", "Pidgin"] as const;
+
+function Logo({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-2 text-white/60">
+      <div className="h-6 w-6 rounded-md bg-white/10" />
+      <span className="text-sm font-medium">{label}</span>
+    </div>
+  );
 }
 
-export default function Home() {
-  const [prompt, setPrompt] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>("English");
-  const [generatedCode, setGeneratedCode] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [showCode, setShowCode] = useState(false);
-  const [showPricing, setShowPricing] = useState(false);
-  const [credits, setCredits] = useState<number>(4);
-  const [isLoadingCredits, setIsLoadingCredits] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<CommunityTemplate | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [isGeneratingTemplate, setIsGeneratingTemplate] = useState(false);
-  const [user, setUser] = useState(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
+function Feature({
+  icon: Icon,
+  title,
+  desc,
+}: {
+  icon: React.ElementType;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <motion.div variants={fadeUp} className={`${cardClass} p-6`}> 
+      <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/10">
+        <Icon className="h-5 w-5 text-white/80" />
+      </div>
+      <h3 className="text-lg font-semibold text-white mb-1">{title}</h3>
+      <p className="text-white/70 text-sm leading-relaxed">{desc}</p>
+    </motion.div>
+  );
+}
 
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  const languages: Language[] = ["English", "French", "Swahili", "Pidgin"];
-
-  // Community templates data
-  const communityTemplates: CommunityTemplate[] = [
-    {
-      id: "1",
-      title: "Modern Portfolio Website",
-      description: "A sleek, responsive portfolio website with smooth animations and modern design.",
-      category: "Portfolio",
-      author: "Sarah Chen",
-      downloads: 2640,
-      rating: 4.9,
-      tags: ["Portfolio", "Responsive", "Modern", "Animations"],
-      difficulty: "Intermediate",
-      createdAt: "2024-01-15",
-      preview: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop",
-      code: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Portfolio</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; }
-        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; padding: 100px 20px; }
-        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
-        .hero p { font-size: 1.2rem; opacity: 0.9; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 80px 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: transform 0.3s; }
-        .card:hover { transform: translateY(-10px); }
-    </style>
-</head>
-<body>
-    <div class="hero">
-        <h1>John Doe</h1>
-        <p>Full Stack Developer & Designer</p>
-    </div>
-    <div class="container">
-        <div class="grid">
-            <div class="card">
-                <h3>Web Development</h3>
-                <p>Creating modern, responsive websites with the latest technologies.</p>
-            </div>
-            <div class="card">
-                <h3>UI/UX Design</h3>
-                <p>Designing beautiful and intuitive user experiences.</p>
-            </div>
-            <div class="card">
-                <h3>Mobile Apps</h3>
-                <p>Building cross-platform mobile applications.</p>
-            </div>
+function CommunityCard({
+  title,
+  author,
+  rating,
+  image,
+}: {
+  title: string;
+  author: string;
+  rating: number;
+  image: string;
+}) {
+  return (
+    <motion.div variants={fadeUp} className={`${cardClass} overflow-hidden`}> 
+      <div className="relative">
+        <img src={image} alt={title} className="h-48 w-full object-cover" />
+        <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1">
+          <Star className="h-3.5 w-3.5 text-yellow-300" />
+          <span className="text-xs text-white/90">{rating.toFixed(1)}</span>
         </div>
-    </div>
-</body>
-</html>`
-    },
-    {
-      id: "2",
-      title: "E-commerce Product Page",
-      description: "A complete e-commerce product page with shopping cart functionality and payment integration.",
-      category: "E-commerce",
-      author: "Mike Rodriguez",
-      downloads: 1920,
-      rating: 4.7,
-      tags: ["E-commerce", "Shopping", "Payment", "Product"],
-      difficulty: "Advanced",
-      createdAt: "2024-01-10",
-      preview: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=250&fit=crop",
-      code: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Page</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; background: #f5f5f5; }
-        .product-container { max-width: 1200px; margin: 50px auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .product-grid { display: grid; grid-template-columns: 1fr 1fr; }
-        .product-image { background: url('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop') center/cover; height: 500px; }
-        .product-info { padding: 40px; }
-        .product-title { font-size: 2.5rem; margin-bottom: 15px; color: #333; }
-        .product-price { font-size: 2rem; color: #e74c3c; margin-bottom: 20px; }
-        .product-description { color: #666; margin-bottom: 30px; line-height: 1.8; }
-        .btn { background: #3498db; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; transition: background 0.3s; }
-        .btn:hover { background: #2980b9; }
-    </style>
-</head>
-<body>
-    <div class="product-container">
-        <div class="product-grid">
-            <div class="product-image"></div>
-            <div class="product-info">
-                <h1 class="product-title">Premium Headphones</h1>
-                <div class="product-price">$299.99</div>
-                <p class="product-description">Experience crystal-clear audio with our premium wireless headphones. Featuring active noise cancellation, 30-hour battery life, and premium materials.</p>
-                <button class="btn">Add to Cart</button>
-            </div>
+      </div>
+      <div className="p-5">
+        <h4 className="text-base font-semibold text-white">{title}</h4>
+        <p className="mt-1 text-xs text-white/60">by {author}</p>
+      </div>
+    </motion.div>
+  );
+}
+
+function PriceCard({
+  title,
+  price,
+  features,
+  highlight,
+  cta,
+}: {
+  title: string;
+  price: string;
+  features: string[];
+  highlight?: boolean;
+  cta: string;
+}) {
+  return (
+    <motion.div
+      variants={fadeUp}
+      className={`${cardClass} relative p-6 ${highlight ? "ring-2 ring-violet-400/60" : ""}`}
+    >
+      {highlight && (
+        <div className="absolute -top-3 right-4 rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 px-3 py-1 text-xs font-semibold text-white shadow-lg">
+          Lifetime Co‑founder
         </div>
-    </div>
-</body>
-</html>`
-    },
-    {
-      id: "3",
-      title: "Restaurant Landing Page",
-      description: "An elegant restaurant landing page with menu showcase and reservation system.",
-      category: "Restaurant",
-      author: "Emma Thompson",
-      downloads: 4156,
-      rating: 4.8,
-      tags: ["Restaurant", "Menu", "Reservation", "Food"],
-      difficulty: "Beginner",
-      createdAt: "2024-01-05",
-      preview: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=250&fit=crop",
-      code: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurant</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Georgia', serif; line-height: 1.6; }
-        .hero { background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&h=600&fit=crop') center/cover; height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; }
-        .hero-content { background: rgba(0,0,0,0.6); padding: 50px; border-radius: 15px; }
-        .hero h1 { font-size: 4rem; margin-bottom: 1rem; }
-        .hero p { font-size: 1.3rem; margin-bottom: 2rem; }
-        .btn { background: #d4af37; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; transition: background 0.3s; text-decoration: none; display: inline-block; }
-        .btn:hover { background: #b8941f; }
-        .section { padding: 80px 20px; max-width: 1200px; margin: 0 auto; }
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; }
-        .menu-item { background: #f8f8f8; padding: 30px; border-radius: 10px; text-align: center; }
-    </style>
-</head>
-<body>
-    <div class="hero">
-        <div class="hero-content">
-            <h1>Bella Vista</h1>
-            <p>Authentic Italian Cuisine in the Heart of the City</p>
-            <a href="#reservation" class="btn">Make Reservation</a>
-        </div>
-    </div>
-    <div class="section">
-        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 20px;">Our Specialties</h2>
-        <div class="menu-grid">
-            <div class="menu-item">
-                <h3>Pasta Carbonara</h3>
-                <p>Traditional Roman pasta with eggs, cheese, and pancetta</p>
-                <strong>$18</strong>
-            </div>
-            <div class="menu-item">
-                <h3>Margherita Pizza</h3>
-                <p>Fresh tomatoes, mozzarella, and basil on thin crust</p>
-                <strong>$16</strong>
-            </div>
-            <div class="menu-item">
-                <h3>Tiramisu</h3>
-                <p>Classic Italian dessert with coffee and mascarpone</p>
-                <strong>$8</strong>
-            </div>
-        </div>
-    </div>
-</body>
-</html>`
-    }
-  ];
+      )}
+      <h3 className="text-lg font-semibold text-white">{title}</h3>
+      <div className="mt-2 flex items-end gap-1">
+        <span className="text-3xl font-extrabold text-white">{price}</span>
+        {!highlight && <span className="mb-1 text-xs text-white/60">/mo</span>}
+      </div>
+      <ul className="mt-4 space-y-2 text-sm text-white/70">
+        {features.map((f) => (
+          <li key={f} className="flex items-start gap-2">
+            <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            {f}
+          </li>
+        ))}
+      </ul>
+      <button className="mt-6 w-full rounded-xl bg-white/90 px-4 py-2 text-sm font-semibold text-black transition hover:bg-white">
+        {cta}
+      </button>
+    </motion.div>
+  );
+}
 
-  // Load user session and credits
-  useEffect(() => {
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-    };
-    getSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => subscription?.unsubscribe();
-  }, []);
-
-  // Load credits
-  useEffect(() => {
-    const loadCredits = async () => {
-      setIsLoadingCredits(true);
-      try {
-        const response = await fetch('/api/credits');
-        if (response.ok) {
-          const data = await response.json();
-          setCredits(data.credits || 4);
-        }
-      } catch (error) {
-        console.error('Error loading credits:', error);
-      } finally {
-        setIsLoadingCredits(false);
-      }
-    };
-
-    loadCredits();
-  }, []);
-
-  // Handle clicks outside modal
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        setShowModal(false);
-        setSelectedTemplate(null);
-      }
-    };
-
-    if (showModal) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showModal]);
-
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return;
-
-    setIsGenerating(true);
-    setShowCode(false);
-
-    try {
-      const response = await fetch("/api/ai/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, language: selectedLanguage }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setGeneratedCode(data.code);
-        setShowCode(true);
-      } else {
-        console.error("Generation failed");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleTemplateClick = useCallback((template: CommunityTemplate) => {
-    setSelectedTemplate(template);
-    setShowModal(true);
-  }, []);
-
-  const handleUseTemplate = useCallback(async () => {
-    if (!selectedTemplate) return;
-
-    setIsGeneratingTemplate(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setGeneratedCode(selectedTemplate.code);
-      setShowCode(true);
-      setShowModal(false);
-      setSelectedTemplate(null);
-    } catch (error) {
-      console.error('Error using template:', error);
-    } finally {
-      setIsGeneratingTemplate(false);
-    }
-  }, [selectedTemplate]);
-
-  const downloadCode = () => {
-    const blob = new Blob([generatedCode], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'adorrable-generated-website.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const openInNewTab = () => {
-    const blob = new Blob([generatedCode], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-  };
+export default function AdorrableLanding() {
+  const [lang, setLang] = useState<(typeof LANGS)[number]>("English");
 
   return (
-    <div className="min-h-screen overflow-hidden relative">
-      {/* Background with gradient and noise texture */}
-      <div 
-        className="absolute inset-0"
-        style={{
-          background: `
-            radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.2) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 40% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-            linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #1e293b 75%, #0f172a 100%)
-          `,
-        }}
-      />
-
-      {/* Subtle grid overlay */}
-      <div 
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(148,163,184,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(148,163,184,0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: '24px 24px'
-        }}
-      />
-
-      {/* Navigation */}
-      <nav className="relative z-50 flex items-center justify-between px-6 lg:px-8 py-6 max-w-7xl mx-auto">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-sm">A</span>
+    <div className="min-h-screen bg-[#0B0F19] text-white">
+      {/* NAVBAR */}
+      <div className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0F19]/70 backdrop-blur-xl">
+        <div className={`${sectionClass} flex h-16 items-center justify-between`}>
+          <div className="flex items-center gap-3">
+            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-sky-400 to-violet-500" />
+            <span className="text-lg font-bold tracking-tight">
+              <span className="text-white">Ado</span>
+              <span className="text-white/80">rrable</span>
+            </span>
           </div>
-          <span className="text-white text-xl font-semibold tracking-tight">Adorrable</span>
-        </div>
-
-        <div className="hidden md:flex items-center space-x-8 text-gray-300">
-          <a href="#features" className="hover:text-white transition-colors duration-300 font-medium text-sm">Features</a>
-          <a href="#templates" className="hover:text-white transition-colors duration-300 font-medium text-sm">Templates</a>
-          <a href="#pricing" className="hover:text-white transition-colors duration-300 font-medium text-sm">Pricing</a>
-          <a href="#docs" className="hover:text-white transition-colors duration-300 font-medium text-sm">Docs</a>
-        </div>
-
-        <button className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm">
-          Sign In
-        </button>
-      </nav>
-
-      {/* Hero Section */}
-      <div className="relative z-10 pt-8 pb-24 px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          {/* Main Heading */}
-          <div className="mb-8">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-                Build something with
-              </span>
-              <br />
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Adorrable
-              </span>
-            </h1>
-          </div>
-
-          <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed mb-12 opacity-90">
-            Create apps and culturally intelligent websites by chatting with AI
-          </p>
-
-          {/* Main Input Card */}
-          <div className="max-w-4xl mx-auto">
-            <div 
-              className="relative border border-slate-700/50 rounded-3xl p-8 shadow-2xl backdrop-blur-xl"
-              style={{
-                background: 'rgba(30, 41, 59, 0.4)',
-                backdropFilter: 'blur(20px)',
-              }}
-            >
-              {/* Input Field */}
-              <div className="mb-6">
-                <input
-                  type="text"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Ask Adorrable to create a business website..."
-                  className="w-full bg-slate-800/60 border border-slate-600/50 rounded-2xl px-6 py-5 text-white placeholder-gray-400 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
-                  onKeyPress={(e) => e.key === "Enter" && handleGenerate()}
-                />
-              </div>
-
-              {/* Enhanced Prompt Suggestion */}
-              <div className="mb-6 p-4 bg-slate-800/40 border border-slate-600/30 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm">Try this:</span>
-                  <button 
-                    onClick={() => setPrompt("Design a tech startup homepage with testimonials and pricing...")}
-                    className="text-blue-400 hover:text-blue-300 text-sm transition-colors duration-200"
-                  >
-                    Use
-                  </button>
-                </div>
-                <p className="text-gray-300 text-sm mt-2 italic">
-                  "Design a tech startup homepage with testimonials and pricing..."
-                </p>
-              </div>
-
-              {/* Language Selection and Generate Button */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center flex-wrap gap-2">
-                  <div className="flex items-center space-x-2 mr-4">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                    </svg>
-                    <span className="text-gray-400 text-sm font-medium">Language:</span>
-                  </div>
-                  {languages.map((lang) => (
-                    <button
-                      key={lang}
-                      onClick={() => setSelectedLanguage(lang)}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
-                        selectedLanguage === lang
-                          ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg transform scale-105'
-                          : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50 hover:text-white border border-slate-600/30 hover:border-slate-500/50'
-                      }`}
-                    >
-                      {lang}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim()}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:transform-none disabled:cursor-not-allowed flex items-center space-x-2 min-w-[140px] justify-center"
-                >
-                  {isGenerating ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>Generating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Generate</span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Credits Section */}
-          <div className="mt-8 flex justify-center">
-            <div className="bg-slate-800/30 backdrop-blur-xl border border-slate-700/40 rounded-2xl px-6 py-3 flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-gray-300 text-sm">
-                  {isLoadingCredits ? "Loading..." : `${credits} credits remaining`}
-                </span>
-              </div>
-              <button
-                onClick={() => setShowPricing(true)}
-                className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors duration-200 underline underline-offset-2"
-              >
-                Get More
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Generated Code Display */}
-        {showCode && generatedCode && (
-          <div className="max-w-6xl mx-auto mt-16">
-            <div className="bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                <h3 className="text-2xl font-semibold text-white flex items-center space-x-3">
-                  <div className="w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span>Generated Website</span>
-                </h3>
-                <div className="flex space-x-3">
-                  <button
-                    onClick={openInNewTab}
-                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    <span>Preview</span>
-                  </button>
-                  <button
-                    onClick={downloadCode}
-                    className="bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 hover:text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-300 border border-slate-600/50 hover:border-slate-500/50 flex items-center space-x-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span>Download</span>
-                  </button>
-                </div>
-              </div>
-              <div className="bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 overflow-hidden">
-                <pre className="text-gray-300 text-sm overflow-auto max-h-96 leading-relaxed whitespace-pre-wrap">
-                  {generatedCode}
-                </pre>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Community Templates Section */}
-        <div id="templates" className="mt-32">
-          <div className="flex items-center justify-between mb-12 max-w-7xl mx-auto">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">From the Community</h2>
-              <p className="text-lg text-gray-300 max-w-2xl">
-                Discover professionally crafted templates built by our community
-              </p>
-            </div>
-            <div className="text-gray-400 text-sm">
-              {communityTemplates.length} templates
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-            {communityTemplates.map((template) => (
-              <div
-                key={template.id}
-                onClick={() => handleTemplateClick(template)}
-                className="group relative bg-slate-800/40 backdrop-blur-xl border border-slate-700/40 rounded-3xl overflow-hidden cursor-pointer transition-all duration-500 hover:transform hover:scale-[1.02] hover:shadow-2xl hover:border-slate-600/60 hover:bg-slate-800/60"
-              >
-                {/* Template Preview Image */}
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={template.preview}
-                    alt={template.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent"></div>
-
-                  {/* Category Badge */}
-                  <div className="absolute top-4 left-4">
-                    <span className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm ${
-                      template.category === "Portfolio" ? "bg-blue-500/80 text-white" :
-                      template.category === "E-commerce" ? "bg-green-500/80 text-white" :
-                      "bg-purple-500/80 text-white"
-                    }`}>
-                      {template.category}
-                    </span>
-                  </div>
-
-                  {/* Quick Stats */}
-                  <div className="absolute bottom-4 right-4 flex items-center space-x-3 text-white text-xs">
-                    <div className="flex items-center space-x-1 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-lg">
-                      <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <span>{template.rating}</span>
-                    </div>
-                    <div className="flex items-center space-x-1 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-lg">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span>{template.downloads.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Template Content */}
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors duration-300 leading-tight">
-                      {template.title}
-                    </h3>
-                    <span className="bg-slate-700/50 text-gray-300 px-2 py-1 rounded-lg text-xs font-medium ml-2 whitespace-nowrap">
-                      {template.difficulty}
-                    </span>
-                  </div>
-                  <p className="text-gray-400 text-sm leading-relaxed mb-4 line-clamp-2">
-                    {template.description}
-                  </p>
-
-                  {/* Author and Stats */}
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      <span>by {template.author}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
-                      <span>{new Date(template.createdAt).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <nav className="hidden items-center gap-8 md:flex">
+            <a className="text-sm text-white/80 hover:text-white" href="#features">Features</a>
+            <a className="text-sm text-white/80 hover:text-white" href="#templates">Templates</a>
+            <a className="text-sm text-white/80 hover:text-white" href="#pricing">Pricing</a>
+            <a className="text-sm text-white/80 hover:text-white" href="#docs">Docs</a>
+          </nav>
+          <div className="flex items-center gap-3">
+            <button className="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-white/90 hover:bg-white/10">
+              Sign In
+            </button>
+            <button className="rounded-xl bg-gradient-to-r from-indigo-500 to-emerald-400 px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20">
+              Get Started
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Community Template Modal */}
-      {showModal && selectedTemplate && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div
-            ref={modalRef}
-            className="bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 max-w-5xl w-full max-h-[90vh] overflow-auto shadow-2xl"
-          >
-            <div className="flex justify-between items-start mb-8">
-              <div className="flex-1">
-                <div className="flex items-center space-x-3 mb-4">
-                  <h2 className="text-3xl font-bold text-white">{selectedTemplate.title}</h2>
-                  <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
-                    {selectedTemplate.category}
-                  </span>
-                </div>
-                <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-                  {selectedTemplate.description}
-                </p>
-                <div className="flex items-center space-x-6 text-sm text-gray-400">
-                  <span className="flex items-center space-x-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    <span>by {selectedTemplate.author}</span>
-                  </span>
-                  <span className="flex items-center space-x-2">
-                    <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span>{selectedTemplate.rating} rating</span>
-                  </span>
-                  <span className="flex items-center space-x-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span>{selectedTemplate.downloads.toLocaleString()} downloads</span>
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setSelectedTemplate(null);
-                }}
-                className="text-gray-400 hover:text-white transition-colors duration-200 ml-4 p-2 hover:bg-slate-700/50 rounded-lg"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+      {/* HERO */}
+      <section className={`${sectionClass} relative pt-16 pb-20`}> 
+        {/* soft animated glow */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.8 }}
+          transition={{ duration: 1.2 }}
+          className="pointer-events-none absolute inset-0 -z-10"
+        >
+          <div className="absolute left-1/2 top-10 h-80 w-80 -translate-x-1/2 rounded-full bg-emerald-500/20 blur-3xl" />
+          <div className="absolute right-10 top-24 h-64 w-64 rounded-full bg-violet-500/20 blur-3xl" />
+        </motion.div>
 
-            {/* Code Preview */}
-            <div className="bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 mb-8">
-              <h3 className="text-white text-lg font-semibold mb-4 flex items-center space-x-2">
-                <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                </svg>
-                <span>Code Preview</span>
-              </h3>
-              <pre className="text-gray-300 text-sm overflow-auto max-h-64 leading-relaxed bg-slate-800/50 p-4 rounded-xl">
-                {selectedTemplate.code.substring(0, 800)}...
-              </pre>
-            </div>
+        <motion.div variants={fadeUp} initial="hidden" animate="show" className="mx-auto max-w-3xl text-center">
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+            <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
+            AI website builder • Culture‑intelligent
+          </p>
+          <h1 className={`text-4xl font-extrabold tracking-tight sm:text-6xl ${gradientText}`}>
+            Build something with Adorrable
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-balance text-white/70">
+            Create stunning, culturally‑intelligent websites by simply chatting with AI. Local tone, local payments, global quality.
+          </p>
+        </motion.div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
-              <button
-                onClick={() => {
-                  const blob = new Blob([selectedTemplate.code], { type: 'text/html' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `${selectedTemplate.title.toLowerCase().replace(/\s+/g, '-')}.html`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
-                }}
-                className="bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 hover:text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 border border-slate-600/50 hover:border-slate-500/50 flex items-center justify-center space-x-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span>Download</span>
-              </button>
-              <button
-                onClick={handleUseTemplate}
-                disabled={isGeneratingTemplate}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:transform-none disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-              >
-                {isGeneratingTemplate ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span>Processing...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    <span>Use Template</span>
-                  </>
-                )}
-              </button>
+        {/* Prompt box */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+          className={`mt-10 ${cardClass} mx-auto max-w-3xl p-4`}
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex grow items-center gap-3 rounded-xl bg-black/40 px-4 py-3">
+              <MessageSquare className="h-5 w-5 text-white/60" />
+              <input
+                className="w-full bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none"
+                placeholder="Design a Lagos restaurant homepage with WhatsApp CTA & Paystack checkout…"
+              />
             </div>
+            <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/90 px-4 py-3 text-sm font-semibold text-black transition hover:bg-white">
+              Generate <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {LANGS.map((l) => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className={`rounded-full px-3 py-1 text-xs ${
+                  lang === l
+                    ? "bg-white text-black"
+                    : "border border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+            <span className="ml-auto flex items-center gap-2 text-xs text-white/60">
+              <Languages className="h-4 w-4" /> {lang}
+            </span>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* LOGOS */}
+      <section className={`${sectionClass} pb-10`}>
+        <div className="grid grid-cols-2 gap-6 opacity-80 sm:grid-cols-3 md:grid-cols-6">
+          {["Nova", "Orbit", "Nimbus", "Vertex", "Prism", "Atlas"].map((l) => (
+            <Logo key={l} label={l} />
+          ))}
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section id="features" className={`${sectionClass} py-16`}>
+        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
+          <div className="mx-auto mb-10 max-w-3xl text-center">
+            <h2 className={`text-3xl font-bold ${gradientText}`}>Built for global conversion</h2>
+            <p className="mt-3 text-white/70">
+              Culture‑aware templates, right payment rails, performance best‑practices. No guesswork.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <Feature
+              icon={Globe}
+              title="Cultural Templates"
+              desc="Localized color, typography, and copy for each region. Nigeria, Kenya, India, US, EU & more."
+            />
+            <Feature
+              icon={Sparkles}
+              title="Chat‑to‑Build"
+              desc="Describe your business; get a full site with sections, imagery, SEO and legal pages."
+            />
+            <Feature
+              icon={CreditCard}
+              title="Right Payments"
+              desc="Paystack, M‑Pesa, UPI, Stripe. Auto‑matched per region. Switch anytime."
+            />
+            <Feature
+              icon={Zap}
+              title="Blazing Performance"
+              desc="Next.js 14 + edge caching. Lighthouse‑friendly with smooth motion."
+            />
+          </div>
+        </motion.div>
+      </section>
+
+      {/* COMMUNITY TEMPLATES */}
+      <section id="templates" className={`${sectionClass} py-16`}>
+        <div className="mx-auto mb-8 max-w-3xl text-center">
+          <h2 className={`text-3xl font-bold ${gradientText}`}>From the community</h2>
+          <p className="mt-3 text-white/70">Real templates created with Adorrable. Remix in one click.</p>
+        </div>
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          variants={stagger}
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+        >
+          <CommunityCard
+            title="Modern Portfolio Website"
+            author="Sarah Chen"
+            rating={4.9}
+            image="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop"
+          />
+          <CommunityCard
+            title="E‑commerce Product Page"
+            author="Mike Rodriguez"
+            rating={4.7}
+            image="https://images.unsplash.com/photo-1516387938699-a93567ec168e?q=80&w=1200&auto=format&fit=crop"
+          />
+          <CommunityCard
+            title="Restaurant Landing Page"
+            author="Emma Thompson"
+            rating={4.8}
+            image="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1200&auto=format&fit=crop"
+          />
+        </motion.div>
+      </section>
+
+      {/* PRICING */}
+      <section id="pricing" className={`${sectionClass} py-16`}>
+        <div className="mx-auto mb-10 max-w-3xl text-center">
+          <h2 className={`text-3xl font-bold ${gradientText}`}>Simple, flexible pricing</h2>
+          <p className="mt-3 text-white/70">Start free. Upgrade when you need unlimited culture packs.</p>
+        </div>
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          variants={stagger}
+          className="grid gap-6 md:grid-cols-3"
+        >
+          <PriceCard
+            title="Starter"
+            price="$9"
+            features={[
+              "4 cultural templates / month",
+              "Basic AI generations",
+              "Email support",
+            ]}
+            cta="Choose Starter"
+          />
+          <PriceCard
+            title="Growth"
+            price="$29"
+            features={["Unlimited templates", "Advanced AI", "Priority support"]}
+            cta="Choose Growth"
+          />
+          <PriceCard
+            title="Lifetime"
+            price="$399"
+            features={["All future culture packs", "Unlimited AI", "VIP community access"]}
+            highlight
+            cta="Become Co‑founder"
+          />
+        </motion.div>
+      </section>
+
+      {/* CTA STRIP */}
+      <section className="relative overflow-hidden py-16">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-indigo-600/20 via-fuchsia-500/20 to-emerald-400/20" />
+        <div className={`${sectionClass} ${cardClass} flex flex-col items-center gap-4 py-10 text-center`}> 
+          <h3 className="text-2xl font-bold">Ready to build globally‑loved sites?</h3>
+          <p className="max-w-2xl text-white/80">
+            Join creators shipping culture‑aware websites that convert better in every market.
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <button className="rounded-xl bg-white px-5 py-2 text-sm font-semibold text-black">Start Free</button>
+            <button className="rounded-xl border border-white/20 bg-white/10 px-5 py-2 text-sm text-white/90 hover:bg-white/15">View Templates</button>
           </div>
         </div>
-      )}
+      </section>
 
-      {/* Pricing Modal */}
-      {showPricing && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 max-w-md w-full shadow-2xl">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-bold text-white">Get More Credits</h2>
-              <button
-                onClick={() => setShowPricing(false)}
-                className="text-gray-400 hover:text-white transition-colors duration-200 p-2 hover:bg-slate-700/50 rounded-lg"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+      {/* FOOTER */}
+      <footer className="border-t border-white/10 py-10">
+        <div className={`${sectionClass} grid gap-8 md:grid-cols-4`}>
+          <div>
+            <div className="mb-3 flex items-center gap-2">
+              <div className="h-6 w-6 rounded-md bg-gradient-to-br from-sky-400 to-violet-500" />
+              <span className="font-semibold">Adorrable.dev</span>
             </div>
-
-            <div className="bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/50 rounded-2xl p-6 mb-6">
-              <div className="text-center">
-                <h3 className="text-xl font-semibold text-white mb-2">Starter Pack</h3>
-                <p className="text-gray-400 text-sm mb-6">Perfect for trying out our AI generator</p>
-
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-white">$5</span>
-                  <span className="text-gray-400 ml-2">for 50 credits</span>
-                </div>
-
-                <button
-                  onClick={() => {
-                    window.location.href = '/payments/local';
-                  }}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                >
-                  Purchase Credits
-                </button>
-              </div>
-            </div>
-
-            <div className="text-center text-xs text-gray-500">
-              <p>Secure payment • Instant delivery • No subscription</p>
-            </div>
+            <p className="text-sm text-white/60">Culturally‑intelligent AI website builder.</p>
+          </div>
+          <div>
+            <h4 className="mb-3 text-sm font-semibold text-white/90">Product</h4>
+            <ul className="space-y-2 text-sm text-white/60">
+              <li><a href="#features">Features</a></li>
+              <li><a href="#templates">Templates</a></li>
+              <li><a href="#pricing">Pricing</a></li>
+              <li><a href="#docs">Docs</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-3 text-sm font-semibold text-white/90">Payments</h4>
+            <ul className="space-y-2 text-sm text-white/60">
+              <li className="flex items-center gap-2"><CreditCard className="h-4 w-4" /> Stripe</li>
+              <li className="flex items-center gap-2"><CreditCard className="h-4 w-4" /> Paystack</li>
+              <li className="flex items-center gap-2"><CreditCard className="h-4 w-4" /> Flutterwave</li>
+              <li className="flex items-center gap-2"><CreditCard className="h-4 w-4" /> CoinGate</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-3 text-sm font-semibold text-white/90">Compliance</h4>
+            <ul className="space-y-2 text-sm text-white/60">
+              <li className="flex items-center gap-2"><Shield className="h-4 w-4" /> GDPR / NDPR ready</li>
+              <li className="flex items-center gap-2"><Shield className="h-4 w-4" /> Data residency aware</li>
+            </ul>
           </div>
         </div>
-      )}
-
-      <CrispChat />
+        <div className="mt-8 text-center text-xs text-white/50">
+          © {new Date().getFullYear()} Adorrable.dev — Myndava AI Systems LLC. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 }
