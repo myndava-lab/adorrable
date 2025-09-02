@@ -347,7 +347,7 @@ export async function testDatabaseConnection(): Promise<boolean> {
 
     const { data, error } = await supabaseAdmin
       .from('profiles')
-      .select('count(*)')
+      .select('id')
       .limit(1)
 
     if (error) {
