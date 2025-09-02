@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState } from 'react'
@@ -13,19 +12,19 @@ export default function DatabaseTestButton() {
     setResult(null)
 
     try {
-      // Test basic connection
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('count(*)')
-        .limit(1)
+      const response = await fetch('/api/health')
 
-      if (error) {
-        setResult(`❌ Database connection failed: ${error.message}`)
+      if (response.ok) {
+        const data = await response.json()
+        setResult(`✅ Database connected successfully!
+Status: ${data.status}
+Time: ${data.timestamp}`)
       } else {
-        setResult('✅ Database connection successful!')
+        const error = await response.text()
+        setResult(`❌ Database connection failed: ${error}`)
       }
     } catch (err: any) {
-      setResult(`❌ Connection error: ${err.message}`)
+      setResult(`❌ Database connection failed: ${err.message}`)
     } finally {
       setIsLoading(false)
     }

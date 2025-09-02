@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState } from 'react'
@@ -13,36 +12,38 @@ export default function GenerateButton() {
     setResult(null)
 
     try {
-      // Check if user is authenticated
       const { data: { session }, error: authError } = await supabase.auth.getSession()
-      
+
       if (authError || !session?.user) {
-        setResult('❌ User not authenticated')
+        setResult(`❌ User not authenticated. Please sign in first.
+Go to the main page and click "Sign in with Google"`)
         return
       }
 
-      // Test AI generation API
       const response = await fetch('/api/ai/generate', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
-          prompt: 'Test website generation',
+          prompt: 'Test website for a modern bakery in Lagos',
           language: 'English'
         })
       })
 
       if (response.ok) {
         const data = await response.json()
-        setResult('✅ AI Generation API working!')
+        setResult(`✅ AI Generation working!
+Success: ${data.success}
+Credits used: ${data.creditsUsed}
+HTML generated: ${data.html?.length || 0} characters`)
       } else {
         const error = await response.text()
         setResult(`❌ AI Generation failed: ${error}`)
       }
     } catch (err: any) {
-      setResult(`❌ Generation test error: ${err.message}`)
+      setResult(`❌ AI test error: ${err.message}`)
     } finally {
       setIsLoading(false)
     }

@@ -17,7 +17,8 @@ export default function PricingTestButton() {
       const { data: { session }, error: authError } = await supabase.auth.getSession()
       
       if (authError || !session?.user) {
-        setResult('❌ User not authenticated')
+        setResult(`❌ User not authenticated. Please sign in first.
+Go to the main page and click "Sign in with Google"`)
         return
       }
 

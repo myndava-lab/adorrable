@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState } from 'react'
@@ -13,15 +12,14 @@ export default function CreditButton() {
     setResult(null)
 
     try {
-      // Check if user is authenticated
       const { data: { session }, error: authError } = await supabase.auth.getSession()
-      
+
       if (authError || !session?.user) {
-        setResult('❌ User not authenticated')
+        setResult(`❌ User not authenticated. Please sign in first.
+Go to the main page and click "Sign in with Google"`)
         return
       }
 
-      // Test credits API
       const response = await fetch('/api/credits', {
         headers: {
           'Authorization': `Bearer ${session.access_token}`
@@ -30,7 +28,10 @@ export default function CreditButton() {
 
       if (response.ok) {
         const data = await response.json()
-        setResult(`✅ Credits API working! Credits: ${data.profile?.credits || 0}`)
+        setResult(`✅ Credits API working!
+User: ${data.profile.email}
+Credits: ${data.profile.credits}
+ID: ${data.profile.id}`)
       } else {
         const error = await response.text()
         setResult(`❌ Credits API failed: ${error}`)
