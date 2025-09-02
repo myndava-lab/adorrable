@@ -1,241 +1,87 @@
-import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+
+import { NextRequest, NextResponse } from 'next/server'
+import { createServerSupabaseClient } from '@/lib/supabaseServer'
+import { getUserProfile, deductCredits } from '@/lib/supabaseServer'
+import OpenAI from 'openai'
 
 const openai = new OpenAI({
- apiKey: process.env.OPENAI_API_KEY,
-});
+  apiKey: process.env.OPENAI_API_KEY,
+})
 
-// Cultural intelligence configurations
-const getCulturalConfig = (language: string, region?: string) => {
-  // Auto-detect region from language if not provided
-  const detectRegion = (lang: string) => {
-    if (lang === "French") return "EU";
-    if (lang === "Swahili" || lang === "Pidgin") return "Africa";
-    return "Global";
-  };
-
-  const currentRegion = region || detectRegion(language);
-
-  const configs = {
-    English: {
-      contentStyle: "professional and modern",
-      culturalNotes: "Include African cultural elements and vibrant colors",
-      region: "Africa"
-    },
-    French: {
-      contentStyle: "élégant et sophistiqué",
-      culturalNotes: "Incorporate Francophone African aesthetics and cultural references",
-      region: "Africa"
-    },
-    Swahili: {
-      contentStyle: "jamii na utamaduni",
-      culturalNotes: "Include East African cultural elements and community-focused design",
-      region: "Africa"
-    },
-    Pidgin: {
-      contentStyle: "friendly and relatable",
-      culturalNotes: "Use Nigerian cultural references and vibrant West African aesthetics",
-      region: "Africa"
-    },
-  };
-
-  // Regional overrides for cultural intelligence
-  const regionalConfig = {
-    Africa: {
-      paymentMethods: "WhatsApp CTA, Paystack, NDPR compliance",
-      designElements: "Vibrant colors, cultural patterns, community-focused",
-      businessStyle: "Relationship-driven, storytelling approach"
-    },
-    EU: {
-      paymentMethods: "GDPR badges, cookie banner, SEPA payments",
-      designElements: "Clean minimalism, accessibility focus, privacy-first",
-      businessStyle: "Compliance-focused, trust indicators, data protection"
-    },
-    US: {
-      paymentMethods: "ROI proof, Apple/Google Pay, conversion optimization",
-      designElements: "Bold CTAs, social proof, performance metrics",
-      businessStyle: "Results-driven, testimonials, growth-focused"
-    },
-    Asia: {
-      paymentMethods: "QR codes, Alipay/WeChat integration, mobile-first",
-      designElements: "Mobile optimization, social commerce, chat features",
-      businessStyle: "Social integration, mobile experience, community features"
-    }
-  };
-
-  const baseConfig = configs[language] || configs.English;
-  const regional = regionalConfig[currentRegion] || regionalConfig.Africa;
-
-  return {
-    ...baseConfig,
-    ...regional,
-    detectedRegion: currentRegion
-  };
-};
-
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const authHeader = req.headers.get('authorization')
-    if (!authHeader) {
+    const response = NextResponse.next()
+    const supabase = createServerSupabaseClient(request, response)
+    
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user from token
-    const { createClient } = await import('@supabase/supabase-js')
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-
-    const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    const profile = await getUserProfile(user.id)
+    
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
 
-    const { prompt, language = "English", images = [] } = await req.json();
-
-    if (!prompt || prompt.trim().length === 0) {
-      return NextResponse.json(
-        { error: "Prompt is required" },
-        { status: 400 },
-      );
+    if (profile.credits < 1) {
+      return NextResponse.json({ error: 'Insufficient credits' }, { status: 400 })
     }
 
-    // Check and deduct credits
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('credits')
-      .eq('id', user.id)
-      .single()
+    const body = await request.json()
+    const { prompt, language = 'English' } = body
 
-    if (!profile || profile.credits < 1) {
-      return NextResponse.json(
-        { error: "Insufficient credits" },
-        { status: 400 },
-      );
+    if (!prompt) {
+      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 })
     }
 
-    // Enhanced cultural intelligence
-    const culturalConfig = getCulturalConfig(language,
-      prompt.toLowerCase().includes('europe') || prompt.toLowerCase().includes('eu') ? 'EU' :
-      prompt.toLowerCase().includes('america') || prompt.toLowerCase().includes('usa') || prompt.toLowerCase().includes('us ') ? 'US' :
-      prompt.toLowerCase().includes('asia') || prompt.toLowerCase().includes('china') || prompt.toLowerCase().includes('japan') || prompt.toLowerCase().includes('korea') ? 'Asia' :
-      undefined
-    );
+    // Check if OpenAI API key is configured
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 })
+    }
 
-    const fullPrompt = `Create a beautiful, modern website template with cultural intelligence for the ${culturalConfig.detectedRegion} market:
-
-${prompt}
-
-User Request: ${prompt}
-Language: ${language}
-Target Region: ${culturalConfig.detectedRegion}
-Attached Images: ${images.length > 0 ? `${images.length} images provided` : "No images"}
-
-Requirements:
-1. Create a complete, modern website template
-2. Include HTML structure, CSS styling, and basic JavaScript
-3. Make it responsive and mobile-friendly
-4. Use ${culturalConfig.contentStyle} content in ${language}
-5. Include appropriate meta tags and SEO optimization
-6. Add modern design elements with gradients and animations
-7. Apply regional cultural intelligence:
-   - Payment Methods: ${culturalConfig.paymentMethods}
-   - Design Elements: ${culturalConfig.designElements}
-   - Business Style: ${culturalConfig.businessStyle}
-8. Cultural Notes: ${culturalConfig.culturalNotes}
-9. Include proper typography and spacing
-10. Ensure accessibility and modern web standards
-
-Regional Specific Features:
-${culturalConfig.detectedRegion === 'EU' ? '- GDPR compliance indicators\n- Cookie consent banner\n- Privacy policy links\n- Accessibility features' : ''}
-${culturalConfig.detectedRegion === 'US' ? '- ROI/conversion focus\n- Social proof sections\n- Performance metrics\n- Bold call-to-actions' : ''}
-${culturalConfig.detectedRegion === 'Asia' ? '- QR code integration\n- Mobile-first design\n- Social commerce features\n- Chat/messaging UI elements' : ''}
-${culturalConfig.detectedRegion === 'Africa' ? '- WhatsApp integration\n- Vibrant color schemes\n- Community-focused design\n- Local payment options' : ''}
-
-Generate a complete HTML file with embedded CSS and JavaScript that creates a beautiful, culturally-intelligent website.
-`;
-
+    // Generate website with OpenAI
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
-          content:
-            "You are an expert web developer specializing in creating beautiful, modern websites with cultural sensitivity for African markets. Always generate complete, working HTML files.",
+          content: `You are a professional web developer. Create a complete, modern, responsive HTML website based on the user's prompt. Include inline CSS and JavaScript. Make it visually appealing with modern design principles. Language: ${language}`
         },
         {
           role: "user",
-          content: fullPrompt,
-        },
+          content: `Create a website for: ${prompt}`
+        }
       ],
-      max_tokens: 4000,
+      max_tokens: 2000,
       temperature: 0.7,
-    });
+    })
 
-    const generatedCode = completion.choices[0].message.content;
+    const generatedHTML = completion.choices[0]?.message?.content || '<html><body><h1>Generation failed</h1></body></html>'
 
-    // Deduct credits after successful generation
-    await supabase
-      .from('profiles')
-      .update({ credits: profile.credits - 1 })
-      .eq('id', user.id)
+    // Deduct credits
+    const creditResult = await deductCredits(user.id, 1, 'AI website generation', {
+      prompt,
+      language,
+      model: 'gpt-3.5-turbo'
+    })
 
-    // Log the credit usage
-    await supabase
-      .from('credit_logs')
-      .insert({
-        profile_id: user.id,
-        delta: -1,
-        reason: 'AI website generation',
-        meta: { prompt: prompt.substring(0, 100), language }
-      })
-
-    // Parse and structure the response
-    const template = {
-      id: Date.now(),
-      title: prompt,
-      language: language,
-      code: generatedCode,
-      html: generatedCode,
-      images: images,
-      createdAt: new Date().toISOString(),
-      metadata: {
-        model: "gpt-4",
-        tokens: completion.usage?.total_tokens || 0,
-        culturallyAdapted: language !== "English",
-      },
-    };
+    if (!creditResult.success) {
+      return NextResponse.json({ error: 'Failed to deduct credits' }, { status: 500 })
+    }
 
     return NextResponse.json({
       success: true,
-      template: template,
+      html: generatedHTML,
       creditsUsed: 1,
-      creditsRemaining: profile.credits - 1,
-      message: `Template generated successfully in ${language}`,
-    });
-  } catch (error: any) {
-    console.error("AI Generation Error:", error);
+      creditsRemaining: creditResult.newBalance || 0
+    })
 
-    if (error.code === "insufficient_quota") {
-      return NextResponse.json(
-        {
-          error: "AI service quota exceeded",
-          message: "Please try again later or upgrade your plan",
-        },
-        { status: 429 },
-      );
-    }
-
-    return NextResponse.json(
-      {
-        error: "Failed to generate template",
-        message: error.message,
-      },
-      { status: 500 },
-    );
+  } catch (error) {
+    console.error('AI generation error:', error)
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : 'AI generation failed' 
+    }, { status: 500 })
   }
 }
