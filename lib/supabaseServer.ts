@@ -1,7 +1,7 @@
-
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -18,7 +18,7 @@ if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
 }
 
 // Service role client for server-side operations
-export const supabaseAdmin = supabaseUrl && supabaseServiceKey 
+export const supabaseAdmin = supabaseUrl && supabaseServiceKey
   ? createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
@@ -32,7 +32,7 @@ declare global {
   var __supabaseServer: ReturnType<typeof createClient> | undefined
 }
 
-export const supabase = supabaseUrl && supabaseAnonKey 
+export const supabase = supabaseUrl && supabaseAnonKey
   ? (globalThis.__supabaseServer ?? createClient(supabaseUrl, supabaseAnonKey))
   : null
 
@@ -45,6 +45,7 @@ export function createServerSupabaseClient(
   request: NextRequest,
   response: NextResponse
 ) {
+  // @ts-ignore
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       get(name: string) {
@@ -101,7 +102,6 @@ export interface CreditLog {
   profile_id: string
   delta: number
   reason: string
-  balance_after: number
   meta: Record<string, any>
   created_at: string
 }
@@ -157,7 +157,7 @@ export async function getUserProfile(userId: string): Promise<Profile | null> {
 export async function createUserProfile(userId: string, email: string, displayName?: string): Promise<{ success: boolean; profile?: Profile; error?: string }> {
   console.log('🔍 createUserProfile called with:', { userId, email, displayName })
   console.log('🔍 supabaseAdmin client exists:', !!supabaseAdmin)
-  
+
   try {
     if (!supabaseAdmin) {
       console.error('❌ supabaseAdmin client not initialized')

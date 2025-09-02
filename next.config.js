@@ -2,7 +2,13 @@ const path = require('path');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  
+  images: {
+    domains: ['abckmjcxrlgikepbqucz.supabase.co']
+  },
+  webpack: (config) => {
+    config.cache = false; // stop PackFileCacheStrategy .pack.gz writes
+    return config;
+  },
 
   // Optimize compiler settings
   compiler: {

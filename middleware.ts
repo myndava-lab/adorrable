@@ -1,76 +1,47 @@
+import { NextResponse, NextRequest } from "next/server";
 
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+/**
+ * Keep middleware ultra-light. Do NOT import Supabase here.
+ * We only gate non-public routes by checking Supabase auth cookies.
+ */
+const PUBLIC_PATHS = new Set<string>([
+  "/", "/favicon.ico", "/logo.png",
+  "/robots.txt", "/sitemap.xml",
+]);
 
-export async function middleware(req: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: req.headers,
-    },
-  })
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return req.cookies.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          req.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: req.headers,
-            },
-          })
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-        },
-        remove(name: string, options: CookieOptions) {
-          req.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: req.headers,
-            },
-          })
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
-        },
-      },
-    }
-  )
+  // Allow Next internals and static assets
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api/public") ||
+    pathname.match(/\\.(?:png|jpg|jpeg|svg|gif|ico|txt|xml|webp|woff2?)$/)
+  ) {
+    return NextResponse.next();
+  }
 
-  // Refresh session if expired - required for Server Components
-  await supabase.auth.getUser()
+  // Public pages
+  if (PUBLIC_PATHS.has(pathname)) return NextResponse.next();
 
-  return response
+  // Minimal auth check via cookies set by Supabase
+  const hasAccess = req.cookies.get("sb-access-token")?.value;
+  const hasRefresh = req.cookies.get("sb-refresh-token")?.value;
+
+  if (!hasAccess && !hasRefresh) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("redirectedFrom", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
 }
 
+/**
+ * Match everything except Next internals and static files.
+ * Adjust if you want to exempt more routes.
+ */
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
-}
+  matcher: ["/((?!_next|.*\\..*|api/public).*)"],
+};
