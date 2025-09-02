@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server'
-import { testDatabaseConnection, getUserProfile, grantCredits, deductCredits, createUserProfile } from '@/lib/supabaseServer'
+import { testDatabaseConnection, getUserProfile, grantCredits, deductCredits, createUserProfile, supabaseAdmin } from '@/lib/supabaseServer'
 import OpenAI from 'openai'
 
 export async function GET() {
