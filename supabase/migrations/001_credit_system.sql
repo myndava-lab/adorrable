@@ -26,22 +26,24 @@ CREATE TABLE IF NOT EXISTS credit_logs (
 
 -- Price configuration table
 CREATE TABLE IF NOT EXISTS price_config (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  tier TEXT NOT NULL UNIQUE CHECK (tier IN ('basic', 'pro', 'enterprise')),
-  credits INTEGER NOT NULL,
+  id BIGSERIAL PRIMARY KEY,
+  package_name TEXT NOT NULL UNIQUE,
+  credits INT NOT NULL,
   price_usd DECIMAL(10,2) NOT NULL,
-  price_ngn DECIMAL(10,2) NOT NULL,
-  is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  price_ngn DECIMAL(10,2),
+  popular BOOLEAN DEFAULT FALSE,
+  active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Insert default pricing
-INSERT INTO price_config (tier, credits, price_usd, price_ngn) VALUES
-  ('basic', 50, 9.99, 15000),
-  ('pro', 150, 24.99, 37500),
-  ('enterprise', 500, 79.99, 120000)
-ON CONFLICT (tier) DO NOTHING;
+INSERT INTO price_config (package_name, credits, price_usd, price_ngn) VALUES
+  ('Starter', 50, 9.99, 15000),
+  ('Creator', 200, 29.99, 45000),
+  ('Business', 500, 59.99, 90000),
+  ('Enterprise', 1000, 99.99, 150000)
+ON CONFLICT (package_name) DO NOTHING;
 
 -- Function to grant credits and log transaction
 CREATE OR REPLACE FUNCTION grant_credits_and_log(
