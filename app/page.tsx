@@ -1,4 +1,3 @@
-
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
@@ -346,7 +345,7 @@ export default function Home() {
           `,
         }}
       />
-      
+
       {/* Subtle grid overlay */}
       <div 
         className="absolute inset-0 opacity-20"
