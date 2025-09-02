@@ -1,21 +1,38 @@
-
 import DatabaseTestButton from '@/components/DatabaseTestButton'
 import CreditButton from '@/components/CreditButton'
 import GenerateButton from '@/components/GenerateButton'
 import PricingTestButton from '@/components/PricingTestButton'
+import PricingCard from '@/components/PricingCard' // Assuming PricingCard is in components/PricingCard
 
 export default function TestDatabasePage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-center mb-8">Database & API Testing</h1>
-        
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
           <DatabaseTestButton />
           <CreditButton />
           <GenerateButton />
           <PricingTestButton />
         </div>
+
+        <div className="mt-8 p-6 bg-blue-50 rounded-lg">
+          <h2 className="text-xl font-semibold mb-3">Testing Instructions</h2>
+          <ol className="list-decimal list-inside space-y-2 text-sm">
+            <li>First test database connection</li>
+            <li>Then test credits API</li>
+            <li>Test pricing flow with mock purchase</li>
+            <li>Finally test AI generation</li>
+            <li>Check browser console for detailed logs</li>
+          </ol>
+        </div>
+
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-center mb-6">Payment Integration Test</h2>
+          <PricingCard />
+        </div>
+
 
         <div className="mt-8 p-6 bg-blue-50 rounded-lg">
           <h2 className="text-xl font-semibold mb-4">Environment Status</h2>

@@ -42,51 +42,168 @@ export async function POST(req: NextRequest) {
 }
 
 async function verifyWebhookSignature(body: string, signature: string, userAgent: string): Promise<boolean> {
-  // This is a simplified verification - in production, implement proper signature verification
-  // for each payment provider
-  const secret = process.env.WEBHOOK_SECRET || 'default-secret'
-  const hash = crypto.createHmac('sha512', secret).update(body).digest('hex')
-  return hash === signature
+  try {
+    if (userAgent?.includes('Paystack')) {
+      // Paystack signature verification
+      const secret = process.env.PAYSTACK_SECRET_KEY!
+      const hash = crypto.createHmac('sha512', secret).update(body).digest('hex')
+      return hash === signature
+    } else if (userAgent?.includes('NOWPayments')) {
+      // NOWPayments signature verification
+      const secret = process.env.NOWPAYMENTS_API_KEY!
+      const hash = crypto.createHmac('sha512', secret).update(body).digest('hex')
+      return hash === signature
+    }
+    
+    return false
+  } catch (error) {
+    console.error('Signature verification error:', error)
+    return false
+  }
 }
 
 async function handlePaystackWebhook(payload: any) {
   if (payload.event === 'charge.success') {
     const { reference, amount, currency, customer, metadata } = payload.data
     
-    // Extract user info from metadata
-    const userId = metadata.user_id
-    const tier = metadata.tier
-    const credits = metadata.credits
+    try {
+      // Update transaction status
+      const { data: transaction, error: fetchError } = await supabaseServer
+        .from('payment_transactions')
+        .select('*')
+        .eq('provider_reference', reference)
+        .single()
 
-    // Grant credits to user
-    const { error } = await supabaseServer.rpc('grant_credits_and_log', {
-      p_user_id: userId,
-      p_amount: credits,
-      p_reason: `Payment successful - ${tier} package`,
-      p_transaction_id: reference,
-      p_metadata: {
-        provider: 'paystack',
-        amount: amount / 100, // Convert back from kobo
-        currency: currency
+      if (fetchError || !transaction) {
+        console.error('Transaction not found:', reference)
+        return NextResponse.json({ error: 'Transaction not found' }, { status: 404 })
       }
-    })
 
-    if (error) {
-      console.error('Failed to grant credits:', error)
-      return NextResponse.json({ error: 'Failed to process payment' }, { status: 500 })
+      // Update transaction to completed
+      const { error: updateError } = await supabaseServer
+        .from('payment_transactions')
+        .update({
+          status: 'completed',
+          provider_response: payload
+        })
+        .eq('id', transaction.id)
+
+      if (updateError) {
+        console.error('Failed to update transaction:', updateError)
+        return NextResponse.json({ error: 'Failed to update transaction' }, { status: 500 })
+      }
+
+      // Grant credits to user
+      const { error: creditError } = await supabaseServer
+        .from('credit_transactions')
+        .insert({
+          profile_id: transaction.profile_id,
+          amount: transaction.credits_granted,
+          type: 'purchase',
+          description: `Payment successful - ${transaction.package_name} package`,
+          reference_id: transaction.id,
+          metadata: {
+            provider: 'paystack',
+            amount: amount / 100,
+            currency: currency,
+            reference: reference
+          }
+        })
+
+      if (creditError) {
+        console.error('Failed to grant credits:', creditError)
+        return NextResponse.json({ error: 'Failed to process payment' }, { status: 500 })
+      }
+
+      // Update user profile credits
+      const { error: profileError } = await supabaseServer.rpc('increment_user_credits', {
+        user_id: transaction.profile_id,
+        credit_amount: transaction.credits_granted
+      })
+
+      if (profileError) {
+        console.error('Failed to update profile credits:', profileError)
+      }
+
+      return NextResponse.json({ status: 'success' })
+
+    } catch (error: any) {
+      console.error('Paystack webhook processing error:', error)
+      return NextResponse.json({ error: 'Processing failed' }, { status: 500 })
     }
-
-    return NextResponse.json({ status: 'success' })
   }
 
   return NextResponse.json({ status: 'ignored' })
 }
 
 async function handleCryptoWebhook(payload: any) {
-  if (payload.payment_status === 'confirmed') {
-    // Handle crypto payment confirmation
-    // Similar logic to Paystack but for crypto payments
-    return NextResponse.json({ status: 'success' })
+  if (payload.payment_status === 'confirmed' || payload.payment_status === 'finished') {
+    try {
+      // Find transaction by payment ID
+      const { data: transaction, error: fetchError } = await supabaseServer
+        .from('payment_transactions')
+        .select('*')
+        .eq('provider_reference', payload.payment_id.toString())
+        .single()
+
+      if (fetchError || !transaction) {
+        console.error('Crypto transaction not found:', payload.payment_id)
+        return NextResponse.json({ error: 'Transaction not found' }, { status: 404 })
+      }
+
+      // Update transaction status
+      const { error: updateError } = await supabaseServer
+        .from('payment_transactions')
+        .update({
+          status: 'completed',
+          provider_response: payload
+        })
+        .eq('id', transaction.id)
+
+      if (updateError) {
+        console.error('Failed to update crypto transaction:', updateError)
+        return NextResponse.json({ error: 'Failed to update transaction' }, { status: 500 })
+      }
+
+      // Grant credits to user
+      const { error: creditError } = await supabaseServer
+        .from('credit_transactions')
+        .insert({
+          profile_id: transaction.profile_id,
+          amount: transaction.credits_granted,
+          type: 'purchase',
+          description: `Crypto payment confirmed - ${transaction.package_name} package`,
+          reference_id: transaction.id,
+          metadata: {
+            provider: 'nowpayments',
+            payment_id: payload.payment_id,
+            crypto_amount: payload.pay_amount,
+            crypto_currency: payload.pay_currency,
+            hash: payload.outcome?.hash
+          }
+        })
+
+      if (creditError) {
+        console.error('Failed to grant crypto credits:', creditError)
+        return NextResponse.json({ error: 'Failed to process payment' }, { status: 500 })
+      }
+
+      // Update user profile credits
+      const { error: profileError } = await supabaseServer.rpc('increment_user_credits', {
+        user_id: transaction.profile_id,
+        credit_amount: transaction.credits_granted
+      })
+
+      if (profileError) {
+        console.error('Failed to update profile credits:', profileError)
+      }
+
+      return NextResponse.json({ status: 'success' })
+
+    } catch (error: any) {
+      console.error('Crypto webhook processing error:', error)
+      return NextResponse.json({ error: 'Processing failed' }, { status: 500 })
+    }
   }
 
   return NextResponse.json({ status: 'ignored' })
