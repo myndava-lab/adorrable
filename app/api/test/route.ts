@@ -5,6 +5,11 @@ import OpenAI from 'openai'
 
 export async function GET() {
   console.log('Starting comprehensive API tests...')
+  console.log('🔍 Environment variables check:')
+  console.log('- NEXT_PUBLIC_SUPABASE_URL:', !!process.env.NEXT_PUBLIC_SUPABASE_URL)
+  console.log('- SUPABASE_SERVICE_ROLE_KEY:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
+  console.log('- OPENAI_API_KEY:', !!process.env.OPENAI_API_KEY)
+  
   const testResults = {
     timestamp: new Date().toISOString(),
     tests: [] as any[]
@@ -55,6 +60,9 @@ export async function GET() {
     details: {} as any
   }
 
+  console.log('🔍 Starting OpenAI API test...')
+  console.log('Environment check - OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY)
+  
   try {
     console.log('Testing OpenAI API...')
     if (!process.env.OPENAI_API_KEY) {
@@ -116,6 +124,9 @@ export async function GET() {
     details: {} as any
   }
 
+  console.log('🔍 Starting Credit System test...')
+  console.log('Supabase admin client exists:', !!supabaseAdmin)
+  
   try {
     console.log('Testing Credit System...')
     const testUserId = 'test-user-' + Date.now()
@@ -123,7 +134,9 @@ export async function GET() {
     
     console.log('Creating test user profile:', { testUserId, testEmail })
     // First create a test user profile
+    console.log('Calling createUserProfile function...')
     const profile = await createUserProfile(testUserId, testEmail, 'Test User')
+    console.log('createUserProfile result:', profile)
     
     if (!profile) {
       console.log('❌ Failed to create test user profile')

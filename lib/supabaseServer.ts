@@ -155,7 +155,15 @@ export async function getUserProfile(userId: string): Promise<Profile | null> {
 }
 
 export async function createUserProfile(userId: string, email: string, displayName?: string): Promise<Profile | null> {
+  console.log('🔍 createUserProfile called with:', { userId, email, displayName })
+  console.log('🔍 supabaseAdmin client exists:', !!supabaseAdmin)
+  
   try {
+    if (!supabaseAdmin) {
+      console.error('❌ supabaseAdmin client not initialized')
+      return null
+    }
+
     const { data, error } = await supabaseAdmin
       .from('profiles')
       .insert({
@@ -168,13 +176,14 @@ export async function createUserProfile(userId: string, email: string, displayNa
       .single()
 
     if (error) {
-      console.error('Error creating user profile:', error)
+      console.error('❌ Error creating user profile:', error)
       return null
     }
 
+    console.log('✅ User profile created successfully:', data)
     return data
   } catch (error) {
-    console.error('Error in createUserProfile:', error)
+    console.error('❌ Error in createUserProfile:', error)
     return null
   }
 }
