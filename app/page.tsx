@@ -761,7 +761,7 @@ export default function AdorrableLanding() {
               {t.hero.title}
             </h1>
             
-            <p className="mx-auto max-w-2xl text-xl text-white/70 mb-12 leading-relaxed">
+            <p className="mx-auto max-w-2xl text-xl text-white/70 mb-12 leading-relaxed mt-8">
               {t.hero.subtitle}
             </p>
 
