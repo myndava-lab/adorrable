@@ -7,6 +7,19 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.next()
     const supabase = createServerSupabaseClient(request, response)
 
+    // Check if this is a test request
+    const url = new URL(request.url)
+    const isTest = url.searchParams.get('test') === 'true'
+    
+    if (isTest) {
+      return NextResponse.json({ 
+        message: 'Credits API is working',
+        test_mode: true,
+        endpoints: ['GET', 'POST'],
+        timestamp: new Date().toISOString()
+      })
+    }
+
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {

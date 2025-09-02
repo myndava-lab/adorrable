@@ -4,12 +4,16 @@ import GenerateButton from '@/components/GenerateButton'
 import PricingTestButton from '@/components/PricingTestButton'
 import DebugButton from '@/components/DebugButton'
 import PricingCard from '@/components/PricingCard' // Assuming PricingCard is in components/PricingCard
+import PublicUrlDisplay from '@/components/PublicUrlDisplay'
 
 export default function TestDatabasePage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-center mb-8">Database & API Testing</h1>
+
+        {/* Added PublicUrlDisplay component here as per the new changes */}
+        <PublicUrlDisplay />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
           <DatabaseTestButton />
@@ -75,6 +79,22 @@ export default function TestDatabasePage() {
             </p>
           </div>
         </div>
+
+        {/* Navigation links from the changes, placed at the bottom */}
+        <div className="mt-8 text-center space-x-4">
+            <a
+              href="/test-all"
+              className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Full Test Suite
+            </a>
+            <a
+              href="/"
+              className="inline-block px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+            >
+              Back to Home
+            </a>
+          </div>
       </div>
     </div>
   )

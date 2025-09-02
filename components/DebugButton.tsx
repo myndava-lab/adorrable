@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState } from 'react'
@@ -12,48 +11,56 @@ export default function DebugButton() {
     setResult('')
 
     try {
-      console.log('🔍 Running debug analysis...')
-      
+      console.log('🔍 Starting debug analysis...')
+
       const response = await fetch('/api/debug', {
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
-      
+
       console.log('Debug response status:', response.status)
       const data = await response.json()
       console.log('Debug response data:', data)
 
-      if (response.ok) {
+      if (response.ok && data.tests) {
         let resultText = '🔍 DEBUG ANALYSIS RESULTS:\n\n'
-        
+
         data.tests.forEach((test: any, index: number) => {
-          resultText += `${index + 1}. ${test.name}: ${test.status.toUpperCase()}\n`
-          
+          const status = test.status === 'pass' ? '✅' : '❌'
+          resultText += `${index + 1}. ${test.name}: ${status}\n`
+
           if (test.details) {
-            if (test.name === 'Credits API Debug') {
-              resultText += `   Expected Status: ${test.details.expectedStatus}\n`
-              resultText += `   Actual Status: ${test.details.actualStatus}\n`
-              resultText += `   Response: ${JSON.stringify(test.details.response, null, 2)}\n`
-            } else if (test.name === 'AI Generation API Debug') {
-              resultText += `   OpenAI Connection: ${test.details.openaiConnection || 'unknown'}\n`
-              resultText += `   API Status: ${test.details.apiEndpointStatus}\n`
-              if (test.details.error) {
-                resultText += `   Error: ${test.details.error}\n`
-              }
-            } else if (test.name === 'Database Schema Debug') {
-              resultText += `   Missing Tables: ${test.details.missingTables?.join(', ') || 'None'}\n`
-              resultText += `   All Tables Exist: ${test.details.allTablesExist}\n`
-            } else if (test.name === 'Environment Variables Detailed') {
-              Object.entries(test.details).forEach(([key, value]: [string, any]) => {
-                resultText += `   ${key}: ${value.exists ? '✅' : '❌'}\n`
-              })
+            if (test.name.includes('Credits API')) {
+              resultText += `   Status Code: ${test.details.statusCode || 'N/A'}\n`
+              resultresultText += `   Response: ${test.details.rawResponse ? 'Received' : 'Empty'}\n`
+            } else if (test.name.includes('AI Generation')) {
+              resultText += `   OpenAI Configured: ${test.details.openaiConfigured ? '✅' : '❌'}\n`
+              resultText += `   Status Code: ${test.details.statusCode || 'N/A'}\n`
+            } else if (test.name.includes('Database Schema')) {
+              resultText += `   Tables Found: ${test.details.tablesCount || 0}\n`
+              resultText += `   Required Tables: ${test.details.hasRequiredTables ? 'Present' : 'Missing'}\n`
+            } else if (test.name.includes('Environment')) {
+              resultText += `   NEXT_PUBLIC_SUPABASE_URL: ${test.details.NEXT_PUBLIC_SUPABASE_URL?.value || '❌'}\n`
+              resultText += `   NEXT_PUBLIC_SUPABASE_ANON_KEY: ${test.details.NEXT_PUBLIC_SUPABASE_ANON_KEY?.value || '❌'}\n`
+              resultText += `   SUPABASE_SERVICE_ROLE_KEY: ${test.details.SUPABASE_SERVICE_ROLE_KEY?.value || '❌'}\n`
+              resultText += `   OPENAI_API_KEY: ${test.details.OPENAI_API_KEY?.value || '❌'}\n`
+              resultText += `   NEXTAUTH_SECRET: ${test.details.NEXTAUTH_SECRET?.value || '❌'}\n`
+              resultText += `   ADMIN_EMAIL: ${test.details.ADMIN_EMAIL?.value || '❌'}\n`
             }
           }
+
+          if (test.error) {
+            resultText += `   Error: ${test.error}\n`
+          }
+
           resultText += '\n'
         })
 
-        setResult(formatDebugResults(data))
+        setResult(resultText)
       } else {
-        setResult(`❌ Debug failed: ${data.error || 'Unknown error'}`)
+        setResult(`❌ Debug failed: ${data.error || data.details || 'Unknown error'}`)
       }
     } catch (err: any) {
       console.error('❌ Debug error:', err)
@@ -63,44 +70,19 @@ export default function DebugButton() {
     }
   }
 
-  const formatDebugResults = (data: any) => {
-    if (!data.tests) return JSON.stringify(data, null, 2)
-    
-    let output = `🔍 DEBUG ANALYSIS RESULTS:\n\n`
-    
-    data.tests.forEach((test: any, index: number) => {
-      const statusIcon = test.status === 'pass' ? '✅' : test.status === 'fail' ? '❌' : '⏳'
-      output += `${index + 1}. ${test.name}: ${statusIcon} ${test.status.toUpperCase()}\n`
-      
-      if (test.details) {
-        Object.entries(test.details).forEach(([key, value]: [string, any]) => {
-          if (typeof value === 'object' && value !== null) {
-            output += `   ${key}: ${JSON.stringify(value, null, 2)}\n`
-          } else {
-            output += `   ${key}: ${value}\n`
-          }
-        })
-      }
-      output += '\n'
-    })
-    
-    return output
-  }
-
   return (
     <div className="p-4 border border-gray-300 rounded-lg bg-white">
-      <h3 className="text-lg font-semibold mb-2">🔍 Debug Analysis</h3>
-      <p className="text-sm text-gray-600 mb-3">Comprehensive debugging of all failing components</p>
+      <h3 className="text-lg font-semibold mb-2">System Debug Analysis</h3>
       <button
         onClick={runDebug}
         disabled={isLoading}
-        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+        className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50"
       >
-        {isLoading ? 'Debugging...' : '🔍 Run Debug Analysis'}
+        {isLoading ? 'Analyzing...' : 'Run Debug Analysis'}
       </button>
       {result && (
         <div className="mt-2 p-2 rounded bg-gray-100 max-h-96 overflow-y-auto">
-          <pre className="text-xs whitespace-pre-wrap font-mono">{result}</pre>
+          <pre className="text-sm whitespace-pre-wrap">{result}</pre>
         </div>
       )}
     </div>
