@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
@@ -221,12 +220,12 @@ export default function Home() {
   // Initialize component
   useEffect(() => {
     setMounted(true);
-    
+
     // Check authentication
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
-      
+
       if (user) {
         fetchCredits(user.id);
       } else {
@@ -262,7 +261,7 @@ export default function Home() {
           "user-id": userId,
         },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setCredits(data.credits || 0);
@@ -751,6 +750,16 @@ export default function Home() {
                 transition: "all 0.2s",
                 boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)";
+                e.currentTarget.style.boxShadow = "0 6px 20px rgba(59, 130, 246, 0.4)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)";
+                e.currentTarget.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.3)";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
             >
               Buy Now
             </button>
@@ -840,6 +849,16 @@ export default function Home() {
                 transition: "all 0.2s",
                 boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)";
+                e.currentTarget.style.boxShadow = "0 6px 20px rgba(59, 130, 246, 0.4)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)";
+                e.currentTarget.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.3)";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
             >
               Buy Now
             </button>
@@ -909,7 +928,7 @@ export default function Home() {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
           }
-          
+
           @keyframes fadeInUp {
             from {
               opacity: 0;
@@ -920,13 +939,13 @@ export default function Home() {
               transform: translateY(0);
             }
           }
-          
+
           .animate-fade-in-up {
             animation: fadeInUp 0.6s ease-out;
           }
         `}
       </style>
-      
+
       <main
         style={{
           minHeight: "100vh",
