@@ -971,7 +971,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </main>
+      )}
 
       {/* Pricing Modal */}
       {showPricing && (
