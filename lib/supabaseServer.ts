@@ -11,27 +11,32 @@ if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables:', {
     supabaseUrl: !!supabaseUrl,
     supabaseServiceKey: !!supabaseServiceKey,
-    supabaseAnonKey: !!supabaseAnonKey
+    supabaseAnonKey: !!supabaseAnonKey,
+    nodeEnv: process.env.NODE_ENV
   })
-  throw new Error('Missing Supabase environment variables')
+  console.error('Available env keys:', Object.keys(process.env).filter(key => key.includes('SUPABASE')))
 }
 
 // Service role client for server-side operations
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-})
+export const supabaseAdmin = supabaseUrl && supabaseServiceKey 
+  ? createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  : null
 
 // Use the same singleton pattern for server-side client
 declare global {
   var __supabaseServer: ReturnType<typeof createClient> | undefined
 }
 
-export const supabase = globalThis.__supabaseServer ?? createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? (globalThis.__supabaseServer ?? createClient(supabaseUrl, supabaseAnonKey))
+  : null
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && supabase) {
   globalThis.__supabaseServer = supabase
 }
 
@@ -335,12 +340,22 @@ export async function updatePaymentTransaction(
 // Health check function
 export async function testDatabaseConnection(): Promise<boolean> {
   try {
+    if (!supabaseAdmin) {
+      console.error('Supabase admin client not initialized')
+      return false
+    }
+
     const { data, error } = await supabaseAdmin
       .from('profiles')
       .select('count(*)')
       .limit(1)
 
-    return !error
+    if (error) {
+      console.error('Database query error:', error)
+      return false
+    }
+
+    return true
   } catch (error) {
     console.error('Database connection test failed:', error)
     return false

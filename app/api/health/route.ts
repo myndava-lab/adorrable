@@ -3,9 +3,7 @@ import { testDatabaseConnection } from '@/lib/supabaseServer'
 
 export async function GET() {
   try {
-    const isConnected = await testDatabaseConnection()
-
-    // Check environment variables
+    // Check environment variables first
     const envChecks = {
       supabase_url: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
       supabase_anon_key: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -14,6 +12,25 @@ export async function GET() {
       nextauth_secret: !!process.env.NEXTAUTH_SECRET,
       admin_email: !!process.env.ADMIN_EMAIL
     }
+
+    console.log('Environment variables check:', envChecks)
+
+    // Check if critical Supabase variables are missing
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Missing critical Supabase environment variables')
+      return NextResponse.json({ 
+        status: 'error', 
+        message: 'Missing critical environment variables',
+        environment: envChecks,
+        missingVars: {
+          supabase_url: !process.env.NEXT_PUBLIC_SUPABASE_URL,
+          service_key: !process.env.SUPABASE_SERVICE_ROLE_KEY
+        },
+        timestamp: new Date().toISOString()
+      }, { status: 500 })
+    }
+
+    const isConnected = await testDatabaseConnection()
 
     if (!isConnected) {
       return NextResponse.json({ 
@@ -35,6 +52,7 @@ export async function GET() {
     return NextResponse.json({ 
       status: 'error', 
       message: 'Health check failed',
+      error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     }, { status: 500 })
   }
