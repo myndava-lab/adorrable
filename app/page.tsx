@@ -1,4 +1,3 @@
-
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
@@ -333,518 +332,281 @@ export default function Home() {
   };
 
   return (
-    <div style={{ 
-      minHeight: "100vh", 
-      background: "#0B1020",
-      backgroundImage: `
-        linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px),
-        radial-gradient(600px 300px at 50% 0%, rgba(79,195,247,0.12), transparent 60%)
-      `,
-      backgroundSize: "40px 40px, 40px 40px, 100% 100%",
-      fontFamily: "Inter, ui-sans-serif, system-ui"
-    }}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(120,119,198,0.3),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(120,119,198,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.03"%3E%3Ccircle cx="7" cy="7" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20" />
+      </div>
+
       {/* Navigation */}
-      <nav style={{ 
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "16px 24px",
-        maxWidth: "1200px",
-        margin: "0 auto"
-      }}>
-        <div style={{ 
-          color: "#22D3EE",
-          fontSize: "20px",
-          fontWeight: "600"
-        }}>
-          Adorrable
+      <nav className="relative z-50 flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">A</span>
+          </div>
+          <span className="text-white text-xl font-semibold tracking-tight">Adorrable</span>
         </div>
-        <div style={{ 
-          display: "flex",
-          gap: "24px",
-          color: "#94A3B8"
-        }}>
-          <a href="#features" style={{ 
-            color: "inherit",
-            textDecoration: "none",
-            transition: "color 0.2s"
-          }}
-          onMouseEnter={(e) => e.target.style.color = "#E5E7EB"}
-          onMouseLeave={(e) => e.target.style.color = "#94A3B8"}
-          >
-            Features
-          </a>
-          <a href="#templates" style={{ 
-            color: "inherit",
-            textDecoration: "none",
-            transition: "color 0.2s"
-          }}
-          onMouseEnter={(e) => e.target.style.color = "#E5E7EB"}
-          onMouseLeave={(e) => e.target.style.color = "#94A3B8"}
-          >
-            Templates
-          </a>
+
+        <div className="hidden md:flex items-center space-x-8 text-gray-300">
+          <a href="#features" className="hover:text-white transition-colors duration-200 font-medium">Features</a>
+          <a href="#templates" className="hover:text-white transition-colors duration-200 font-medium">Templates</a>
+          <a href="#pricing" className="hover:text-white transition-colors duration-200 font-medium">Pricing</a>
+          <a href="#docs" className="hover:text-white transition-colors duration-200 font-medium">Docs</a>
         </div>
+
+        <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+          Sign In
+        </button>
       </nav>
 
-      <main
-        style={{
-          minHeight: "100vh",
-          background: "#0B1020",
-          backgroundImage: "linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px)",
-          backgroundSize: "20px 20px",
-          color: "#E5E7EB",
-          fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-          position: "relative",
-        }}
-      >
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(79, 195, 247, 0.15), transparent 70%)",
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        />
-        <div style={{ position: "relative", zIndex: 1 }}>
-          {/* Hero Section */}
-          <div style={{ 
-            position: "relative",
-            overflow: "hidden",
-            borderRadius: "32px",
-            padding: "48px 24px",
-            marginBottom: "32px"
-          }}>
-            <div style={{ 
-              position: "absolute",
-              inset: "0",
-              backgroundImage: `
-                linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px)
-              `,
-              backgroundSize: "40px 40px",
-              opacity: "0.6",
-              pointerEvents: "none"
-            }} />
+      {/* Hero Section */}
+      <div className="relative z-10 pt-16 pb-24 px-8 max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-white via-blue-100 to-cyan-300 bg-clip-text text-transparent leading-tight mb-8">
+            Build something with
+            <br />
+            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Adorrable
+            </span>
+          </h1>
 
-            <h1
-              style={{
-                fontSize: "clamp(2.5rem, 5vw, 4rem)",
-                fontWeight: "800",
-                lineHeight: "1.1",
-                marginBottom: "24px",
-                background: "linear-gradient(135deg, #4FC3F7 0%, #7C4DFF 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                letterSpacing: "-0.025em",
-              }}
-            >
-              Build something with Adorrable
-            </h1>
+          <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed mb-12">
+            Create apps and culturally intelligent websites by chatting with AI
+          </p>
 
-            <p
-              style={{
-                fontSize: "clamp(1rem, 2.5vw, 1.25rem)",
-                color: "#94A3B8",
-                lineHeight: "1.6",
-                marginBottom: "40px",
-                maxWidth: "600px",
-                margin: "0 auto 40px",
-              }}
-            >
-              Create apps and culturally intelligent websites by chatting with AI
-            </p>
+          {/* Main Input Section */}
+          <div className="max-w-4xl mx-auto">
+            <div className="relative bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-6 shadow-2xl">
+              {/* Top Input Bar */}
+              <div className="flex items-center mb-6">
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Ask Adorrable to create a business website..."
+                    className="w-full bg-slate-900/50 border border-slate-600/50 rounded-2xl px-6 py-4 text-white placeholder-gray-400 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-200"
+                    onKeyPress={(e) => e.key === "Enter" && handleGenerate()}
+                  />
+                </div>
+              </div>
 
-            {/* Input Section */}
-            <div style={{ 
-              borderRadius: "32px",
-              border: "1px solid rgba(148,163,184,0.12)",
-              background: "rgba(14,21,38,0.7)",
-              backdropFilter: "blur(8px)",
-              padding: "12px"
-            }}>
-              <input
-                type="text"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Ask Adorrable to create a business website…"
-                style={{ 
-                  width: "100%",
-                  background: "transparent",
-                  border: "none",
-                  outline: "none",
-                  color: "#E5E7EB",
-                  fontSize: "16px",
-                  padding: "8px"
-                }}
-                onKeyPress={(e) => e.key === "Enter" && handleGenerate()}
-              />
+              {/* Language Selection and Generate Button */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <span className="text-gray-400 text-sm font-medium">Language:</span>
+                  {languages.map((lang) => (
+                    <button
+                      key={lang}
+                      onClick={() => setSelectedLanguage(lang)}
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        selectedLanguage === lang
+                          ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
+                          : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50 hover:text-white'
+                      }`}
+                    >
+                      {lang}
+                    </button>
+                  ))}
+                </div>
 
-              <div style={{ 
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                marginTop: "12px"
-              }}>
-                {languages.map((lang, index) => (
-                  <button
-                    key={lang}
-                    onClick={() => setSelectedLanguage(lang)}
-                    style={{ 
-                      background: selectedLanguage === lang
-                        ? "#22C55E"
-                        : "transparent",
-                      color: selectedLanguage === lang ? "white" : "#94A3B8",
-                      border: selectedLanguage === lang ? "none" : "1px solid rgba(148, 163, 184, 0.3)",
-                      padding: "8px 16px",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      cursor: "pointer",
-                      transition: "all 0.2s",
-                      fontWeight: selectedLanguage === lang ? "500" : "400",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (selectedLanguage !== lang) {
-                        e.target.style.color = "#E5E7EB";
-                        e.target.style.background = "rgba(255,255,255,0.05)";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (selectedLanguage !== lang) {
-                        e.target.style.color = "#94A3B8";
-                        e.target.style.background = "transparent";
-                      }
-                    }}
-                  >
-                    {lang}
-                  </button>
-                ))}
                 <button
                   onClick={handleGenerate}
                   disabled={isGenerating || !prompt.trim()}
-                  style={{ 
-                    marginLeft: "auto",
-                    padding: "6px 16px",
-                    borderRadius: "9999px",
-                    background: "#22C55E",
-                    color: "white",
-                    border: "none",
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    transition: "all 0.2s"
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isGenerating && prompt.trim()) {
-                      e.target.style.background = "#16A34A";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isGenerating && prompt.trim()) {
-                      e.target.style.background = "#22C55E";
-                    }
-                  }}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-8 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:transform-none disabled:cursor-not-allowed flex items-center space-x-2"
                 >
-                  {isGenerating ? "Generating..." : "Send"}
+                  {isGenerating ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Generating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Generate</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Credits Bar */}
-          <div style={{ 
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            fontSize: "14px",
-            marginBottom: "32px"
-          }}>
-            <div
-              style={{
-                background: "rgba(34, 197, 94, 0.1)",
-                border: "1px solid rgba(34, 197, 94, 0.3)",
-                borderRadius: "12px",
-                padding: "8px 16px",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-              }}
-            >
-              <span style={{ 
-                color: "#94A3B8"
-              }}>
-                {isLoadingCredits ? "..." : credits} credits remaining
-              </span>
+          {/* Credits Info */}
+          <div className="mt-8 flex justify-center">
+            <div className="bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-2xl px-6 py-3 flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-gray-300 text-sm">
+                  {isLoadingCredits ? "Loading..." : `${credits} credits remaining`}
+                </span>
+              </div>
               <button
                 onClick={() => setShowPricing(true)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#22C55E",
-                  fontSize: "12px",
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                  transition: "all 0.2s ease",
-                  padding: "2px 4px",
-                  borderRadius: "4px",
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.color = "#16A34A";
-                  e.target.style.background = "rgba(34, 197, 94, 0.1)";
-                  e.target.style.transform = "scale(1.05)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.color = "#22C55E";
-                  e.target.style.background = "none";
-                  e.target.style.transform = "scale(1)";
-                }}
+                className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors duration-200 underline underline-offset-2"
               >
                 Buy More
               </button>
             </div>
           </div>
+        </div>
 
-          {/* Generated Code Section */}
-          {showCode && generatedCode && (
-            <div style={{ 
-              background: "#0E1526",
-              border: "1px solid rgba(148,163,184,0.12)",
-              borderRadius: "16px",
-              padding: "24px",
-              marginBottom: "32px",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.35)"
-            }}>
-              <div style={{ 
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "16px"
-              }}>
-                <h3 style={{ color: "#E5E7EB", fontSize: "18px", fontWeight: "600" }}>
-                  Generated Website
+        {/* Generated Code Section */}
+        {showCode && generatedCode && (
+          <div className="max-w-6xl mx-auto mt-16">
+            <div className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-semibold text-white flex items-center space-x-3">
+                  <div className="w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span>Generated Website</span>
                 </h3>
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="flex space-x-3">
                   <button
                     onClick={openInNewTab}
-                    style={{ 
-                      padding: "8px 16px",
-                      borderRadius: "8px",
-                      background: "#22C55E",
-                      color: "white",
-                      border: "none",
-                      fontSize: "14px",
-                      cursor: "pointer",
-                      transition: "all 0.2s"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.background = "#16A34A";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.background = "#22C55E";
-                    }}
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
                   >
-                    Preview
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>Preview</span>
                   </button>
                   <button
                     onClick={downloadCode}
-                    style={{ 
-                      padding: "8px 16px",
-                      borderRadius: "8px",
-                      background: "transparent",
-                      color: "#94A3B8",
-                      border: "1px solid rgba(148,163,184,0.12)",
-                      fontSize: "14px",
-                      cursor: "pointer",
-                      transition: "all 0.2s"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.color = "#E5E7EB";
-                      e.target.style.borderColor = "rgba(148,163,184,0.3)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.color = "#94A3B8";
-                      e.target.style.borderColor = "rgba(148,163,184,0.12)";
-                    }}
+                    className="bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 hover:text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-200 border border-slate-600/50 hover:border-slate-500/50 flex items-center space-x-2"
                   >
-                    Download
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Download</span>
                   </button>
                 </div>
               </div>
-              <pre style={{ 
-                background: "#0B1020",
-                color: "#E5E7EB",
-                padding: "16px",
-                borderRadius: "8px",
-                fontSize: "14px",
-                overflow: "auto",
-                maxHeight: "400px",
-                border: "1px solid rgba(148,163,184,0.12)"
-              }}>
+              <pre className="bg-slate-900/50 border border-slate-700/50 rounded-2xl p-6 text-gray-300 text-sm overflow-auto max-h-96 leading-relaxed">
                 {generatedCode}
               </pre>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Community Templates Section */}
-          <div id="templates" style={{ marginBottom: "48px" }}>
-            <div style={{ 
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "24px"
-            }}>
-              <h2 style={{ 
-                color: "#E5E7EB",
-                fontSize: "24px",
-                fontWeight: "600"
-              }}>
-                From the Community
-              </h2>
-              <span style={{ 
-                color: "#94A3B8",
-                fontSize: "14px"
-              }}>
-                {communityTemplates.length} templates
-              </span>
-            </div>
+        {/* Community Templates Section */}
+        <div id="templates" className="mt-24">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-white mb-4">From the Community</h2>
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              Discover professionally crafted templates built by our community
+            </p>
+          </div>
 
-            <div style={{ 
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: "24px"
-            }}>
-              {communityTemplates.map((template) => (
-                <div
-                  key={template.id}
-                  onClick={() => handleTemplateClick(template)}
-                  style={{ 
-                    background: template.id === "3" ? "#F59E0B" : template.id === "2" ? "#10B981" : "#0E1526",
-                    border: "1px solid rgba(30, 41, 59, 0.2)",
-                    borderRadius: "24px",
-                    padding: "32px",
-                    marginBottom: "40px",
-                    backdropFilter: "blur(10px)",
-                    boxShadow: "0 10px 30px rgba(0,0,0,.35)",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    color: template.id === "3" || template.id === "2" ? "white" : "#E5E7EB"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = "translateY(-4px)";
-                    e.target.style.boxShadow = "0 20px 40px rgba(0,0,0,0.5)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = "translateY(0)";
-                    e.target.style.boxShadow = "0 10px 30px rgba(0,0,0,.35)";
-                  }}
-                >
-                  <div style={{ 
-                    fontSize: "12px",
-                    background: template.id === "3" || template.id === "2" ? "rgba(255,255,255,0.2)" : "rgba(148,163,184,0.2)",
-                    padding: "2px 8px",
-                    borderRadius: "9999px",
-                    display: "inline-block",
-                    marginBottom: "12px"
-                  }}>
-                    {template.id === "3" ? "Featured" : template.id === "2" ? "Popular" : "Community"}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {communityTemplates.map((template) => (
+              <div
+                key={template.id}
+                onClick={() => handleTemplateClick(template)}
+                className="group relative bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-6 cursor-pointer transition-all duration-300 hover:transform hover:scale-[1.02] hover:shadow-2xl hover:border-slate-600/50"
+              >
+                {/* Template Preview Image */}
+                <div className="relative h-48 mb-6 rounded-2xl overflow-hidden">
+                  <img
+                    src={template.preview}
+                    alt={template.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+
+                  {/* Category Badge */}
+                  <div className="absolute top-4 left-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      template.id === "1" ? "bg-blue-500/80 text-white" :
+                      template.id === "2" ? "bg-green-500/80 text-white" :
+                      "bg-purple-500/80 text-white"
+                    }`}>
+                      {template.category}
+                    </span>
                   </div>
-                  <h3 style={{ 
-                    fontSize: "20px",
-                    fontWeight: "600",
-                    marginBottom: "8px"
-                  }}>
-                    {template.title}
-                  </h3>
-                  <p style={{ 
-                    fontSize: "14px",
-                    opacity: 0.9,
-                    marginBottom: "16px"
-                  }}>
-                    {template.description}
-                  </p>
-                  <div style={{ 
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    fontSize: "12px",
-                    opacity: 0.8
-                  }}>
-                    <span>by {template.author}</span>
-                    <div style={{ display: "flex", gap: "12px" }}>
-                      <span>⭐ {template.rating}</span>
-                      <span>↓ {template.downloads.toLocaleString()}</span>
+
+                  {/* Stats */}
+                  <div className="absolute bottom-4 right-4 flex items-center space-x-3 text-white text-xs">
+                    <div className="flex items-center space-x-1">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      <span>{template.rating}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>{template.downloads.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+
+                {/* Template Info */}
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors duration-200">
+                    {template.title}
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed mb-4 line-clamp-2">
+                    {template.description}
+                  </p>
+
+                  {/* Author and Difficulty */}
+                  <div className="flex justify-between items-center text-xs text-gray-500">
+                    <span>by {template.author}</span>
+                    <span className="bg-slate-700/50 px-2 py-1 rounded-lg">{template.difficulty}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Community Template Modal */}
       {showModal && selectedTemplate && (
-        <div style={{ 
-          position: "fixed",
-          inset: "0",
-          background: "rgba(0, 0, 0, 0.8)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: "1000",
-          padding: "20px"
-        }}>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div
             ref={modalRef}
-            style={{ 
-              background: "#0E1526",
-              border: "1px solid rgba(148,163,184,0.12)",
-              borderRadius: "20px",
-              padding: "32px",
-              maxWidth: "600px",
-              width: "100%",
-              maxHeight: "80vh",
-              overflow: "auto",
-              boxShadow: "0 20px 50px rgba(0,0,0,0.5)"
-            }}
+            className="bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-auto shadow-2xl"
           >
-            <div style={{ 
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              marginBottom: "24px"
-            }}>
-              <div>
-                <h2 style={{ 
-                  color: "#E5E7EB",
-                  fontSize: "24px",
-                  fontWeight: "600",
-                  marginBottom: "8px"
-                }}>
-                  {selectedTemplate.title}
-                </h2>
-                <p style={{ 
-                  color: "#94A3B8",
-                  fontSize: "16px",
-                  marginBottom: "16px"
-                }}>
+            <div className="flex justify-between items-start mb-8">
+              <div className="flex-1">
+                <div className="flex items-center space-x-3 mb-4">
+                  <h2 className="text-3xl font-bold text-white">{selectedTemplate.title}</h2>
+                  <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
+                    {selectedTemplate.category}
+                  </span>
+                </div>
+                <p className="text-gray-300 text-lg mb-6 leading-relaxed">
                   {selectedTemplate.description}
                 </p>
-                <div style={{ 
-                  display: "flex",
-                  gap: "16px",
-                  fontSize: "14px",
-                  color: "#94A3B8"
-                }}>
-                  <span>by {selectedTemplate.author}</span>
-                  <span>⭐ {selectedTemplate.rating}</span>
-                  <span>↓ {selectedTemplate.downloads.toLocaleString()}</span>
-                  <span>📅 {new Date(selectedTemplate.createdAt).toLocaleDateString()}</span>
+                <div className="flex items-center space-x-6 text-sm text-gray-400">
+                  <span className="flex items-center space-x-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span>by {selectedTemplate.author}</span>
+                  </span>
+                  <span className="flex items-center space-x-2">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    <span>{selectedTemplate.rating} rating</span>
+                  </span>
+                  <span className="flex items-center space-x-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>{selectedTemplate.downloads.toLocaleString()} downloads</span>
+                  </span>
                 </div>
               </div>
               <button
@@ -852,50 +614,29 @@ export default function Home() {
                   setShowModal(false);
                   setSelectedTemplate(null);
                 }}
-                style={{ 
-                  background: "none",
-                  border: "none",
-                  color: "#94A3B8",
-                  fontSize: "24px",
-                  cursor: "pointer",
-                  padding: "0",
-                  lineHeight: "1"
-                }}
+                className="text-gray-400 hover:text-white transition-colors duration-200 ml-4"
               >
-                ×
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
-            <div style={{ 
-              background: "#0B1020",
-              borderRadius: "12px",
-              padding: "16px",
-              marginBottom: "24px",
-              border: "1px solid rgba(148,163,184,0.12)"
-            }}>
-              <h3 style={{ 
-                color: "#E5E7EB",
-                fontSize: "16px",
-                marginBottom: "12px"
-              }}>
-                Preview Code
+            {/* Code Preview */}
+            <div className="bg-slate-900/50 border border-slate-700/50 rounded-2xl p-6 mb-8">
+              <h3 className="text-white text-lg font-semibold mb-4 flex items-center space-x-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                <span>Code Preview</span>
               </h3>
-              <pre style={{ 
-                color: "#94A3B8",
-                fontSize: "12px",
-                maxHeight: "200px",
-                overflow: "auto",
-                lineHeight: "1.4"
-              }}>
-                {selectedTemplate.code.substring(0, 500)}...
+              <pre className="text-gray-300 text-sm overflow-auto max-h-64 leading-relaxed">
+                {selectedTemplate.code.substring(0, 800)}...
               </pre>
             </div>
 
-            <div style={{ 
-              display: "flex",
-              gap: "12px",
-              justifyContent: "flex-end"
-            }}>
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-4">
               <button
                 onClick={() => {
                   const blob = new Blob([selectedTemplate.code], { type: 'text/html' });
@@ -908,60 +649,31 @@ export default function Home() {
                   document.body.removeChild(a);
                   URL.revokeObjectURL(url);
                 }}
-                style={{ 
-                  background: "transparent",
-                  color: "#94A3B8",
-                  border: "1px solid rgba(148,163,184,0.12)",
-                  padding: "12px 24px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                  transition: "all 0.2s ease"
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.color = "#E5E7EB";
-                  e.target.style.borderColor = "rgba(148,163,184,0.3)";
-                  e.target.style.transform = "translateY(-2px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.color = "#94A3B8";
-                  e.target.style.borderColor = "rgba(148,163,184,0.12)";
-                  e.target.style.transform = "translateY(0)";
-                }}
+                className="bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 hover:text-white px-8 py-3 rounded-xl font-medium transition-all duration-200 border border-slate-600/50 hover:border-slate-500/50 flex items-center space-x-2"
               >
-                Open Project
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Download</span>
               </button>
               <button
                 onClick={handleUseTemplate}
                 disabled={isGeneratingTemplate}
-                style={{ 
-                  background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
-                  color: "white",
-                  border: "none",
-                  padding: "12px 24px",
-                  borderRadius: "10px",
-                  cursor: isGeneratingTemplate ? "not-allowed" : "pointer",
-                  fontSize: "14px",
-                  transition: "all 0.2s ease",
-                  opacity: isGeneratingTemplate ? 0.7 : 1,
-                  boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)"
-                }}
-                onMouseEnter={(e) => {
-                  if (!isGeneratingTemplate) {
-                    e.target.style.background = "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)";
-                    e.target.style.transform = "translateY(-2px)";
-                    e.target.style.boxShadow = "0 6px 20px rgba(59, 130, 246, 0.4)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isGeneratingTemplate) {
-                    e.target.style.background = "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)";
-                    e.target.style.transform = "translateY(0)";
-                    e.target.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.3)";
-                  }
-                }}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-8 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:transform-none disabled:cursor-not-allowed flex items-center space-x-2"
               >
-                {isGeneratingTemplate ? "Processing..." : "Remix"}
+                {isGeneratingTemplate ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Use Template</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -970,118 +682,43 @@ export default function Home() {
 
       {/* Pricing Modal */}
       {showPricing && (
-        <div style={{ 
-          position: "fixed",
-          inset: "0",
-          background: "rgba(0, 0, 0, 0.8)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: "1000",
-          padding: "20px"
-        }}>
-          <div style={{ 
-            background: "#0E1526",
-            border: "1px solid rgba(148,163,184,0.12)",
-            borderRadius: "20px",
-            padding: "32px",
-            maxWidth: "500px",
-            width: "100%",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.5)"
-          }}>
-            <div style={{ 
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "24px"
-            }}>
-              <h2 style={{ 
-                color: "#E5E7EB",
-                fontSize: "24px",
-                fontWeight: "600"
-              }}>
-                Get More Credits
-              </h2>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-bold text-white">Get More Credits</h2>
               <button
                 onClick={() => setShowPricing(false)}
-                style={{ 
-                  background: "none",
-                  border: "none",
-                  color: "#94A3B8",
-                  fontSize: "24px",
-                  cursor: "pointer"
-                }}
+                className="text-gray-400 hover:text-white transition-colors duration-200"
               >
-                ×
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
-            <div style={{ 
-              background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
-              borderRadius: "12px",
-              padding: "24px",
-              border: "1px solid rgba(148,163,184,0.2)",
-              marginBottom: "16px"
-            }}>
-              <h3 style={{ 
-                color: "white",
-                fontSize: "20px",
-                marginBottom: "8px"
-              }}>
-                Starter Pack
-              </h3>
-              <p style={{ 
-                color: "rgba(148, 163, 184, 0.8)",
-                fontSize: "14px",
-                marginBottom: "16px"
-              }}>
-                Perfect for trying out our AI generator
-              </p>
-              <div style={{ 
-                display: "flex",
-                alignItems: "baseline",
-                marginBottom: "16px"
-              }}>
-                <span style={{ 
-                  color: "white",
-                  fontSize: "32px",
-                  fontWeight: "600"
-                }}>
-                  $5
-                </span>
-                <span style={{ 
-                  color: "rgba(148, 163, 184, 0.8)",
-                  fontSize: "16px",
-                  marginLeft: "8px"
-                }}>
-                  for 50 credits
-                </span>
+            <div className="bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/50 rounded-2xl p-6 mb-6">
+              <div className="text-center">
+                <h3 className="text-xl font-semibold text-white mb-2">Starter Pack</h3>
+                <p className="text-gray-400 text-sm mb-6">Perfect for trying out our AI generator</p>
+
+                <div className="mb-6">
+                  <span className="text-4xl font-bold text-white">$5</span>
+                  <span className="text-gray-400 ml-2">for 50 credits</span>
+                </div>
+
+                <button
+                  onClick={() => {
+                    window.location.href = '/payments/local';
+                  }}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  Purchase Credits
+                </button>
               </div>
-              <button
-                onClick={() => {
-                  window.location.href = '/payments/local';
-                }}
-                style={{ 
-                  width: "100%",
-                  background: "#22C55E",
-                  color: "white",
-                  border: "none",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  fontSize: "16px",
-                  fontWeight: "500",
-                  cursor: "pointer",
-                  transition: "all 0.2s"
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = "#16A34A";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = "#22C55E";
-                }}
-              >
-                Purchase Credits
-              </button>
+            </div>
+
+            <div className="text-center text-xs text-gray-500">
+              <p>Secure payment • Instant delivery • No subscription</p>
             </div>
           </div>
         </div>
