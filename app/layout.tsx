@@ -34,7 +34,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased min-h-screen bg-offwhite text-charcoal`} style={{ margin: 0, padding: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
+      <body className={`${inter.variable} antialiased`}>
         <main className="min-h-screen">{children}</main>
         <InspirationalWidget />
       </body>
