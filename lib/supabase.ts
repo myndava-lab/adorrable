@@ -1,27 +1,34 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Missing Supabase environment variables:', {
+    supabaseUrl: !!supabaseUrl,
+    supabaseAnonKey: !!supabaseAnonKey
+  })
   throw new Error('Missing Supabase environment variables')
 }
 
-// Singleton pattern to prevent multiple clients
-let supabaseInstance: ReturnType<typeof createClient> | null = null
+// Global singleton to prevent multiple clients
+declare global {
+  var __supabase: ReturnType<typeof createClient> | undefined
+}
 
-export const supabase = (() => {
-  if (!supabaseInstance) {
-    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-      },
-    })
-  }
-  return supabaseInstance
-})()
+export const supabase = globalThis.__supabase ?? createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce'
+  },
+})
+
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.__supabase = supabase
+}
 
 // Mock client for development/testing
 export const createMockClient = () => ({
