@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabaseServer'
 import { getUserProfile, grantCredits, deductCredits } from '@/lib/supabaseServer'
@@ -7,15 +6,15 @@ export async function GET(request: NextRequest) {
   try {
     const response = NextResponse.next()
     const supabase = createServerSupabaseClient(request, response)
-    
+
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const profile = await getUserProfile(user.id)
-    
+
     if (!profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
@@ -34,9 +33,9 @@ export async function POST(request: NextRequest) {
   try {
     const response = NextResponse.next()
     const supabase = createServerSupabaseClient(request, response)
-    
+
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
