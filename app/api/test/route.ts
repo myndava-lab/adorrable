@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server'
-import { testDatabaseConnection, getUserProfile, grantCredits, deductCredits } from '@/lib/supabaseServer'
+import { testDatabaseConnection, getUserProfile, grantCredits, deductCredits, createUserProfile } from '@/lib/supabaseServer'
 import OpenAI from 'openai'
 
 export async function GET() {
@@ -57,22 +57,42 @@ export async function GET() {
   try {
     if (!process.env.OPENAI_API_KEY) {
       aiTest.status = 'fail'
-      aiTest.details = { error: 'API key not set' }
+      aiTest.details = { error: 'OPENAI_API_KEY environment variable not set' }
     } else {
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+      
+      // Test with a simple completion
       const completion = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: 'Say "Hello World"' }],
-        max_tokens: 10
+        max_tokens: 10,
+        temperature: 0
       })
       
       const response = completion.choices[0]?.message?.content
-      aiTest.status = response ? 'pass' : 'fail'
-      aiTest.details = { response: response || 'No response' }
+      if (response && response.trim().length > 0) {
+        aiTest.status = 'pass'
+        aiTest.details = { 
+          response: response.trim(),
+          model: completion.model,
+          usage: completion.usage
+        }
+      } else {
+        aiTest.status = 'fail'
+        aiTest.details = { error: 'Empty response from OpenAI', completion }
+      }
     }
   } catch (error) {
     aiTest.status = 'fail'
-    aiTest.details = { error: error instanceof Error ? error.message : 'Unknown error' }
+    if (error instanceof Error) {
+      aiTest.details = { 
+        error: error.message,
+        code: (error as any).code,
+        type: (error as any).type
+      }
+    } else {
+      aiTest.details = { error: 'Unknown error', details: String(error) }
+    }
   }
   testResults.tests.push(aiTest)
 
@@ -85,32 +105,55 @@ export async function GET() {
 
   try {
     const testUserId = 'test-user-' + Date.now()
+    const testEmail = `test-${Date.now()}@adorrable.dev`
     
-    // Test granting credits
-    const grantResult = await grantCredits(testUserId, 5, 'Test credit grant')
+    // First create a test user profile
+    const { createUserProfile } = await import('@/lib/supabaseServer')
+    const profile = await createUserProfile(testUserId, testEmail, 'Test User')
     
-    if (grantResult.success) {
-      // Test deducting credits
-      const deductResult = await deductCredits(testUserId, 2, 'Test credit deduction')
+    if (!profile) {
+      creditTest.status = 'fail'
+      creditTest.details = { error: 'Failed to create test user profile' }
+    } else {
+      // Test granting credits
+      const grantResult = await grantCredits(testUserId, 5, 'Test credit grant')
       
-      if (deductResult.success) {
-        creditTest.status = 'pass'
-        creditTest.details = {
-          grantResult,
-          deductResult,
-          finalBalance: deductResult.newBalance
+      if (grantResult.success) {
+        // Test deducting credits
+        const deductResult = await deductCredits(testUserId, 2, 'Test credit deduction')
+        
+        if (deductResult.success) {
+          creditTest.status = 'pass'
+          creditTest.details = {
+            userId: testUserId,
+            initialCredits: profile.credits,
+            grantResult,
+            deductResult,
+            finalBalance: deductResult.newBalance
+          }
+        } else {
+          creditTest.status = 'fail'
+          creditTest.details = { 
+            error: 'Credit deduction failed', 
+            deductResult,
+            userId: testUserId 
+          }
         }
       } else {
         creditTest.status = 'fail'
-        creditTest.details = { error: 'Deduction failed', deductResult }
+        creditTest.details = { 
+          error: 'Credit granting failed', 
+          grantResult,
+          userId: testUserId 
+        }
       }
-    } else {
-      creditTest.status = 'fail'
-      creditTest.details = { error: 'Grant failed', grantResult }
     }
   } catch (error) {
     creditTest.status = 'fail'
-    creditTest.details = { error: error instanceof Error ? error.message : 'Unknown error' }
+    creditTest.details = { 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    }
   }
   testResults.tests.push(creditTest)
 
