@@ -1,36 +1,13 @@
 "use client";
-
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { createClient } from "@supabase/supabase-js";
-import AuthModal from "../components/AuthModal";
-import InspirationalWidget from "../components/InspirationalWidget";
 
-// Dynamic import for CrispChat to avoid SSR issues
 const CrispChat = dynamic(() => import("../components/CrispChat"), {
   ssr: false,
 });
 
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 type Language = "English" | "French" | "Swahili" | "Pidgin";
-
-interface Template {
-  id: string;
-  title: string;
-  description: string;
-  code: string;
-  category: string;
-  difficulty: "Beginner" | "Intermediate" | "Advanced";
-  tags: string[];
-  author: string;
-  downloads: number;
-  rating: number;
-  createdAt: string;
-}
 
 interface CommunityTemplate {
   id: string;
@@ -41,30 +18,39 @@ interface CommunityTemplate {
   downloads: number;
   rating: number;
   tags: string[];
-  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  difficulty: string;
   createdAt: string;
   preview: string;
   code: string;
 }
 
-export default function Home() {
-  // State management
-  const [mounted, setMounted] = useState(false);
-  const [prompt, setPrompt] = useState("");
-  const [language, setLanguage] = useState<Language>("English");
-  const [generatedCode, setGeneratedCode] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [credits, setCredits] = useState<number>(0);
-  const [isLoadingCredits, setIsLoadingCredits] = useState(true);
-  const [showPricing, setShowPricing] = useState(false);
-  const [showCommunityModal, setShowCommunityModal] = useState(false);
-  const [selectedCommunityTemplate, setSelectedCommunityTemplate] = useState<CommunityTemplate | null>(null);
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-  // Static community templates - memoized to prevent recreation
-  const communityTemplates = useMemo<CommunityTemplate[]>(() => [
+export default function Home() {
+  const [prompt, setPrompt] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>("English");
+  const [generatedCode, setGeneratedCode] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showCode, setShowCode] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
+  const [credits, setCredits] = useState<number>(4);
+  const [isLoadingCredits, setIsLoadingCredits] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<CommunityTemplate | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [isGeneratingTemplate, setIsGeneratingTemplate] = useState(false);
+  const [user, setUser] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  const languages: Language[] = ["English", "French", "Swahili", "Pidgin"];
+
+  // Community templates data
+  const communityTemplates: CommunityTemplate[] = [
     {
       id: "1",
       title: "Modern Portfolio Website",
@@ -92,27 +78,27 @@ export default function Home() {
         .container { max-width: 1200px; margin: 0 auto; padding: 80px 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
         .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: transform 0.3s; }
-        .card:hover { transform: translateY(-5px); }
+        .card:hover { transform: translateY(-10px); }
     </style>
 </head>
 <body>
-    <section class="hero">
+    <div class="hero">
         <h1>John Doe</h1>
-        <p>Full Stack Developer & UI/UX Designer</p>
-    </section>
+        <p>Full Stack Developer & Designer</p>
+    </div>
     <div class="container">
         <div class="grid">
             <div class="card">
                 <h3>Web Development</h3>
-                <p>Creating responsive and dynamic web applications using modern technologies.</p>
+                <p>Creating modern, responsive websites with the latest technologies.</p>
             </div>
             <div class="card">
                 <h3>UI/UX Design</h3>
-                <p>Designing intuitive and beautiful user interfaces that enhance user experience.</p>
+                <p>Designing beautiful and intuitive user experiences.</p>
             </div>
             <div class="card">
                 <h3>Mobile Apps</h3>
-                <p>Building cross-platform mobile applications with React Native and Flutter.</p>
+                <p>Building cross-platform mobile applications.</p>
             </div>
         </div>
     </div>
@@ -127,9 +113,9 @@ export default function Home() {
       author: "Mike Rodriguez",
       downloads: 1920,
       rating: 4.7,
-      tags: ["E-commerce", "Shopping", "Product", "Cart"],
+      tags: ["E-commerce", "Shopping", "Payment", "Product"],
       difficulty: "Advanced",
-      createdAt: "2024-01-12",
+      createdAt: "2024-01-10",
       preview: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=250&fit=crop",
       code: `<!DOCTYPE html>
 <html lang="en">
@@ -158,7 +144,7 @@ export default function Home() {
             <div class="product-info">
                 <h1 class="product-title">Premium Headphones</h1>
                 <div class="product-price">$299.99</div>
-                <p class="product-description">Experience premium sound quality with these professional-grade headphones. Featuring noise cancellation, wireless connectivity, and 30-hour battery life.</p>
+                <p class="product-description">Experience crystal-clear audio with our premium wireless headphones. Featuring active noise cancellation, 30-hour battery life, and premium materials.</p>
                 <button class="btn">Add to Cart</button>
             </div>
         </div>
@@ -172,1671 +158,893 @@ export default function Home() {
       description: "An elegant restaurant landing page with menu showcase and reservation system.",
       category: "Restaurant",
       author: "Emma Thompson",
-      downloads: 3156,
+      downloads: 3150,
       rating: 4.8,
-      tags: ["Restaurant", "Food", "Landing", "Menu"],
+      tags: ["Restaurant", "Menu", "Reservation", "Food"],
       difficulty: "Beginner",
-      createdAt: "2024-01-10",
+      createdAt: "2024-01-05",
       preview: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=250&fit=crop",
       code: `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bella Vista Restaurant</title>
+    <title>Restaurant</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Georgia', serif; }
-        .hero { background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&h=800&fit=crop') center/cover; height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; }
+        body { font-family: 'Georgia', serif; line-height: 1.6; }
+        .hero { background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&h=600&fit=crop') center/cover; height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; }
+        .hero-content { background: rgba(0,0,0,0.6); padding: 50px; border-radius: 15px; }
         .hero h1 { font-size: 4rem; margin-bottom: 1rem; }
-        .hero p { font-size: 1.5rem; margin-bottom: 2rem; }
-        .btn { background: #d4af37; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 1.1rem; transition: background 0.3s; }
+        .hero p { font-size: 1.3rem; margin-bottom: 2rem; }
+        .btn { background: #d4af37; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; transition: background 0.3s; text-decoration: none; display: inline-block; }
         .btn:hover { background: #b8941f; }
-        .section { padding: 80px 20px; text-align: center; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .section { padding: 80px 20px; max-width: 1200px; margin: 0 auto; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; }
+        .menu-item { background: #f8f8f8; padding: 30px; border-radius: 10px; text-align: center; }
     </style>
 </head>
 <body>
-    <section class="hero">
-        <div>
+    <div class="hero">
+        <div class="hero-content">
             <h1>Bella Vista</h1>
             <p>Authentic Italian Cuisine in the Heart of the City</p>
-            <a href="#menu" class="btn">View Menu</a>
+            <a href="#reservation" class="btn">Make Reservation</a>
         </div>
-    </section>
-    <section class="section">
-        <div class="container">
-            <h2>Our Story</h2>
-            <p>For over 30 years, Bella Vista has been serving authentic Italian cuisine made with the finest ingredients imported directly from Italy.</p>
+    </div>
+    <div class="section">
+        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 20px;">Our Specialties</h2>
+        <div class="menu-grid">
+            <div class="menu-item">
+                <h3>Pasta Carbonara</h3>
+                <p>Traditional Roman pasta with eggs, cheese, and pancetta</p>
+                <strong>$18</strong>
+            </div>
+            <div class="menu-item">
+                <h3>Margherita Pizza</h3>
+                <p>Fresh tomatoes, mozzarella, and basil on thin crust</p>
+                <strong>$16</strong>
+            </div>
+            <div class="menu-item">
+                <h3>Tiramisu</h3>
+                <p>Classic Italian dessert with coffee and mascarpone</p>
+                <strong>$8</strong>
+            </div>
         </div>
-    </section>
+    </div>
 </body>
 </html>`
     }
-  ], []);
+  ];
 
-  const previewRef = useRef<HTMLIFrameElement>(null);
-
-  // Initialize component
+  // Load user session and credits
   useEffect(() => {
-    setMounted(true);
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+    };
+    getSession();
 
-    // Check authentication
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user || null);
+    });
 
-      if (user) {
-        fetchCredits(user.id);
-      } else {
+    return () => subscription?.unsubscribe();
+  }, []);
+
+  // Load credits
+  useEffect(() => {
+    const loadCredits = async () => {
+      setIsLoadingCredits(true);
+      try {
+        const response = await fetch('/api/credits');
+        if (response.ok) {
+          const data = await response.json();
+          setCredits(data.credits || 4);
+        }
+      } catch (error) {
+        console.error('Error loading credits:', error);
+      } finally {
         setIsLoadingCredits(false);
       }
     };
 
-    checkUser();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchCredits(session.user.id);
-        } else {
-          setCredits(0);
-          setIsLoadingCredits(false);
-        }
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    loadCredits();
   }, []);
 
-  const fetchCredits = async (userId: string) => {
+  // Handle clicks outside modal
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        setShowModal(false);
+        setSelectedTemplate(null);
+      }
+    };
+
+    if (showModal) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showModal]);
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return;
+
+    setIsGenerating(true);
+    setShowCode(false);
+
     try {
-      setIsLoadingCredits(true);
-      const response = await fetch("/api/credits", {
-        headers: {
-          "user-id": userId,
-        },
+      const response = await fetch("/api/ai/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, language: selectedLanguage }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setCredits(data.credits || 0);
-      }
-    } catch (error) {
-      console.error("Failed to fetch credits:", error);
-    } finally {
-      setIsLoadingCredits(false);
-    }
-  };
-
-  const handleGenerate = async () => {
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
-
-    if (credits <= 0) {
-      setShowPricing(true);
-      return;
-    }
-
-    if (!prompt.trim()) return;
-
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/ai/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "user-id": user.id,
-        },
-        body: JSON.stringify({
-          prompt: prompt.trim(),
-          language,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
         setGeneratedCode(data.code);
-        setShowPreview(true);
-        setCredits(prev => Math.max(0, prev - 1));
+        setShowCode(true);
       } else {
-        throw new Error(data.message || "Failed to generate code");
+        console.error("Generation failed");
       }
     } catch (error) {
-      console.error("Generation failed:", error);
-      alert("Failed to generate code. Please try again.");
+      console.error("Error:", error);
     } finally {
-      setIsLoading(false);
+      setIsGenerating(false);
     }
   };
 
-  const handleExport = async () => {
-    if (!generatedCode) return;
+  const handleTemplateClick = useCallback((template: CommunityTemplate) => {
+    setSelectedTemplate(template);
+    setShowModal(true);
+  }, []);
 
+  const handleUseTemplate = useCallback(async () => {
+    if (!selectedTemplate) return;
+
+    setIsGeneratingTemplate(true);
     try {
-      const blob = new Blob([generatedCode], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${prompt.slice(0, 30).replace(/[^a-z0-9]/gi, "_")}.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setGeneratedCode(selectedTemplate.code);
+      setShowCode(true);
+      setShowModal(false);
+      setSelectedTemplate(null);
     } catch (error) {
-      console.error("Export failed:", error);
-      alert("Failed to export file. Please try again.");
+      console.error('Error using template:', error);
+    } finally {
+      setIsGeneratingTemplate(false);
     }
+  }, [selectedTemplate]);
+
+  const downloadCode = () => {
+    const blob = new Blob([generatedCode], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'adorrable-generated-website.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
+  const openInNewTab = () => {
+    const blob = new Blob([generatedCode], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
   };
-
-  const openCommunityTemplate = useCallback((template: CommunityTemplate) => {
-    setSelectedCommunityTemplate(template);
-    setShowCommunityModal(true);
-  }, []);
-
-  const handleCloseCommunityModal = useCallback(() => {
-    setShowCommunityModal(false);
-    setSelectedCommunityTemplate(null);
-  }, []);
-
-  const handleUseTemplate = useCallback(() => {
-    if (selectedCommunityTemplate) {
-      setGeneratedCode(selectedCommunityTemplate.code);
-      setShowPreview(true);
-      handleCloseCommunityModal();
-    }
-  }, [selectedCommunityTemplate, handleCloseCommunityModal]);
-
-  const handleDownloadTemplate = useCallback(() => {
-    if (selectedCommunityTemplate) {
-      const blob = new Blob([selectedCommunityTemplate.code], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${selectedCommunityTemplate.title.replace(/[^a-z0-9]/gi, "_")}.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-  }, [selectedCommunityTemplate]);
-
-  // Community Template Modal - Memoized to prevent re-renders
-  const CommunityTemplateModal = useMemo(() => {
-    if (!showCommunityModal || !selectedCommunityTemplate) return null;
-
-    return (
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.8)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000,
-          padding: "20px",
-        }}
-        onClick={handleCloseCommunityModal}
-      >
-        <div
-          style={{
-            background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
-            borderRadius: "20px",
-            padding: "0",
-            maxWidth: "900px",
-            width: "100%",
-            maxHeight: "90vh",
-            overflow: "hidden",
-            border: "1px solid rgba(148, 163, 184, 0.2)",
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div
-            style={{
-              padding: "24px",
-              borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)",
-            }}
-          >
-            <div style={{ flex: 1 }}>
-              <h2
-                style={{
-                  color: "white",
-                  fontSize: "24px",
-                  fontWeight: "600",
-                  marginBottom: "8px",
-                }}
-              >
-                {selectedCommunityTemplate.title}
-              </h2>
-              <p
-                style={{
-                  color: "rgba(148, 163, 184, 0.8)",
-                  fontSize: "14px",
-                  marginBottom: "12px",
-                }}
-              >
-                by {selectedCommunityTemplate.author} • {selectedCommunityTemplate.downloads.toLocaleString()} downloads
-              </p>
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                {selectedCommunityTemplate.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    style={{
-                      background: "linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(147, 51, 234, 0.3) 100%)",
-                      color: "#60a5fa",
-                      padding: "4px 12px",
-                      borderRadius: "12px",
-                      fontSize: "12px",
-                      border: "1px solid rgba(59, 130, 246, 0.3)",
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <button
-              onClick={handleCloseCommunityModal}
-              style={{
-                background: "none",
-                border: "none",
-                color: "rgba(148, 163, 184, 0.6)",
-                fontSize: "24px",
-                cursor: "pointer",
-                padding: "4px",
-                marginLeft: "16px",
-                borderRadius: "6px",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.color = "white";
-                e.target.style.background = "rgba(239, 68, 68, 0.2)";
-                e.target.style.transform = "scale(1.1)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.color = "rgba(148, 163, 184, 0.6)";
-                e.target.style.background = "none";
-                e.target.style.transform = "scale(1)";
-              }}
-            >
-              ×
-            </button>
-          </div>
-
-          {/* Content */}
-          <div
-            style={{
-              padding: "24px",
-              overflowY: "auto",
-              maxHeight: "calc(90vh - 200px)",
-            }}
-          >
-            <p
-              style={{
-                color: "rgba(148, 163, 184, 0.9)",
-                lineHeight: "1.6",
-                marginBottom: "24px",
-              }}
-            >
-              {selectedCommunityTemplate.description}
-            </p>
-
-            {/* Preview */}
-            <div
-              style={{
-                background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
-                borderRadius: "12px",
-                padding: "16px",
-                marginBottom: "24px",
-                border: "1px solid rgba(148, 163, 184, 0.2)",
-              }}
-            >
-              <h4
-                style={{
-                  color: "white",
-                  fontSize: "16px",
-                  marginBottom: "12px",
-                }}
-              >
-                Code Preview
-              </h4>
-              <div
-                style={{
-                  backgroundColor: "#000",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  overflow: "auto",
-                  maxHeight: "200px",
-                  border: "1px solid rgba(148, 163, 184, 0.1)",
-                }}
-              >
-                <pre
-                  style={{
-                    color: "#e2e8f0",
-                    fontSize: "12px",
-                    fontFamily: "monospace",
-                    margin: 0,
-                    whiteSpace: "pre-wrap",
-                  }}
-                >
-                  {selectedCommunityTemplate.code.slice(0, 500)}...
-                </pre>
-              </div>
-            </div>
-
-            {/* Template Info */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-                gap: "16px",
-                marginBottom: "24px",
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    color: "rgba(148, 163, 184, 0.6)",
-                    fontSize: "12px",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Category
-                </div>
-                <div style={{ color: "white", fontSize: "14px" }}>
-                  {selectedCommunityTemplate.category}
-                </div>
-              </div>
-              <div>
-                <div
-                  style={{
-                    color: "rgba(148, 163, 184, 0.6)",
-                    fontSize: "12px",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Difficulty
-                </div>
-                <div style={{ color: "white", fontSize: "14px" }}>
-                  {selectedCommunityTemplate.difficulty}
-                </div>
-              </div>
-              <div>
-                <div
-                  style={{
-                    color: "rgba(148, 163, 184, 0.6)",
-                    fontSize: "12px",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Rating
-                </div>
-                <div style={{ color: "white", fontSize: "14px" }}>
-                  ⭐ {selectedCommunityTemplate.rating}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div
-            style={{
-              padding: "24px",
-              borderTop: "1px solid rgba(148, 163, 184, 0.2)",
-              display: "flex",
-              gap: "12px",
-              justifyContent: "flex-end",
-              background: "linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 51, 234, 0.05) 100%)",
-            }}
-          >
-            <button
-              onClick={handleDownloadTemplate}
-              style={{
-                background: "linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(148, 163, 184, 0.1) 100%)",
-                color: "white",
-                border: "1px solid rgba(148, 163, 184, 0.3)",
-                padding: "12px 24px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "14px",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = "linear-gradient(135deg, rgba(148, 163, 184, 0.3) 0%, rgba(148, 163, 184, 0.2) 100%)";
-                e.target.style.borderColor = "rgba(148, 163, 184, 0.5)";
-                e.target.style.transform = "translateY(-2px)";
-                e.target.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.2)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = "linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(148, 163, 184, 0.1) 100%)";
-                e.target.style.borderColor = "rgba(148, 163, 184, 0.3)";
-                e.target.style.transform = "translateY(0)";
-                e.target.style.boxShadow = "none";
-              }}
-            >
-              Open Project
-            </button>
-            <button
-              onClick={handleUseTemplate}
-              style={{
-                background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
-                color: "white",
-                border: "none",
-                padding: "12px 24px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "14px",
-                transition: "all 0.2s ease",
-                boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)";
-                e.target.style.transform = "translateY(-2px)";
-                e.target.style.boxShadow = "0 6px 20px rgba(59, 130, 246, 0.4)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)";
-                e.target.style.transform = "translateY(0)";
-                e.target.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.3)";
-              }}
-            >
-              Remix
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }, [showCommunityModal, selectedCommunityTemplate, handleCloseCommunityModal, handleUseTemplate, handleDownloadTemplate]);
-
-  // Pricing Modal Component
-  const PricingModal = () => (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 1000,
-        padding: "20px",
-      }}
-      onClick={() => setShowPricing(false)}
-    >
-      <div
-        style={{
-          background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
-          borderRadius: "20px",
-          padding: "32px",
-          maxWidth: "500px",
-          width: "100%",
-          border: "1px solid rgba(148, 163, 184, 0.2)",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <h2
-            style={{
-              color: "white",
-              fontSize: "28px",
-              fontWeight: "600",
-              marginBottom: "8px",
-            }}
-          >
-            Get More Credits
-          </h2>
-          <p style={{ color: "rgba(148, 163, 184, 0.8)", fontSize: "16px" }}>
-            Choose a plan that works for you
-          </p>
-        </div>
-
-        <div style={{ marginBottom: "32px" }}>
-          <div
-            style={{
-              background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
-              borderRadius: "12px",
-              padding: "24px",
-              border: "1px solid rgba(148, 163, 184, 0.2)",
-              marginBottom: "16px",
-            }}
-          >
-            <h3
-              style={{
-                color: "white",
-                fontSize: "20px",
-                marginBottom: "8px",
-              }}
-            >
-              Starter Pack
-            </h3>
-            <p
-              style={{
-                color: "rgba(148, 163, 184, 0.8)",
-                fontSize: "14px",
-                marginBottom: "16px",
-              }}
-            >
-              Perfect for trying out our AI generator
-            </p>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "baseline",
-                marginBottom: "16px",
-              }}
-            >
-              <span
-                style={{
-                  color: "white",
-                  fontSize: "32px",
-                  fontWeight: "600",
-                }}
-              >
-                $5
-              </span>
-              <span
-                style={{
-                  color: "rgba(148, 163, 184, 0.8)",
-                  fontSize: "16px",
-                  marginLeft: "8px",
-                }}
-              >
-                for 50 credits
-              </span>
-            </div>
-            <button
-              style={{
-                background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
-                color: "white",
-                border: "none",
-                padding: "12px 24px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "14px",
-                width: "100%",
-                transition: "all 0.2s",
-                boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)";
-                e.currentTarget.style.boxShadow = "0 6px 20px rgba(59, 130, 246, 0.4)";
-                e.currentTarget.style.transform = "translateY(-1px)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)";
-                e.currentTarget.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.3)";
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
-            >
-              Buy Now
-            </button>
-          </div>
-
-          <div
-            style={{
-              background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
-              borderRadius: "12px",
-              padding: "24px",
-              border: "2px solid #3b82f6",
-              position: "relative",
-              boxShadow: "0 4px 20px rgba(59, 130, 246, 0.3)",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                top: "-10px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
-                color: "white",
-                padding: "6px 16px",
-                borderRadius: "20px",
-                fontSize: "12px",
-                fontWeight: "600",
-                boxShadow: "0 4px 15px rgba(59, 130, 246, 0.4)",
-              }}
-            >
-              BEST VALUE
-            </div>
-            <h3
-              style={{
-                color: "white",
-                fontSize: "20px",
-                marginBottom: "8px",
-              }}
-            >
-              Pro Pack
-            </h3>
-            <p
-              style={{
-                color: "rgba(148, 163, 184, 0.8)",
-                fontSize: "14px",
-                marginBottom: "16px",
-              }}
-            >
-              Great for regular users and small projects
-            </p>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "baseline",
-                marginBottom: "16px",
-              }}
-            >
-              <span
-                style={{
-                  color: "white",
-                  fontSize: "32px",
-                  fontWeight: "600",
-                }}
-              >
-                $15
-              </span>
-              <span
-                style={{
-                  color: "rgba(148, 163, 184, 0.8)",
-                  fontSize: "16px",
-                  marginLeft: "8px",
-                }}
-              >
-                for 200 credits
-              </span>
-            </div>
-            <button
-              style={{
-                background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
-                color: "white",
-                border: "none",
-                padding: "12px 24px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontSize: "14px",
-                width: "100%",
-                transition: "all 0.2s",
-                boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)";
-                e.currentTarget.style.boxShadow = "0 6px 20px rgba(59, 130, 246, 0.4)";
-                e.currentTarget.style.transform = "translateY(-1px)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)";
-                e.currentTarget.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.3)";
-                e.currentTarget.style.transform = "translateY(0)";
-              }}
-            >
-              Buy Now
-            </button>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setShowPricing(false)}
-          style={{
-            background: "none",
-            border: "1px solid rgba(148, 163, 184, 0.3)",
-            color: "rgba(148, 163, 184, 0.8)",
-            padding: "12px 24px",
-            borderRadius: "10px",
-            cursor: "pointer",
-            fontSize: "14px",
-            width: "100%",
-            transition: "all 0.2s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.background = "rgba(148, 163, 184, 0.1)";
-            e.target.style.color = "white";
-            e.target.style.borderColor = "rgba(148, 163, 184, 0.5)";
-            e.target.style.transform = "translateY(-2px)";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = "none";
-            e.target.style.color = "rgba(148, 163, 184, 0.8)";
-            e.target.style.borderColor = "rgba(148, 163, 184, 0.3)";
-            e.target.style.transform = "translateY(0)";
-          }}
-        >
-          Maybe Later
-        </button>
-      </div>
-    </div>
-  );
-
-  if (!mounted) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            color: "white",
-            fontSize: "18px",
-            textAlign: "center",
-          }}
-        >
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              border: "3px solid rgba(59, 130, 246, 0.3)",
-              borderTop: "3px solid #3b82f6",
-              borderRadius: "50%",
-              animation: "spin 1s linear infinite",
-              margin: "0 auto 16px",
-            }}
-          />
-          Loading Adorrable...
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <>
-      <style>
-        {`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-
-          @keyframes fadeInUp {
-            from {
-              opacity: 0;
-              transform: translateY(30px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-
-          .animate-fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
-          }
-        `}
-      </style>
-
-      <main
-        style={{
-          minHeight: "100vh",
-          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
-          color: "white",
-          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        }}
-      >
-        {/* Header */}
-        <header
-          style={{
-            padding: "20px 24px",
-            borderBottom: "1px solid rgba(148, 163, 184, 0.1)",
-            background: "rgba(15, 23, 42, 0.8)",
-            backdropFilter: "blur(10px)",
-            position: "sticky",
-            top: 0,
-            zIndex: 100,
+    <div style={{ 
+      minHeight: "100vh", 
+      background: "#0B1020",
+      backgroundImage: `
+        linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px),
+        radial-gradient(600px 300px at 50% 0%, rgba(79,195,247,0.12), transparent 60%)
+      `,
+      backgroundSize: "40px 40px, 40px 40px, 100% 100%",
+      fontFamily: "Inter, ui-sans-serif, system-ui"
+    }}>
+      {/* Navigation */}
+      <nav style={{ 
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "16px 24px",
+        maxWidth: "1200px",
+        margin: "0 auto"
+      }}>
+        <div style={{ 
+          color: "#22D3EE",
+          fontSize: "20px",
+          fontWeight: "600"
+        }}>
+          Adorrable
+        </div>
+        <div style={{ 
+          display: "flex",
+          gap: "24px",
+          color: "#94A3B8"
+        }}>
+          <a href="#features" style={{ 
+            color: "inherit",
+            textDecoration: "none",
+            transition: "color 0.2s"
           }}
-        >
-          <div
-            style={{
-              maxWidth: "1200px",
-              margin: "0 auto",
+          onMouseEnter={(e) => e.target.style.color = "#E5E7EB"}
+          onMouseLeave={(e) => e.target.style.color = "#94A3B8"}
+          >
+            Features
+          </a>
+          <a href="#templates" style={{ 
+            color: "inherit",
+            textDecoration: "none",
+            transition: "color 0.2s"
+          }}
+          onMouseEnter={(e) => e.target.style.color = "#E5E7EB"}
+          onMouseLeave={(e) => e.target.style.color = "#94A3B8"}
+          >
+            Templates
+          </a>
+        </div>
+      </nav>
+
+      <div style={{ padding: "0 24px", maxWidth: "1200px", margin: "0 auto" }}>
+        {/* Hero Section */}
+        <div style={{ 
+          position: "relative",
+          overflow: "hidden",
+          borderRadius: "32px",
+          padding: "48px 24px",
+          marginBottom: "32px"
+        }}>
+          <div style={{ 
+            position: "absolute",
+            inset: "0",
+            backgroundImage: `
+              linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px)
+            `,
+            backgroundSize: "40px 40px",
+            opacity: "0.6",
+            pointerEvents: "none"
+          }} />
+
+          <h1 style={{ 
+            background: "linear-gradient(90deg, #4FC3F7, #7C4DFF)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+            fontFamily: "Urbanist, ui-sans-serif, system-ui",
+            fontWeight: "800",
+            letterSpacing: "-0.025em",
+            fontSize: "40px",
+            lineHeight: "1.1",
+            marginBottom: "16px"
+          }}>
+            Build something with Adorrable
+          </h1>
+
+          <p style={{ 
+            color: "#94A3B8",
+            fontSize: "18px",
+            maxWidth: "512px",
+            marginBottom: "24px"
+          }}>
+            Create apps and culturally intelligent websites by chatting with AI
+          </p>
+
+          {/* Input Section */}
+          <div style={{ 
+            borderRadius: "32px",
+            border: "1px solid rgba(148,163,184,0.12)",
+            background: "rgba(14,21,38,0.7)",
+            backdropFilter: "blur(8px)",
+            padding: "12px"
+          }}>
+            <input
+              type="text"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Ask Adorrable to create a business website…"
+              style={{ 
+                width: "100%",
+                background: "transparent",
+                border: "none",
+                outline: "none",
+                color: "#E5E7EB",
+                fontSize: "16px",
+                padding: "8px"
+              }}
+              onKeyPress={(e) => e.key === "Enter" && handleGenerate()}
+            />
+
+            <div style={{ 
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              marginTop: "12px"
+            }}>
+              {languages.map((language, index) => (
+                <button
+                  key={language}
+                  onClick={() => setSelectedLanguage(language)}
+                  style={{ 
+                    padding: "6px 12px",
+                    borderRadius: "9999px",
+                    border: selectedLanguage === language ? "none" : "1px solid rgba(148,163,184,0.12)",
+                    background: selectedLanguage === language ? "#22C55E" : "transparent",
+                    color: selectedLanguage === language ? "white" : "#94A3B8",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedLanguage !== language) {
+                      e.target.style.color = "#E5E7EB";
+                      e.target.style.background = "rgba(255,255,255,0.05)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedLanguage !== language) {
+                      e.target.style.color = "#94A3B8";
+                      e.target.style.background = "transparent";
+                    }
+                  }}
+                >
+                  {language}
+                </button>
+              ))}
+              <button
+                onClick={handleGenerate}
+                disabled={isGenerating || !prompt.trim()}
+                style={{ 
+                  marginLeft: "auto",
+                  padding: "6px 16px",
+                  borderRadius: "9999px",
+                  background: "#22C55E",
+                  color: "white",
+                  border: "none",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => {
+                  if (!isGenerating && prompt.trim()) {
+                    e.target.style.background = "#16A34A";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isGenerating && prompt.trim()) {
+                    e.target.style.background = "#22C55E";
+                  }
+                }}
+              >
+                {isGenerating ? "Generating..." : "Send"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Credits Bar */}
+        <div style={{ 
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          fontSize: "14px",
+          marginBottom: "32px"
+        }}>
+          <span style={{ 
+            padding: "4px 12px",
+            borderRadius: "9999px",
+            border: "1px solid rgba(148,163,184,0.12)",
+            color: "#94A3B8"
+          }}>
+            {isLoadingCredits ? "..." : credits} credits remaining
+          </span>
+          <button
+            onClick={() => setShowPricing(true)}
+            style={{ 
+              padding: "6px 12px",
+              borderRadius: "9999px",
+              background: "#22C55E",
+              color: "white",
+              border: "none",
+              fontSize: "14px",
+              cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = "#16A34A";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = "#22C55E";
+            }}
+          >
+            Buy More
+          </button>
+        </div>
+
+        {/* Generated Code Section */}
+        {showCode && generatedCode && (
+          <div style={{ 
+            background: "rgba(14,21,38,0.6)",
+            border: "1px solid rgba(148,163,184,0.12)",
+            borderRadius: "16px",
+            padding: "24px",
+            marginBottom: "32px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.35)"
+          }}>
+            <div style={{ 
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "32px",
-              }}
-            >
-              <h1
-                style={{
-                  fontSize: "24px",
-                  fontWeight: "700",
-                  background: "linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                Adorrable
-              </h1>
-              <nav style={{ display: "flex", gap: "24px", alignItems: "center" }}>
-                <a
-                  href="#features"
-                  style={{
-                    color: "rgba(148, 163, 184, 0.8)",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                    transition: "all 0.2s ease",
-                    padding: "8px 12px",
-                    borderRadius: "8px",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.color = "white";
-                    e.target.style.background = "rgba(59, 130, 246, 0.1)";
-                    e.target.style.transform = "translateY(-1px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.color = "rgba(148, 163, 184, 0.8)";
-                    e.target.style.background = "transparent";
-                    e.target.style.transform = "translateY(0)";
-                  }}
-                >
-                  Features
-                </a>
-                <a
-                  href="#templates"
-                  style={{
-                    color: "rgba(148, 163, 184, 0.8)",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                    transition: "all 0.2s ease",
-                    padding: "8px 12px",
-                    borderRadius: "8px",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.color = "white";
-                    e.target.style.background = "rgba(59, 130, 246, 0.1)";
-                    e.target.style.transform = "translateY(-1px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.color = "rgba(148, 163, 184, 0.8)";
-                    e.target.style.background = "transparent";
-                    e.target.style.transform = "translateY(0)";
-                  }}
-                >
-                  Templates
-                </a>
+              marginBottom: "16px"
+            }}>
+              <h3 style={{ color: "#E5E7EB", fontSize: "18px", fontWeight: "600" }}>
+                Generated Website
+              </h3>
+              <div style={{ display: "flex", gap: "8px" }}>
                 <button
-                  onClick={() => setShowPricing(true)}
-                  style={{
-                    background: "none",
+                  onClick={openInNewTab}
+                  style={{ 
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    background: "#22C55E",
+                    color: "white",
                     border: "none",
-                    color: "rgba(148, 163, 184, 0.8)",
                     fontSize: "14px",
                     cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    padding: "4px 8px",
-                    borderRadius: "6px",
+                    transition: "all 0.2s"
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.color = "white";
-                    e.target.style.background = "rgba(148, 163, 184, 0.1)";
-                    e.target.style.transform = "translateY(-1px)";
+                    e.target.style.background = "#16A34A";
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.color = "rgba(148, 163, 184, 0.8)";
-                    e.target.style.background = "none";
-                    e.target.style.transform = "translateY(0)";
+                    e.target.style.background = "#22C55E";
                   }}
                 >
-                  Pricing
-                </button>
-                <a
-                  href="#docs"
-                  style={{
-                    color: "rgba(148, 163, 184, 0.8)",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                    transition: "all 0.2s ease",
-                    padding: "8px 12px",
-                    borderRadius: "8px",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.color = "white";
-                    e.target.style.background = "rgba(59, 130, 246, 0.1)";
-                    e.target.style.transform = "translateY(-1px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.color = "rgba(148, 163, 184, 0.8)";
-                    e.target.style.background = "transparent";
-                    e.target.style.transform = "translateY(0)";
-                  }}
-                >
-                  Docs
-                </a>
-              </nav>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              {user ? (
-                <>
-                  <div
-                    style={{
-                      background: "linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)",
-                      border: "1px solid rgba(16, 185, 129, 0.3)",
-                      borderRadius: "12px",
-                      padding: "8px 16px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <span style={{ fontSize: "16px" }}>⚡</span>
-                    <span style={{ fontSize: "14px", fontWeight: "500" }}>
-                      {isLoadingCredits ? "..." : credits} credits
-                    </span>
-                    <button
-                      onClick={() => setShowPricing(true)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "#10b981",
-                        fontSize: "12px",
-                        cursor: "pointer",
-                        textDecoration: "underline",
-                        transition: "all 0.2s ease",
-                        padding: "2px 4px",
-                        borderRadius: "4px",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.color = "#059669";
-                        e.target.style.background = "rgba(16, 185, 129, 0.1)";
-                        e.target.style.transform = "scale(1.05)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.color = "#10b981";
-                        e.target.style.background = "none";
-                        e.target.style.transform = "scale(1)";
-                      }}
-                    >
-                      Get more
-                    </button>
-                  </div>
-                  <button
-                    onClick={handleSignOut}
-                    style={{
-                      background: "rgba(148, 163, 184, 0.1)",
-                      color: "rgba(148, 163, 184, 0.8)",
-                      border: "1px solid rgba(148, 163, 184, 0.2)",
-                      padding: "8px 16px",
-                      borderRadius: "10px",
-                      fontSize: "14px",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.background = "rgba(148, 163, 184, 0.2)";
-                      e.target.style.color = "white";
-                      e.target.style.borderColor = "rgba(148, 163, 184, 0.4)";
-                      e.target.style.transform = "translateY(-2px)";
-                      e.target.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.2)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.background = "rgba(148, 163, 184, 0.1)";
-                      e.target.style.color = "rgba(148, 163, 184, 0.8)";
-                      e.target.style.borderColor = "rgba(148, 163, 184, 0.2)";
-                      e.target.style.transform = "translateY(0)";
-                      e.target.style.boxShadow = "none";
-                    }}
-                  >
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setShowAuthModal(true)}
-                  style={{
-                    background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
-                    color: "white",
-                    border: "none",
-                    padding: "10px 20px",
-                    borderRadius: "12px",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)";
-                    e.target.style.transform = "translateY(-2px)";
-                    e.target.style.boxShadow = "0 6px 20px rgba(59, 130, 246, 0.4)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)";
-                    e.target.style.transform = "translateY(0)";
-                    e.target.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.3)";
-                  }}
-                >
-                  Sign In
-                </button>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* Hero Section */}
-        <section
-          style={{
-            padding: "80px 24px 60px",
-            textAlign: "center",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.3), transparent 70%)",
-              pointerEvents: "none",
-            }}
-          />
-          <div
-            style={{
-              maxWidth: "800px",
-              margin: "0 auto",
-              position: "relative",
-              zIndex: 1,
-            }}
-            className="animate-fade-in-up"
-          >
-            <h1
-              style={{
-                fontSize: "clamp(2.5rem, 5vw, 4rem)",
-                fontWeight: "700",
-                lineHeight: "1.1",
-                marginBottom: "24px",
-                background: "linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Build something with Adorrable
-            </h1>
-            <p
-              style={{
-                fontSize: "clamp(1rem, 2.5vw, 1.25rem)",
-                color: "rgba(148, 163, 184, 0.8)",
-                lineHeight: "1.6",
-                marginBottom: "40px",
-                maxWidth: "600px",
-                margin: "0 auto 40px",
-              }}
-            >
-              Create apps and culturally intelligent websites by chatting with AI
-            </p>
-
-            {/* Main Input Section */}
-            <div
-              style={{
-                background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)",
-                border: "1px solid rgba(148, 163, 184, 0.2)",
-                borderRadius: "24px",
-                padding: "32px",
-                marginBottom: "40px",
-                backdropFilter: "blur(10px)",
-                boxShadow: "0 10px 40px rgba(0, 0, 0, 0.3)",
-              }}
-            >
-              <p
-                style={{
-                  color: "rgba(148, 163, 184, 0.7)",
-                  fontSize: "16px",
-                  marginBottom: "20px",
-                  textAlign: "left",
-                }}
-              >
-                Ask Adorrable to create a business website...
-              </p>
-
-              <div
-                style={{
-                  background: "rgba(15, 23, 42, 0.8)",
-                  borderRadius: "16px",
-                  padding: "20px",
-                  marginBottom: "20px",
-                  border: "1px solid rgba(148, 163, 184, 0.2)",
-                }}
-              >
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Design a tech startup homepage with testimonials and pricing..."
-                  style={{
-                    width: "100%",
-                    minHeight: "80px",
-                    backgroundColor: "transparent",
-                    border: "none",
-                    color: "white",
-                    fontSize: "16px",
-                    lineHeight: "1.5",
-                    resize: "none",
-                    outline: "none",
-                    fontFamily: "inherit",
-                    "::placeholder": {
-                      color: "rgba(148, 163, 184, 0.5)",
-                    },
-                  }}
-                />
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: "16px",
-                  flexWrap: "wrap",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                  }}
-                >
-                  <span style={{ fontSize: "20px" }}>🪄</span>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "8px",
-                      backgroundColor: "rgba(15, 23, 42, 0.8)",
-                      padding: "8px",
-                      borderRadius: "12px",
-                      border: "1px solid rgba(148, 163, 184, 0.2)",
-                    }}
-                  >
-                    {(["English", "French", "Swahili", "Pidgin"] as Language[]).map((lang) => (
-                      <button
-                        key={lang}
-                        onClick={() => setLanguage(lang)}
-                        style={{
-                          background: language === lang
-                            ? "linear-gradient(135deg, #10b981 0%, #3b82f6 100%)"
-                            : "transparent",
-                          color: language === lang ? "white" : "rgba(148, 163, 184, 0.7)",
-                          border: "none",
-                          padding: "8px 16px",
-                          borderRadius: "8px",
-                          fontSize: "14px",
-                          cursor: "pointer",
-                          transition: "all 0.2s",
-                          fontWeight: language === lang ? "500" : "400",
-                        }}
-                      >
-                        {lang}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleGenerate}
-                  disabled={isLoading || !prompt.trim()}
-                  style={{
-                    background: isLoading || !prompt.trim()
-                      ? "rgba(148, 163, 184, 0.3)"
-                      : "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
-                    color: "white",
-                    border: "none",
-                    padding: "12px 24px",
-                    borderRadius: "12px",
-                    fontSize: "16px",
-                    fontWeight: "500",
-                    cursor: isLoading || !prompt.trim() ? "not-allowed" : "pointer",
-                    transition: "all 0.2s ease",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    boxShadow: isLoading || !prompt.trim()
-                      ? "none"
-                      : "0 4px 15px rgba(59, 130, 246, 0.3)",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isLoading && prompt.trim()) {
-                      e.target.style.background = "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)";
-                      e.target.style.transform = "translateY(-2px)";
-                      e.target.style.boxShadow = "0 6px 20px rgba(59, 130, 246, 0.4)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isLoading && prompt.trim()) {
-                      e.target.style.background = "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)";
-                      e.target.style.transform = "translateY(0)";
-                      e.target.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.3)";
-                    }
-                  }}
-                >
-                  {isLoading ? "Generating..." : "Generate"}
-                  {!isLoading && <span>🚀</span>}
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Preview Section */}
-        {showPreview && generatedCode && (
-          <section
-            style={{
-              padding: "0 24px 40px",
-              maxWidth: "1200px",
-              margin: "0 auto",
-            }}
-          >
-            <div
-              style={{
-                background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)",
-                borderRadius: "20px",
-                border: "1px solid rgba(148, 163, 184, 0.2)",
-                overflow: "hidden",
-                boxShadow: "0 10px 40px rgba(0, 0, 0, 0.3)",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "20px 24px",
-                  borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
-                  background: "rgba(15, 23, 42, 0.5)",
-                }}
-              >
-                <h3 style={{ fontSize: "18px", fontWeight: "600", color: "white" }}>
                   Preview
-                </h3>
-                <div style={{ display: "flex", gap: "12px" }}>
-                  <button
-                    onClick={handleExport}
-                    style={{
-                      background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                      color: "white",
-                      border: "none",
-                      padding: "8px 16px",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      transition: "all 0.2s ease",
-                      boxShadow: "0 4px 15px rgba(16, 185, 129, 0.3)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.background = "linear-gradient(135deg, #059669 0%, #047857 100%)";
-                      e.target.style.transform = "translateY(-2px)";
-                      e.target.style.boxShadow = "0 6px 20px rgba(16, 185, 129, 0.4)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
-                      e.target.style.transform = "translateY(0)";
-                      e.target.style.boxShadow = "0 4px 15px rgba(16, 185, 129, 0.3)";
-                    }}
-                  >
-                    <span>📁</span>
-                    Export
-                  </button>
-                  <button
-                    onClick={() => setShowPreview(false)}
-                    style={{
-                      background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-                      color: "white",
-                      border: "none",
-                      padding: "8px 16px",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                      boxShadow: "0 4px 15px rgba(239, 68, 68, 0.3)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.background = "linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)";
-                      e.target.style.transform = "translateY(-2px)";
-                      e.target.style.boxShadow = "0 6px 20px rgba(239, 68, 68, 0.4)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.background = "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)";
-                      e.target.style.transform = "translateY(0)";
-                      e.target.style.boxShadow = "0 4px 15px rgba(239, 68, 68, 0.3)";
-                    }}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-              <div style={{ height: "600px" }}>
-                <iframe
-                  ref={previewRef}
-                  srcDoc={generatedCode}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    border: "none",
-                    backgroundColor: "white",
+                </button>
+                <button
+                  onClick={downloadCode}
+                  style={{ 
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    background: "transparent",
+                    color: "#94A3B8",
+                    border: "1px solid rgba(148,163,184,0.12)",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    transition: "all 0.2s"
                   }}
-                  title="Generated Website Preview"
-                />
+                  onMouseEnter={(e) => {
+                    e.target.style.color = "#E5E7EB";
+                    e.target.style.borderColor = "rgba(148,163,184,0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.color = "#94A3B8";
+                    e.target.style.borderColor = "rgba(148,163,184,0.12)";
+                  }}
+                >
+                  Download
+                </button>
               </div>
             </div>
-          </section>
+            <pre style={{ 
+              background: "#0B1020",
+              color: "#E5E7EB",
+              padding: "16px",
+              borderRadius: "8px",
+              fontSize: "14px",
+              overflow: "auto",
+              maxHeight: "400px",
+              border: "1px solid rgba(148,163,184,0.12)"
+            }}>
+              {generatedCode}
+            </pre>
+          </div>
         )}
 
         {/* Community Templates Section */}
-        <section
-          style={{
-            padding: "40px 24px 80px",
-            maxWidth: "1200px",
-            margin: "0 auto",
-          }}
-          id="templates"
-        >
-          <div
-            style={{
-              background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)",
-              borderRadius: "20px",
-              border: "1px solid rgba(148, 163, 184, 0.2)",
-              padding: "32px",
-              boxShadow: "0 10px 40px rgba(0, 0, 0, 0.3)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "32px",
-              }}
-            >
-              <h3
-                style={{
-                  fontSize: "24px",
-                  fontWeight: "600",
-                  color: "white",
-                }}
-              >
-                From the Community
-              </h3>
-              <span
-                style={{
-                  color: "rgba(148, 163, 184, 0.6)",
-                  fontSize: "14px",
-                }}
-              >
-                {communityTemplates.length} templates
-              </span>
-            </div>
+        <div id="templates" style={{ marginBottom: "48px" }}>
+          <div style={{ 
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "24px"
+          }}>
+            <h2 style={{ 
+              color: "#E5E7EB",
+              fontSize: "24px",
+              fontWeight: "600"
+            }}>
+              From the Community
+            </h2>
+            <span style={{ 
+              color: "#94A3B8",
+              fontSize: "14px"
+            }}>
+              {communityTemplates.length} templates
+            </span>
+          </div>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-                gap: "24px",
-              }}
-            >
-              {communityTemplates.map((template) => (
-                <div
-                  key={template.id}
-                  onClick={() => openCommunityTemplate(template)}
-                  style={{
-                    background: "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%)",
-                    borderRadius: "16px",
-                    border: "1px solid rgba(148, 163, 184, 0.2)",
-                    padding: "20px",
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                    overflow: "hidden",
-                    position: "relative",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(59, 130, 246, 0.5)";
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                    e.currentTarget.style.boxShadow = "0 20px 40px rgba(0, 0, 0, 0.4)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(148, 163, 184, 0.2)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "100%",
-                      height: "180px",
-                      backgroundColor: "#000",
-                      borderRadius: "12px",
-                      marginBottom: "16px",
-                      backgroundImage: `url(${template.preview})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      border: "1px solid rgba(148, 163, 184, 0.1)",
-                    }}
-                  />
-                  <h4
-                    style={{
-                      color: "white",
-                      fontSize: "18px",
-                      fontWeight: "600",
-                      marginBottom: "8px",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 1,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {template.title}
-                  </h4>
-                  <p
-                    style={{
-                      color: "rgba(148, 163, 184, 0.8)",
-                      fontSize: "14px",
-                      lineHeight: "1.5",
-                      marginBottom: "16px",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {template.description}
-                  </p>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      fontSize: "12px",
-                    }}
-                  >
-                    <span style={{ color: "rgba(148, 163, 184, 0.6)" }}>
-                      by {template.author}
-                    </span>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      <span style={{ color: "rgba(148, 163, 184, 0.6)" }}>
-                        ⭐ {template.rating}
-                      </span>
-                      <span style={{ color: "rgba(148, 163, 184, 0.6)" }}>
-                        📁 {template.downloads.toLocaleString()}
-                      </span>
-                    </div>
+          <div style={{ 
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: "24px"
+          }}>
+            {communityTemplates.map((template) => (
+              <div
+                key={template.id}
+                onClick={() => handleTemplateClick(template)}
+                style={{ 
+                  background: template.id === "3" ? "#F59E0B" : template.id === "2" ? "#10B981" : "rgba(14,21,38,0.6)",
+                  border: "1px solid rgba(148,163,184,0.12)",
+                  borderRadius: "20px",
+                  padding: "24px",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
+                  color: template.id === "3" || template.id === "2" ? "white" : "#E5E7EB"
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = "translateY(-4px)";
+                  e.target.style.boxShadow = "0 20px 40px rgba(0,0,0,0.5)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = "translateY(0)";
+                  e.target.style.boxShadow = "0 10px 30px rgba(0,0,0,0.35)";
+                }}
+              >
+                <div style={{ 
+                  fontSize: "12px",
+                  background: template.id === "3" || template.id === "2" ? "rgba(255,255,255,0.2)" : "rgba(148,163,184,0.2)",
+                  padding: "2px 8px",
+                  borderRadius: "9999px",
+                  display: "inline-block",
+                  marginBottom: "12px"
+                }}>
+                  {template.id === "3" ? "Featured" : template.id === "2" ? "Popular" : "Community"}
+                </div>
+                <h3 style={{ 
+                  fontSize: "20px",
+                  fontWeight: "600",
+                  marginBottom: "8px"
+                }}>
+                  {template.title}
+                </h3>
+                <p style={{ 
+                  fontSize: "14px",
+                  opacity: 0.9,
+                  marginBottom: "16px"
+                }}>
+                  {template.description}
+                </p>
+                <div style={{ 
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  fontSize: "12px",
+                  opacity: 0.8
+                }}>
+                  <span>by {template.author}</span>
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    <span>⭐ {template.rating}</span>
+                    <span>↓ {template.downloads.toLocaleString()}</span>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        </section>
+        </div>
+      </div>
 
-        {/* Simple Footer */}
-        <footer
-          style={{
-            borderTop: "1px solid rgba(148, 163, 184, 0.1)",
-            padding: "40px 24px",
-            textAlign: "center",
-            background: "rgba(15, 23, 42, 0.5)",
-          }}
-        >
-          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-            <div style={{ marginBottom: "24px" }}>
-              <a
-                href="#about"
-                style={{
-                  color: "rgba(148, 163, 184, 0.7)",
-                  textDecoration: "none",
-                  margin: "0 20px",
+      {/* Community Template Modal */}
+      {showModal && selectedTemplate && (
+        <div style={{ 
+          position: "fixed",
+          inset: "0",
+          background: "rgba(0, 0, 0, 0.8)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: "1000",
+          padding: "20px"
+        }}>
+          <div
+            ref={modalRef}
+            style={{ 
+              background: "#0E1526",
+              border: "1px solid rgba(148,163,184,0.12)",
+              borderRadius: "20px",
+              padding: "32px",
+              maxWidth: "600px",
+              width: "100%",
+              maxHeight: "80vh",
+              overflow: "auto",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.5)"
+            }}
+          >
+            <div style={{ 
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              marginBottom: "24px"
+            }}>
+              <div>
+                <h2 style={{ 
+                  color: "#E5E7EB",
+                  fontSize: "24px",
+                  fontWeight: "600",
+                  marginBottom: "8px"
+                }}>
+                  {selectedTemplate.title}
+                </h2>
+                <p style={{ 
+                  color: "#94A3B8",
+                  fontSize: "16px",
+                  marginBottom: "16px"
+                }}>
+                  {selectedTemplate.description}
+                </p>
+                <div style={{ 
+                  display: "flex",
+                  gap: "16px",
                   fontSize: "14px",
-                  transition: "all 0.2s ease",
-                  padding: "4px 8px",
-                  borderRadius: "6px",
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.color = "white";
-                  e.target.style.background = "rgba(59, 130, 246, 0.1)";
-                  e.target.style.transform = "translateY(-1px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.color = "rgba(148, 163, 184, 0.7)";
-                  e.target.style.background = "transparent";
-                  e.target.style.transform = "translateY(0)";
-                }}
-              >
-                About
-              </a>
+                  color: "#94A3B8"
+                }}>
+                  <span>by {selectedTemplate.author}</span>
+                  <span>⭐ {selectedTemplate.rating}</span>
+                  <span>↓ {selectedTemplate.downloads.toLocaleString()}</span>
+                  <span>📅 {new Date(selectedTemplate.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
               <button
-                onClick={() => setShowPricing(true)}
-                style={{
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedTemplate(null);
+                }}
+                style={{ 
                   background: "none",
                   border: "none",
-                  color: "rgba(148, 163, 184, 0.7)",
-                  textDecoration: "none",
-                  margin: "0 20px",
+                  color: "#94A3B8",
+                  fontSize: "24px",
+                  cursor: "pointer",
+                  padding: "0",
+                  lineHeight: "1"
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ 
+              background: "#0B1020",
+              borderRadius: "12px",
+              padding: "16px",
+              marginBottom: "24px",
+              border: "1px solid rgba(148,163,184,0.12)"
+            }}>
+              <h3 style={{ 
+                color: "#E5E7EB",
+                fontSize: "16px",
+                marginBottom: "12px"
+              }}>
+                Preview Code
+              </h3>
+              <pre style={{ 
+                color: "#94A3B8",
+                fontSize: "12px",
+                maxHeight: "200px",
+                overflow: "auto",
+                lineHeight: "1.4"
+              }}>
+                {selectedTemplate.code.substring(0, 500)}...
+              </pre>
+            </div>
+
+            <div style={{ 
+              display: "flex",
+              gap: "12px",
+              justifyContent: "flex-end"
+            }}>
+              <button
+                onClick={() => {
+                  const blob = new Blob([selectedTemplate.code], { type: 'text/html' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `${selectedTemplate.title.toLowerCase().replace(/\\s+/g, '-')}.html`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }}
+                style={{ 
+                  background: "transparent",
+                  color: "#94A3B8",
+                  border: "1px solid rgba(148,163,184,0.12)",
+                  padding: "12px 24px",
+                  borderRadius: "10px",
                   cursor: "pointer",
                   fontSize: "14px",
-                  transition: "all 0.2s ease",
-                  padding: "4px 8px",
-                  borderRadius: "6px",
+                  transition: "all 0.2s ease"
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.color = "white";
-                  e.target.style.background = "rgba(59, 130, 246, 0.1)";
-                  e.target.style.transform = "translateY(-1px)";
+                  e.target.style.color = "#E5E7EB";
+                  e.target.style.borderColor = "rgba(148,163,184,0.3)";
+                  e.target.style.transform = "translateY(-2px)";
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.color = "rgba(148, 163, 184, 0.7)";
-                  e.target.style.background = "transparent";
+                  e.target.style.color = "#94A3B8";
+                  e.target.style.borderColor = "rgba(148,163,184,0.12)";
                   e.target.style.transform = "translateY(0)";
                 }}
               >
-                Pricing
+                Open Project
               </button>
-              <a
-                href="#templates"
-                style={{
-                  color: "rgba(148, 163, 184, 0.7)",
-                  textDecoration: "none",
-                  margin: "0 20px",
+              <button
+                onClick={handleUseTemplate}
+                disabled={isGeneratingTemplate}
+                style={{ 
+                  background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
+                  color: "white",
+                  border: "none",
+                  padding: "12px 24px",
+                  borderRadius: "10px",
+                  cursor: isGeneratingTemplate ? "not-allowed" : "pointer",
                   fontSize: "14px",
                   transition: "all 0.2s ease",
-                  padding: "4px 8px",
-                  borderRadius: "6px",
+                  opacity: isGeneratingTemplate ? 0.7 : 1,
+                  boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)"
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.color = "white";
-                  e.target.style.background = "rgba(59, 130, 246, 0.1)";
-                  e.target.style.transform = "translateY(-1px)";
+                  if (!isGeneratingTemplate) {
+                    e.target.style.background = "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)";
+                    e.target.style.transform = "translateY(-2px)";
+                    e.target.style.boxShadow = "0 6px 20px rgba(59, 130, 246, 0.4)";
+                  }
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.color = "rgba(148, 163, 184, 0.7)";
-                  e.target.style.background = "transparent";
-                  e.target.style.transform = "translateY(0)";
+                  if (!isGeneratingTemplate) {
+                    e.target.style.background = "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)";
+                    e.target.style.transform = "translateY(0)";
+                    e.target.style.boxShadow = "0 4px 15px rgba(59, 130, 246, 0.3)";
+                  }
                 }}
               >
-                Templates
-              </a>
-              <a
-                href="#support"
-                style={{
-                  color: "rgba(148, 163, 184, 0.7)",
-                  textDecoration: "none",
-                  margin: "0 20px",
-                  fontSize: "14px",
-                  transition: "all 0.2s ease",
-                  padding: "4px 8px",
-                  borderRadius: "6px",
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.color = "white";
-                  e.target.style.background = "rgba(59, 130, 246, 0.1)";
-                  e.target.style.transform = "translateY(-1px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.color = "rgba(148, 163, 184, 0.7)";
-                  e.target.style.background = "transparent";
-                  e.target.style.transform = "translateY(0)";
-                }}
-              >
-                Support
-              </a>
-            </div>
-            <div
-              style={{
-                color: "rgba(148, 163, 184, 0.5)",
-                fontSize: "14px",
-              }}
-            >
-              © 2025 Adorrable.dev - Made for everyone with a touch of Africa 🌍
+                {isGeneratingTemplate ? "Processing..." : "Remix"}
+              </button>
             </div>
           </div>
-        </footer>
+        </div>
+      )}
 
-        {/* Inspirational Widget */}
-        <InspirationalWidget />
+      {/* Pricing Modal */}
+      {showPricing && (
+        <div style={{ 
+          position: "fixed",
+          inset: "0",
+          background: "rgba(0, 0, 0, 0.8)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: "1000",
+          padding: "20px"
+        }}>
+          <div style={{ 
+            background: "#0E1526",
+            border: "1px solid rgba(148,163,184,0.12)",
+            borderRadius: "20px",
+            padding: "32px",
+            maxWidth: "500px",
+            width: "100%",
+            boxShadow: "0 20px 50px rgba(0,0,0,0.5)"
+          }}>
+            <div style={{ 
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "24px"
+            }}>
+              <h2 style={{ 
+                color: "#E5E7EB",
+                fontSize: "24px",
+                fontWeight: "600"
+              }}>
+                Get More Credits
+              </h2>
+              <button
+                onClick={() => setShowPricing(false)}
+                style={{ 
+                  background: "none",
+                  border: "none",
+                  color: "#94A3B8",
+                  fontSize: "24px",
+                  cursor: "pointer"
+                }}
+              >
+                ×
+              </button>
+            </div>
 
-        {/* Modals */}
-        {showAuthModal && (
-          <AuthModal
-            isOpen={showAuthModal}
-            onClose={() => setShowAuthModal(false)}
-            onSuccess={() => setShowAuthModal(false)}
-          />
-        )}
-        {showPricing && <PricingModal />}
-        {CommunityTemplateModal}
-      </main>
+            <div style={{ 
+              background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+              borderRadius: "12px",
+              padding: "24px",
+              border: "1px solid rgba(148,163,184,0.2)",
+              marginBottom: "16px"
+            }}>
+              <h3 style={{ 
+                color: "white",
+                fontSize: "20px",
+                marginBottom: "8px"
+              }}>
+                Starter Pack
+              </h3>
+              <p style={{ 
+                color: "rgba(148, 163, 184, 0.8)",
+                fontSize: "14px",
+                marginBottom: "16px"
+              }}>
+                Perfect for trying out our AI generator
+              </p>
+              <div style={{ 
+                display: "flex",
+                alignItems: "baseline",
+                marginBottom: "16px"
+              }}>
+                <span style={{ 
+                  color: "white",
+                  fontSize: "32px",
+                  fontWeight: "600"
+                }}>
+                  $5
+                </span>
+                <span style={{ 
+                  color: "rgba(148, 163, 184, 0.8)",
+                  fontSize: "16px",
+                  marginLeft: "8px"
+                }}>
+                  for 50 credits
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  window.location.href = '/payments/local';
+                }}
+                style={{ 
+                  width: "100%",
+                  background: "#22C55E",
+                  color: "white",
+                  border: "none",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  fontSize: "16px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = "#16A34A";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = "#22C55E";
+                }}
+              >
+                Purchase Credits
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <CrispChat />
-    </>
+    </div>
   );
 }
