@@ -408,12 +408,12 @@ const EXAMPLE_PROMPTS = {
     "Unda duka la e-commerce la Berlin na kanuni za malipo za EU…"
   ],
   Pidgin: [
-    "Design Lagos restaurant homepage with WhatsApp CTA & Paystack checkout…",
-    "Build Nairobi tech startup page with M-Pesa integration…",
-    "Create Mumbai fashion store with UPI payments & Hindi support…",
-    "Design London consulting firm website with Stripe & GDPR compliance…",
-    "Build Cape Town tourism site with local payment options…",
-    "Create Berlin e-commerce store with EU payment regulations…"
+    "Design Lagos restaurant homepage wey get WhatsApp CTA & Paystack checkout…",
+    "Build Nairobi tech startup page wey get M-Pesa integration…",
+    "Create Mumbai fashion store wey get UPI payments & Hindi support…",
+    "Design London consulting firm website wey get Stripe & GDPR compliance…",
+    "Build Cape Town tourism site wey get local payment options…",
+    "Create Berlin e-commerce store wey get EU payment regulations…"
   ]
 };
 
