@@ -1,0 +1,233 @@
+Brand/look to restore
+
+Background: deep navy/dark-slate canvas with a very subtle grid and faint vignette. Feels modern + techy, not pure black.
+
+Primary headline: large gradient text (blue → purple) with bold weight and tight tracking.
+
+Text on dark: high-contrast slate/gray, never pure white.
+
+Accents: emerald/green for actions (e.g., language pill “English”, “Buy More”), orange card for featured template, green card for “Popular”.
+
+Components: rounded-xl/2xl, soft shadows, glassy surfaces, thin borders.
+
+Palette
+
+Background: #0B1020 (alt: #0F172A)
+
+Surface (cards/nav): #0E1526 with 1px border #1E293B @ 20% opacity
+
+Text primary: #E5E7EB | Text secondary: #94A3B8
+
+Gradient heading: from #4FC3F7 (sky-300) to #7C4DFF (violet-500)
+
+Accent (success/primary CTA): #22C55E / hover #16A34A
+
+Featured card (orange): #F59E0B
+
+Popular card (green): #10B981
+
+Link/cyan brand hint: #22D3EE
+
+Divider/border hairline: rgba(148, 163, 184, 0.12)
+
+Typography
+
+Headings: Urbanist or Inter ExtraBold (800), tight leading, tracking-tight
+
+Body: Inter 400–500
+
+Big hero H1 size on mobile: 40–44px; desktop: 64–72px
+
+Effects
+
+Subtle grid overlay (1px lines @ 5–8% opacity) and a very soft radial vignette behind the hero.
+
+Glassy cards: bg with backdrop-blur and bg-white/5 on hover to lift.
+
+Soft shadow: 0 10px 30px rgba(0,0,0,.35)
+
+Key screens to match
+
+Hero: “Build something with Adorrable” in gradient; subhead beneath; input box with language segmented pills (English, French, Swahili, Pidgin). Active pill = emerald filled, others = outline.
+
+Navbar: logo “Adorrable”, links Features / Templates.
+
+Credits bar: “4 credits remaining” + Buy More (green filled button).
+
+Workspace cards: large orange card “Authentic Restaurant”, status chips (e.g., “Published”), mini caption under (“amala-on-demand”).
+
+Community section: tabs (Popular, Discover, Internal Tools, Website, Personal…) with green card “E-commerce Store”.
+
+2) tailwind.config.js (extend tokens)
+// tailwind.config.js
+module.exports = {
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        base: {
+          bg: "#0B1020",
+          surface: "#0E1526",
+          border: "rgba(148,163,184,0.12)",
+          text: "#E5E7EB",
+          text2: "#94A3B8",
+        },
+        brand: {
+          cyan: "#22D3EE",
+          green: "#22C55E",
+          greenHover: "#16A34A",
+          orange: "#F59E0B",
+          popular: "#10B981",
+        },
+        grad: {
+          start: "#4FC3F7",
+          end: "#7C4DFF",
+        },
+      },
+      boxShadow: {
+        soft: "0 10px 30px rgba(0,0,0,.35)",
+      },
+      borderRadius: {
+        xl2: "1.25rem",
+      },
+      backgroundImage: {
+        "grid-faint":
+          "linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px)",
+        "hero-radial":
+          "radial-gradient(600px 300px at 50% 0%, rgba(79,195,247,0.12), transparent 60%)",
+      },
+      backgroundSize: {
+        grid: "40px 40px",
+      },
+      fontFamily: {
+        inter: ["Inter", "ui-sans-serif", "system-ui"],
+        urbanist: ["Urbanist", "ui-sans-serif", "system-ui"],
+      },
+    },
+  },
+  plugins: [],
+};
+
+3) globals.css (utilities for the look)
+:root {
+  --bg: #0B1020;
+  --surface: #0E1526;
+  --border: rgba(148,163,184,0.12);
+  --text: #E5E7EB;
+  --text2: #94A3B8;
+  --grad-start: #4FC3F7;
+  --grad-end: #7C4DFF;
+}
+
+html, body { background: var(--bg); color: var(--text); }
+
+.gradient-text {
+  background: linear-gradient(90deg, var(--grad-start), var(--grad-end));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.card {
+  background: color-mix(in oklab, white 6%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+4) React snippets (hero + pills + cards)
+
+Navbar (brand + links):
+
+<nav className="flex items-center justify-between py-4">
+  <div className="text-brand-cyan font-semibold text-xl">Adorrable</div>
+  <div className="flex gap-6 text-base-text2">
+    <a href="#features" className="hover:text-white">Features</a>
+    <a href="#templates" className="hover:text-white">Templates</a>
+  </div>
+</nav>
+
+
+Hero section:
+
+<section className="relative overflow-hidden rounded-2xl bg-hero-radial p-6 md:p-12">
+  <div className="absolute inset-0 bg-grid opacity-60 pointer-events-none" />
+  <h1 className="gradient-text font-urbanist font-extrabold tracking-tight text-4xl md:text-6xl">
+    Build something with Adorrable
+  </h1>
+  <p className="mt-4 max-w-2xl text-base-text2">
+    Create apps and culturally intelligent websites by chatting with AI
+  </p>
+
+  {/* input + language pills */}
+  <div className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/70 backdrop-blur p-3">
+    <input
+      className="w-full bg-transparent outline-none text-[var(--text)] placeholder:text-base-text2"
+      placeholder="Ask Adorrable to create a business website…"
+    />
+    <div className="mt-3 flex items-center gap-2">
+      {["English","French","Swahili","Pidgin"].map((l, i) => (
+        <button
+          key={l}
+          className={`px-3 py-1.5 rounded-full border text-sm ${
+            i===0
+              ? "bg-brand-green text-white border-transparent"
+              : "border-[var(--border)] text-base-text2 hover:text-white hover:bg-white/5"
+          }`}>
+          {l}
+        </button>
+      ))}
+      <button className="ml-auto px-4 py-1.5 rounded-full bg-brand-green hover:bg-brand-greenHover text-white">
+        Send
+      </button>
+    </div>
+  </div>
+</section>
+
+
+Credits bar:
+
+<div className="mt-6 flex items-center gap-3 text-sm">
+  <span className="px-3 py-1 rounded-full border border-[var(--border)] text-base-text2">
+    4 credits remaining
+  </span>
+  <button className="px-3 py-1.5 rounded-full bg-brand-green hover:bg-brand-greenHover text-white">
+    Buy More
+  </button>
+</div>
+
+
+Workspace cards (orange + green like your shots):
+
+<div className="mt-8 grid gap-6 sm:grid-cols-2">
+  {/* Orange featured card */}
+  <div className="rounded-2xl shadow-soft p-6 text-white"
+       style={{ backgroundColor: "#F59E0B" }}>
+    <div className="text-sm bg-white/20 px-2 py-0.5 rounded-full w-fit mb-3">Click to Preview</div>
+    <h3 className="text-2xl font-semibold">Authentic Restaurant</h3>
+    <p className="mt-1 opacity-90">amala-on-demand</p>
+  </div>
+
+  {/* Green community card */}
+  <div className="rounded-2xl shadow-soft p-6 text-white"
+       style={{ backgroundColor: "#10B981" }}>
+    <div className="text-sm bg-white/20 px-2 py-0.5 rounded-full w-fit mb-3">Click to View</div>
+    <h3 className="text-2xl font-semibold">E-commerce Store</h3>
+    <p className="mt-1 opacity-90">From the Community</p>
+  </div>
+</div>
+
+quick usage notes
+
+Make sure Inter and Urbanist are loaded (via next/font or a link).
+
+Keep headings gradient with .gradient-text; keep the grid overlay behind hero and sections.
+
+Use emerald for “active” pill + “Buy More”.
