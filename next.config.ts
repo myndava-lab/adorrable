@@ -2,13 +2,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Ensure proper static file handling
   experimental: {
     serverComponentsExternalPackages: [],
   },
-  // Remove problematic headers for now
-  output: 'standalone',
+  // Remove output standalone for development
   trailingSlash: false,
+  // Ensure proper asset handling
+  assetPrefix: '',
 };
 
 export default nextConfig;
