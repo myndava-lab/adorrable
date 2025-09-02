@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import InspirationalWidget from "@/components/InspirationalWidget";
+import dynamic from 'next/dynamic';
+
+const InspirationalWidget = dynamic(() => import("@/components/InspirationalWidget"), {
+  ssr: false,
+  loading: () => null
+});
 
 const inter = Inter({
   subsets: ["latin"],

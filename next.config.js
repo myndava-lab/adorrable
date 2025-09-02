@@ -23,6 +23,20 @@ const nextConfig = {
       tls: false,
     };
     
+    // Optimize chunk splitting to fix loading errors
+    if (!isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+        },
+      };
+    }
+    
     return config;
   },
 };
