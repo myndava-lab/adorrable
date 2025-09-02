@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState } from 'react'
@@ -7,36 +6,29 @@ export default function DatabaseTestButton() {
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<string | null>(null)
 
-  const testConnection = async () => {
+  const testDatabase = async () => {
     setIsLoading(true)
-    setResult(null)
+    setResult('')
 
     try {
-      console.log('🔍 Testing database connection...')
-      const response = await fetch('/api/health', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      console.log('🧪 Testing database...')
+
+      const response = await fetch('/api/test', {
+        method: 'GET'
       })
 
       console.log('Database test response status:', response.status)
+      const data = await response.json()
+      console.log('Database test response data:', data)
 
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Database test response data:', data)
-        setResult(`✅ Database connected successfully!
-Status: ${data.status}
-Database: ${data.database ? 'Connected' : 'Not Connected'}
-Time: ${data.timestamp}`)
+      if (response.ok && data.success) {
+        setResult(`✅ Database test passed!\nConnection: ${data.database ? 'Working' : 'Failed'}\nAuth: ${data.auth?.working ? 'Working' : 'Failed'}\nUser: ${data.auth?.user || 'None'}\nEnvironment: All variables configured`)
       } else {
-        const errorText = await response.text()
-        console.error('Database test failed:', errorText)
-        setResult(`❌ Database connection failed: ${errorText}`)
+        setResult(`❌ Database test failed: ${data.error || data.details || 'Unknown error'}`)
       }
     } catch (err: any) {
-      console.error('Database test error:', err)
-      setResult(`❌ Database connection failed: ${err.message}`)
+      console.error('❌ Database test error:', err)
+      setResult(`❌ Database test error: ${err.message}`)
     } finally {
       setIsLoading(false)
     }
@@ -46,7 +38,7 @@ Time: ${data.timestamp}`)
     <div className="p-4 border border-gray-300 rounded-lg bg-white">
       <h3 className="text-lg font-semibold mb-2">Database Connection Test</h3>
       <button
-        onClick={testConnection}
+        onClick={testDatabase}
         disabled={isLoading}
         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
       >
