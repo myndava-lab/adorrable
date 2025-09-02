@@ -2,6 +2,7 @@ import DatabaseTestButton from '@/components/DatabaseTestButton'
 import CreditButton from '@/components/CreditButton'
 import GenerateButton from '@/components/GenerateButton'
 import PricingTestButton from '@/components/PricingTestButton'
+import DebugButton from '@/components/DebugButton'
 import PricingCard from '@/components/PricingCard' // Assuming PricingCard is in components/PricingCard
 
 export default function TestDatabasePage() {
@@ -15,6 +16,13 @@ export default function TestDatabasePage() {
           <CreditButton />
           <GenerateButton />
           <PricingTestButton />
+        </div>
+
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-center mb-6">🔍 Debug Analysis</h2>
+          <div className="max-w-2xl mx-auto">
+            <DebugButton />
+          </div>
         </div>
 
         <div className="mt-8 p-6 bg-blue-50 rounded-lg">
