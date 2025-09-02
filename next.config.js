@@ -1,18 +1,18 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Minimal config to avoid webpack issues
+  // Enable optimizations for production
   typescript: {
     ignoreBuildErrors: false,
   },
   eslint: {
     ignoreDuringBuilds: false,
   },
-  // Disable problematic features temporarily
-  swcMinify: false,
-  // Ensure proper module resolution
+  // Re-enable SWC for better performance
+  swcMinify: true,
+  // Optimize for better chunk loading
   experimental: {
-    esmExternals: false,
+    optimizeCss: true,
   },
   webpack: (config, { isServer }) => {
     // Fix for module resolution issues
@@ -23,18 +23,29 @@ const nextConfig = {
       tls: false,
     };
     
-    // Optimize chunk splitting to fix loading errors
+    // Fix chunk loading timeouts and hydration issues
     if (!isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
+        maxSize: 244000,
         cacheGroups: {
+          default: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
+            priority: -10,
             chunks: 'all',
+            enforce: true,
           },
         },
       };
+      
+      // Increase chunk load timeout to prevent timeout errors
+      config.output.chunkLoadTimeout = 120000;
     }
     
     return config;
