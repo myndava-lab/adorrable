@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 
 const CrispChat = dynamic(() => import("../components/CrispChat"), {
   ssr: false,
@@ -24,12 +24,6 @@ interface CommunityTemplate {
   preview: string;
   code: string;
 }
-
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
@@ -908,7 +902,7 @@ export default function Home() {
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a');
                   a.href = url;
-                  a.download = `${selectedTemplate.title.toLowerCase().replace(/\\s+/g, '-')}.html`;
+                  a.download = `${selectedTemplate.title.toLowerCase().replace(/\s+/g, '-')}.html`;
                   document.body.appendChild(a);
                   a.click();
                   document.body.removeChild(a);
