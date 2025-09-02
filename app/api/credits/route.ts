@@ -1,54 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin, getUserProfile, grantCredits, deductCredits, getCreditLogs } from '@/lib/supabaseServer'
 
+// Helper function to create a user profile
+async function createUserProfile(userId: string, email: string, displayName: string): Promise<any | null> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .insert({
+        id: userId,
+        email: email,
+        display_name: displayName,
+        credits: 4 // Default credits for new users
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating user profile:', error);
+      return null;
+    }
+    return data;
+  } catch (error) {
+    console.error('Exception creating user profile:', error);
+    return null;
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
-    // For demo purposes, we'll use a mock user ID in proper UUID format
-    // In production, you'd extract this from the JWT token
-    const mockUserId = '550e8400-e29b-41d4-a716-446655440000'
-
-    // Get user profile with current credits
-    const profile = await getUserProfile(mockUserId)
-
-    if (!profile) {
-      // Create demo user if doesn't exist
-      const newProfile = await supabaseAdmin
-        .from('profiles')
-        .insert({
-          id: mockUserId,
-          email: 'demo@adorrable.dev',
-          display_name: 'Demo User',
-          credits: 4
-        })
-        .select()
-        .single()
-
-      if (newProfile.error) {
-        return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
-      }
-
-      return NextResponse.json({
-        success: true,
-        credits: newProfile.data.credits,
-        profile: newProfile.data
-      })
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
+      return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
     }
 
-    // Get recent credit logs
-    const logs = await getCreditLogs(mockUserId, 10)
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    )
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    let profile = await getUserProfile(user.id)
+
+    // If no profile exists, create one
+    if (!profile) {
+      console.log('Creating new profile for user:', user.id)
+      profile = await createUserProfile(
+        user.id,
+        user.email || '',
+        user.user_metadata?.display_name || user.email?.split('@')[0]
+      )
+
+      if (!profile) {
+        return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
+      }
+    }
 
     return NextResponse.json({
-      success: true,
       credits: profile.credits,
-      profile,
-      recent_logs: logs
+      email: profile.email,
+      display_name: profile.display_name
     })
   } catch (error) {
-    console.error('Credits GET error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    console.error('Error fetching user credits:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -72,16 +88,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // For demo purposes, we'll use a mock user ID
-    // In production, you'd extract this from the JWT token
-    const mockUserId = '550e8400-e29b-41d4-a716-446655440000'
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
+      return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
+    }
+
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    )
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
     let result
 
     if (action === 'grant') {
-      result = await grantCredits(mockUserId, amount, reason, meta)
+      result = await grantCredits(user.id, amount, reason, meta)
     } else if (action === 'deduct') {
-      result = await deductCredits(mockUserId, amount, reason, meta)
+      result = await deductCredits(user.id, amount, reason, meta)
     } else {
       return NextResponse.json(
         { error: 'Invalid action. Must be "grant" or "deduct"' },
