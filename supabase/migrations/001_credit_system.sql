@@ -107,7 +107,7 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 CREATE POLICY "Users can view own credit logs" ON credit_logs FOR SELECT USING (auth.uid() = user_id);
 
 -- Price config policies
-CREATE POLICY "Anyone can view active pricing" ON price_config FOR SELECT USING (is_active = true);
+CREATE POLICY "Anyone can view active pricing" ON price_config FOR SELECT USING (active = true);
 
 -- Triggers for updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
