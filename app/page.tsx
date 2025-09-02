@@ -394,16 +394,37 @@ export default function AdorrableLanding() {
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     rows={4}
-                    disabled={!user}
                   />
                   <div className="flex flex-col gap-3 flex-shrink-0 mt-1">
                     <button 
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/*,.pdf,.doc,.docx,.txt';
+                        input.onchange = (e) => {
+                          const file = (e.target as HTMLInputElement).files?.[0];
+                          if (file) {
+                            alert(`File selected: ${file.name}. File upload functionality coming soon!`);
+                          }
+                        };
+                        input.click();
+                      }}
                       className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white/70 hover:text-white"
                       title="Attach file or image"
                     >
                       <Paperclip className="h-5 w-5" />
                     </button>
                     <button 
+                      onClick={() => {
+                        const repoUrl = prompt('Enter GitHub repository URL:');
+                        if (repoUrl) {
+                          if (repoUrl.includes('github.com')) {
+                            alert(`GitHub import from ${repoUrl} - Integration coming soon!`);
+                          } else {
+                            alert('Please enter a valid GitHub repository URL');
+                          }
+                        }
+                      }}
                       className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white/70 hover:text-white"
                       title="Import from GitHub"
                     >
@@ -428,7 +449,7 @@ export default function AdorrableLanding() {
                     ))}
                     <button 
                       onClick={handleGenerateWebsite}
-                      disabled={isGenerating || (!user && !prompt.trim())}
+                      disabled={isGenerating || !prompt.trim()}
                       className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/90 px-8 py-4 text-lg font-semibold text-black transition hover:bg-white whitespace-nowrap shadow-lg ml-4 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isGenerating ? 'Generating...' : 'Generate Website'} 
