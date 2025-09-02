@@ -20,12 +20,17 @@ export default function TestDatabasePage() {
         <div className="mt-8 p-6 bg-blue-50 rounded-lg">
           <h2 className="text-xl font-semibold mb-3">Testing Instructions</h2>
           <ol className="list-decimal list-inside space-y-2 text-sm">
-            <li>First test database connection</li>
-            <li>Then test credits API</li>
-            <li>Test pricing flow with mock purchase</li>
-            <li>Finally test AI generation</li>
+            <li><strong>First, sign in:</strong> Go to the main page and click "Sign in with Google" or "Sign in with LinkedIn"</li>
+            <li>Then test database connection (no auth needed)</li>
+            <li>Test credits API (requires authentication)</li>
+            <li>Test pricing flow with mock purchase (requires authentication)</li>
+            <li>Finally test AI generation (requires authentication)</li>
             <li>Check browser console for detailed logs</li>
           </ol>
+          <div className="mt-4 p-3 bg-yellow-100 rounded border-l-4 border-yellow-500">
+            <p className="text-sm font-medium">⚠️ Important:</p>
+            <p className="text-sm">All API tests (except database) require you to be signed in first. If you see authentication errors, go back to the main page and sign in.</p>
+          </div>
         </div>
 
         <div className="mt-12">
