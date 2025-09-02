@@ -1,8 +1,24 @@
 import type { NextConfig } from "next";
-import { env } from "process";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: [env.REPLIT_DOMAINS.split(",")[0]],
+  // Replit configuration
+  experimental: {
+    serverComponentsExternalPackages: [],
+  },
+  // Allow all origins in development
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+        ],
+      },
+    ];
+  },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
