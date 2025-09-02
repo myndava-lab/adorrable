@@ -34,7 +34,7 @@ export default function DebugButton() {
           if (test.details) {
             if (test.name.includes('Credits API')) {
               resultText += `   Status Code: ${test.details.statusCode || 'N/A'}\n`
-              resultresultText += `   Response: ${test.details.rawResponse ? 'Received' : 'Empty'}\n`
+              resultText += `   Response: ${test.details.rawResponse ? 'Received' : 'Empty'}\n`
             } else if (test.name.includes('AI Generation')) {
               resultText += `   OpenAI Configured: ${test.details.openaiConfigured ? '✅' : '❌'}\n`
               resultText += `   Status Code: ${test.details.statusCode || 'N/A'}\n`
