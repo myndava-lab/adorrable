@@ -1,0 +1,141 @@
+⚡ Fast Triage Flow
+
+Reproduce locally in prod mode
+
+rm -rf .next
+NODE_ENV=production npx next build
+
+
+If it fails locally, it’s your code/config, not the host.
+
+Pin a modern Node
+
+Next 14/15 likes Node 18/20.
+
+node -v         # expect 18.x or 20.x
+
+
+Replit/Vercel: add "engines": { "node": "20.x" } to package.json.
+
+Clean install
+
+rm -rf node_modules package-lock.json pnpm-lock.yaml yarn.lock
+npm install      # or pnpm i / yarn
+
+
+Check envs (most common)
+
+Build uses only static envs. Ensure required ones are set:
+
+Local: .env.local
+
+Vercel: Project → Settings → Environment Variables
+
+Replit: Secrets
+
+If you reference process.env.X on the client, expose via NEXT_PUBLIC_X.
+
+TypeScript/ESLint blockers
+
+npx tsc --noEmit
+npx next lint
+
+
+Temporary unblock:
+
+tsconfig.json → "skipLibCheck": true
+
+next.config.js:
+
+const nextConfig = {
+  typescript: { ignoreBuildErrors: false }, // set true only to unblock temporarily
+  eslint: { ignoreDuringBuilds: false }     // set true only to unblock temporarily
+}
+module.exports = nextConfig
+
+
+App Router gotchas
+
+No Node APIs in edge routes/components.
+
+If using runtime = 'edge', remove it or switch to nodejs if you use fs, crypto, buffer, etc.
+
+Dynamic imports / SSR issues
+
+Components using window/document:
+
+const Heavy = dynamic(() => import('./Heavy'), { ssr: false });
+
+
+Guard browser-only code:
+
+if (typeof window !== 'undefined') { /* client only */ }
+
+
+Images / next.config
+
+If using remote images, set domains:
+
+images: { remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }] }
+
+
+SWC cache/corruption
+
+rm -rf .next/cache
+
+
+Dependency/ESM mismatches
+
+If a lib is ESM-only, ensure you import correctly:
+
+import pkg from 'lib'; // not require()
+
+
+Align react/react-dom/next versions:
+
+npm ls next react react-dom
+
+
+Memory limits (Replit/Vercel)
+
+Reduce build memory:
+
+Disable source maps: NEXT_DISABLE_SOURCEMAPS=1
+
+In next.config.js:
+
+productionBrowserSourceMaps: false,
+swcMinify: true
+
+
+On Vercel: set VERCEL_BUILD_DEBUG=1 to get verbose logs.
+
+Conflicts: pages/ vs app/
+
+Don’t duplicate routes in both. Prefer app/ only (Next 13+).
+
+🔍 Quick “Where’s it failing?” checklist
+
+Module not found → bad import path or missing dep. npm i <dep>.
+
+Can’t use Node API in edge → switch route to export const runtime = 'nodejs'.
+
+Env undefined → not set at build time or missing NEXT_PUBLIC_ on client.
+
+Type errors stop build → fix or temporarily set ignoreBuildErrors: true.
+
+Image domain error → add to images.remotePatterns.
+
+Unexpected token export/require → ESM/CommonJS mismatch; use import for ESM libs.
+
+🧪 Minimal debug command set
+# 1) environment
+node -v && npm -v
+printenv | grep NEXT_ || true
+
+# 2) clean + build
+rm -rf .next node_modules && npm i && NODE_ENV=production npx next build
+
+# 3) type + lint
+npx tsc --noEmit || true
+npx next lint || true
