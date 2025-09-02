@@ -1,24 +1,14 @@
+
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Replit configuration
+  // Ensure proper static file handling
   experimental: {
     serverComponentsExternalPackages: [],
   },
-  // Allow all origins in development
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: '*',
-          },
-        ],
-      },
-    ];
-  },
+  // Remove problematic headers for now
+  output: 'standalone',
+  trailingSlash: false,
 };
 
 export default nextConfig;
