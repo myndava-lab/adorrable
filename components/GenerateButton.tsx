@@ -9,9 +9,20 @@ export default function GenerateButton() {
   const [session, setSession] = useState<any>(null)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    })
+    const getSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        if (error) {
+          console.error('Error getting session:', error)
+        } else {
+          setSession(session)
+        }
+      } catch (error) {
+        console.error('Error in getSession:', error)
+      }
+    }
+
+    getSession()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)

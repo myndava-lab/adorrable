@@ -130,7 +130,7 @@ export async function GET() {
       const profileResult = await createUserProfile(testUserId, testEmail)
       console.log('Profile creation result:', profileResult)
 
-      if (profileResult.success) {
+      if (profileResult.success && profileResult.profile) {
         console.log('💳 Testing credit operations...')
 
         // Test granting credits
