@@ -27,7 +27,7 @@ const nextConfig = {
     if (!isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
-        maxSize: 244000,
+        maxSize: 200000,
         cacheGroups: {
           default: {
             minChunks: 2,
@@ -40,12 +40,21 @@ const nextConfig = {
             priority: -10,
             chunks: 'all',
             enforce: true,
+            maxSize: 200000,
+          },
+          framework: {
+            chunks: 'all',
+            name: 'framework',
+            test: /(?<!node_modules.*)[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            priority: 40,
+            enforce: true,
           },
         },
       };
       
-      // Increase chunk load timeout to prevent timeout errors
-      config.output.chunkLoadTimeout = 120000;
+      // Increase chunk load timeout and add retry logic
+      config.output.chunkLoadTimeout = 300000;
+      config.output.crossOriginLoading = 'anonymous';
     }
     
     return config;

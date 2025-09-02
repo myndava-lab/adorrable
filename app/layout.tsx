@@ -39,6 +39,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.__NEXT_HYDRATION_CB = function() {
+                console.log('Hydration complete');
+              };
+            `,
+          }}
+        />
+      </head>
       <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
         <main className="min-h-screen">{children}</main>
         <InspirationalWidget />
