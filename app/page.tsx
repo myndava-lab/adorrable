@@ -12,6 +12,8 @@ import {
   Zap,
   CreditCard,
   MessageSquare,
+  Paperclip,
+  Github,
 } from "lucide-react";
 
 const gradientText =
@@ -254,9 +256,23 @@ export default function AdorrableLanding() {
                     placeholder={currentPrompt + (charIndex === EXAMPLE_PROMPTS[promptIndex]?.length ? "" : "|")}
                     rows={4}
                   />
+                  <div className="flex flex-col gap-3 flex-shrink-0 mt-1">
+                    <button 
+                      className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white/70 hover:text-white"
+                      title="Attach file or image"
+                    >
+                      <Paperclip className="h-5 w-5" />
+                    </button>
+                    <button 
+                      className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white/70 hover:text-white"
+                      title="Import from GitHub"
+                    >
+                      <Github className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
+                  <div className="flex flex-wrap items-center gap-3 sm:ml-auto">
                     {LANGS.map((l) => (
                       <button
                         key={l}
@@ -270,34 +286,10 @@ export default function AdorrableLanding() {
                         {l}
                       </button>
                     ))}
-                    <div className="ml-2 flex items-center gap-2 text-sm text-white/60">
-                      <Languages className="h-4 w-4" />
-                      {lang}
-                    </div>
+                    <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/90 px-8 py-4 text-lg font-semibold text-black transition hover:bg-white whitespace-nowrap shadow-lg ml-4">
+                      Generate Website <ArrowRight className="h-5 w-5" />
+                    </button>
                   </div>
-                  <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/90 px-8 py-4 text-lg font-semibold text-black transition hover:bg-white whitespace-nowrap shadow-lg">
-                    Generate Website <ArrowRight className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                {LANGS.map((l) => (
-                  <button
-                    key={l}
-                    onClick={() => setLang(l)}
-                    className={`rounded-full px-3 py-1.5 text-sm transition-all ${
-                      lang === l
-                        ? "bg-white text-black"
-                        : "border border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
-                    }`}
-                  >
-                    {l}
-                  </button>
-                ))}
-                <div className="ml-auto flex items-center gap-2 text-sm text-white/60">
-                  <Languages className="h-4 w-4" />
-                  {lang}
                 </div>
               </div>
             </div>
