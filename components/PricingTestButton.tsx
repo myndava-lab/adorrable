@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState } from 'react'
@@ -10,66 +9,32 @@ export default function PricingTestButton() {
 
   const testPricing = async () => {
     setIsLoading(true)
-    setResult(null)
+    setResult('')
 
     try {
-      // Check if user is authenticated
-      const { data: { session }, error: authError } = await supabase.auth.getSession()
-      
-      if (authError || !session?.user) {
-        setResult(`❌ User not authenticated. Please sign in first.
-Go to the main page and click "Sign in with Google"`)
-        return
-      }
+      console.log('🔍 Starting Pricing test...')
+      const response = await fetch('/api/test')
+      console.log('Pricing test response status:', response.status)
 
-      // Test credit granting (simulating purchase)
-      const grantResponse = await fetch('/api/credits', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({
-          action: 'grant',
-          amount: 10,
-          reason: 'Test purchase - Basic tier',
-          meta: { tier: 'basic', test: true }
-        })
-      })
+      const data = await response.json()
+      console.log('Pricing test response data:', data)
 
-      if (grantResponse.ok) {
-        const grantData = await grantResponse.json()
-        
-        // Test credit deduction (simulating generation)
-        const deductResponse = await fetch('/api/credits', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
-          },
-          body: JSON.stringify({
-            action: 'deduct',
-            amount: 1,
-            reason: 'Website generation test',
-            meta: { feature: 'ai_generation', test: true }
-          })
-        })
+      if (response.ok) {
+        const results = data.tests.map((test: any) =>
+          `${test.name}: ${test.status === 'pass' ? '✅' : '❌'} ${test.status}`
+        ).join('\n')
 
-        if (deductResponse.ok) {
-          const deductData = await deductResponse.json()
-          setResult(`✅ Pricing system working!
-📈 Granted 10 credits: ${grantData.newBalance} total
-📉 Deducted 1 credit: ${deductData.newBalance} final balance`)
-        } else {
-          const deductError = await deductResponse.json().catch(() => ({ error: 'Unknown error' }))
-          setResult(`❌ Credit deduction failed: ${deductError.error || 'Unknown error'}`)
-        }
+        setResult(`Test Results:
+${results}
+
+Detailed Results:
+${JSON.stringify(data, null, 2)}`)
       } else {
-        const grantError = await grantResponse.json().catch(() => ({ error: 'Unknown error' }))
-        setResult(`❌ Credit granting failed: ${grantError.error || 'Unknown error'}`)
+        setResult(`❌ Test failed: ${data.error || 'Unknown error'}`)
       }
     } catch (err: any) {
-      setResult(`❌ Pricing test error: ${err.message}`)
+      console.error('❌ Pricing test error:', err)
+      setResult(`❌ Test error: ${err.message}`)
     } finally {
       setIsLoading(false)
     }

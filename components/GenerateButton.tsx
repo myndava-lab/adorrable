@@ -9,17 +9,10 @@ export default function GenerateButton() {
 
   const testGeneration = async () => {
     setIsLoading(true)
-    setResult(null)
+    setResult('')
 
     try {
-      const { data: { session }, error: authError } = await supabase.auth.getSession()
-
-      if (authError || !session?.user) {
-        setResult(`❌ User not authenticated. Please sign in first.
-Go to the main page and click "Sign in with Google"`)
-        return
-      }
-
+      console.log('🔍 Starting AI Generation test...')
       const response = await fetch('/api/ai/generate', {
         method: 'POST',
         headers: {
@@ -32,8 +25,11 @@ Go to the main page and click "Sign in with Google"`)
         })
       })
 
+      console.log('AI Generation response status:', response.status)
+
       if (response.ok) {
         const data = await response.json()
+        console.log('AI Generation response data:', data)
         setResult(`✅ AI Generation working!
 Success: ${data.success}
 Credits used: ${data.creditsUsed}
@@ -41,9 +37,11 @@ Credits remaining: ${data.creditsRemaining}
 HTML generated: ${data.html?.length || 0} characters`)
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('AI Generation error data:', errorData)
         setResult(`❌ AI Generation failed: ${errorData.error || 'Unknown error'}`)
       }
     } catch (err: any) {
+      console.error('❌ AI Generation test error:', err)
       setResult(`❌ AI test error: ${err.message}`)
     } finally {
       setIsLoading(false)

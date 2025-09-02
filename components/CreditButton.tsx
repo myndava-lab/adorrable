@@ -9,33 +9,25 @@ export default function CreditButton() {
 
   const testCredits = async () => {
     setIsLoading(true)
-    setResult(null)
+    setResult('')
 
     try {
-      const { data: { session }, error: authError } = await supabase.auth.getSession()
+      console.log('🔍 Starting Credits API test...')
+      const response = await fetch('/api/credits')
+      console.log('Credits API response status:', response.status)
 
-      if (authError || !session?.user) {
-        setResult(`❌ User not authenticated. Please sign in first.
-Go to the main page and click "Sign in with Google"`)
-        return
-      }
-
-      const response = await fetch('/api/credits', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      })
+      const data = await response.json()
+      console.log('Credits API response data:', data)
 
       if (response.ok) {
-        const data = await response.json()
         setResult(`✅ Credits API working!
 Current credits: ${data.credits}
-Subscription tier: ${data.tier}`)
+Profile: ${JSON.stringify(data.profile, null, 2)}`)
       } else {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        setResult(`❌ Credits API failed: ${errorData.error || 'Unknown error'}`)
+        setResult(`❌ ${data.error || 'Credits API failed'}`)
       }
     } catch (err: any) {
+      console.error('❌ Credits test error:', err)
       setResult(`❌ Credits test error: ${err.message}`)
     } finally {
       setIsLoading(false)
