@@ -45,23 +45,62 @@ export async function POST(request: NextRequest) {
 async function handlePaystackWebhook(event: any) {
   console.log('Processing Paystack webhook:', event.event)
 
+  // Handle successful payment
   if (event.event === 'charge.success') {
     const { reference, amount, currency, status, metadata } = event.data
 
     if (status === 'success') {
-      const { data, error } = await supabaseServer.rpc('complete_payment_transaction', {
-        transaction_id: reference,
-        provider_ref: reference,
-        provider_response: event.data
-      })
+      // Get the transaction
+      const { data: transaction, error: fetchError } = await supabaseServer
+        .from('payment_transactions')
+        .select('*')
+        .eq('id', reference)
+        .single()
 
-      if (error) {
-        console.error('Failed to complete Paystack payment:', error)
-        return NextResponse.json({ error: 'Payment completion failed' }, { status: 500 })
+      if (fetchError || !transaction) {
+        console.error('Transaction not found:', reference)
+        return NextResponse.json({ error: 'Transaction not found' }, { status: 404 })
       }
 
-      console.log('✅ Paystack payment completed:', data)
-      return NextResponse.json({ success: true, message: 'Paystack payment processed' })
+      // Update transaction status
+      const { error: updateError } = await supabaseServer
+        .from('payment_transactions')
+        .update({
+          status: 'completed',
+          provider_response: event.data
+        })
+        .eq('id', reference)
+
+      if (updateError) {
+        console.error('Failed to update transaction:', updateError)
+        return NextResponse.json({ error: 'Transaction update failed' }, { status: 500 })
+      }
+
+      // Grant credits to user
+      const { data: creditResult, error: creditError } = await supabaseServer.rpc('grant_credits_and_log', {
+        p_user_id: transaction.profile_id,
+        p_amount: transaction.credits_granted,
+        p_reason: 'payment_completed',
+        p_transaction_id: reference,
+        p_metadata: { payment_data: event.data }
+      })
+
+      if (creditError) {
+        console.error('Failed to grant credits:', creditError)
+        return NextResponse.json({ error: 'Credit grant failed' }, { status: 500 })
+      }
+
+      console.log('✅ Payment completed successfully:', {
+        transaction_id: reference,
+        credits_granted: transaction.credits_granted,
+        user_id: transaction.profile_id
+      })
+
+      return NextResponse.json({
+        success: true,
+        message: 'Payment processed and credits granted',
+        credits_granted: transaction.credits_granted
+      })
     }
   }
 

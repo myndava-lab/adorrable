@@ -37,16 +37,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
+    // Map tier names to database package names
+    const tierMap = {
+      'Starter': 'Starter',
+      'Creator': 'Creator', 
+      'Business': 'Business',
+      'Enterprise': 'Enterprise'
+    }
+
+    const packageName = tierMap[tier as keyof typeof tierMap] || tier
+
     // Get pricing information
     const { data: pricing, error: pricingError } = await supabaseServer
       .from('price_config')
       .select('*')
-      .eq('package_name', tier)
+      .eq('package_name', packageName)
       .eq('active', true)
       .single()
 
     if (pricingError || !pricing) {
-      return NextResponse.json({ error: 'Invalid pricing tier' }, { status: 400 })
+      console.error('Pricing error:', pricingError, 'for tier:', tier, 'packageName:', packageName)
+      return NextResponse.json({ error: `Invalid pricing tier: ${tier}` }, { status: 400 })
     }
 
     const amount = currency === 'USD' ? pricing.price_usd : pricing.price_ngn
@@ -55,13 +66,13 @@ export async function POST(req: NextRequest) {
     // Route to appropriate payment provider
     switch (method) {
       case 'paystack':
-        return await initializePaystack(user, amount, currency, tier, transactionId)
+        return await initializePaystack(user, amount, currency, packageName, transactionId, pricing)
       
       case 'crypto':
-        return await initializeCrypto(user, amount, currency, tier, transactionId)
+        return await initializeCrypto(user, amount, currency, packageName, transactionId, pricing)
       
       case 'bank_transfer':
-        return await initializeBankTransfer(user, amount, currency, tier, transactionId)
+        return await initializeBankTransfer(user, amount, currency, packageName, transactionId, pricing)
       
       default:
         return NextResponse.json({ error: 'Invalid payment method' }, { status: 400 })
@@ -76,7 +87,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function initializePaystack(user: any, amount: number, currency: string, tier: string, transactionId: string) {
+async function initializePaystack(user: any, amount: number, currency: string, tier: string, transactionId: string, pricing: any) {
   try {
     const paystackData = {
       email: user.email,
@@ -87,7 +98,7 @@ async function initializePaystack(user: any, amount: number, currency: string, t
       metadata: {
         user_id: user.id,
         tier: tier,
-        credits: await getCreditsForTier(tier)
+        credits: pricing.credits
       }
     }
 
@@ -120,7 +131,7 @@ async function initializePaystack(user: any, amount: number, currency: string, t
         provider: 'paystack',
         provider_reference: result.data.reference,
         provider_response: result,
-        credits_granted: await getCreditsForTier(tier)
+        credits_granted: pricing.credits
       })
 
     return NextResponse.json({
@@ -141,7 +152,7 @@ async function initializePaystack(user: any, amount: number, currency: string, t
   }
 }
 
-async function initializeCrypto(user: any, amount: number, currency: string, tier: string, transactionId: string) {
+async function initializeCrypto(user: any, amount: number, currency: string, tier: string, transactionId: string, pricing: any) {
   try {
     // NOWPayments initialization
     const nowPaymentsData = {
@@ -185,7 +196,7 @@ async function initializeCrypto(user: any, amount: number, currency: string, tie
         provider: 'nowpayments',
         provider_reference: result.payment_id,
         provider_response: result,
-        credits_granted: await getCreditsForTier(tier)
+        credits_granted: pricing.credits
       })
 
     return NextResponse.json({
@@ -210,7 +221,7 @@ async function initializeCrypto(user: any, amount: number, currency: string, tie
   }
 }
 
-async function initializeBankTransfer(user: any, amount: number, currency: string, tier: string, transactionId: string) {
+async function initializeBankTransfer(user: any, amount: number, currency: string, tier: string, transactionId: string, pricing: any) {
   // Bank transfer details
   const bankDetails = {
     bank_name: 'Zenith Bank',

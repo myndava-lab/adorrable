@@ -65,7 +65,7 @@ export default function PricingCard() {
           'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
-          tier: tier.id,
+          tier: tier.name, // Use tier.name instead of tier.id
           method: method,
           currency: currency
         })

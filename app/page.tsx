@@ -507,12 +507,18 @@ function PriceCard({
   features,
   highlight,
   cta,
+  user,
+  userProfile,
+  setIsAuthModalOpen,
 }: {
   title: string;
   price: string;
   features: string[];
   highlight?: boolean;
   cta: string;
+  user: any;
+  userProfile: any;
+  setIsAuthModalOpen: (value: boolean) => void;
 }) {
   return (
     <motion.div
@@ -538,7 +544,7 @@ function PriceCard({
         ))}
       </ul>
       <button 
-        onClick={() => !userProfile ? setIsAuthModalOpen(true) : alert('Payment integration coming soon!')}
+        onClick={() => !user ? setIsAuthModalOpen(true) : alert('Payment integration coming soon!')}
         className="mt-6 w-full rounded-xl bg-white/90 px-4 py-2 text-sm font-semibold text-black transition hover:bg-white"
       >
         {cta}
@@ -1017,12 +1023,18 @@ export default function AdorrableLanding() {
               price={t.pricing.starter.price}
               features={t.pricing.starter.features}
               cta={t.pricing.starter.cta}
+              user={user}
+              userProfile={userProfile}
+              setIsAuthModalOpen={setIsAuthModalOpen}
             />
             <PriceCard
               title={t.pricing.growth.title}
               price={t.pricing.growth.price}
               features={t.pricing.growth.features}
               cta={t.pricing.growth.cta}
+              user={user}
+              userProfile={userProfile}
+              setIsAuthModalOpen={setIsAuthModalOpen}
             />
             <PriceCard
               title={t.pricing.lifetime.title}
@@ -1030,6 +1042,9 @@ export default function AdorrableLanding() {
               features={t.pricing.lifetime.features}
               highlight
               cta={t.pricing.lifetime.cta}
+              user={user}
+              userProfile={userProfile}
+              setIsAuthModalOpen={setIsAuthModalOpen}
             />
           </motion.div>
         </section>
