@@ -56,8 +56,7 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Optional: Add auth checks here if needed
-  // const { data: { user } } = await supabase.auth.getUser()
+  await supabase.auth.getUser()
 
   return response
 }
