@@ -544,7 +544,13 @@ function PriceCard({
         ))}
       </ul>
       <button 
-        onClick={() => !user ? setIsAuthModalOpen(true) : alert('Payment integration coming soon!')}
+        onClick={() => {
+          if (typeof user === 'undefined' || !user) {
+            setIsAuthModalOpen(true);
+          } else {
+            alert('Payment integration coming soon!');
+          }
+        }}
         className="mt-6 w-full rounded-xl bg-white/90 px-4 py-2 text-sm font-semibold text-black transition hover:bg-white"
       >
         {cta}
@@ -882,13 +888,13 @@ export default function AdorrableLanding() {
                               if (match) {
                                 const [, owner, repo] = match;
                                 const cleanRepo = repo.replace('.git', '');
-                                
+
                                 // Auto-populate the prompt with GitHub context
                                 const githubPrompt = `Create a website based on the GitHub repository: ${owner}/${cleanRepo}. 
 Analyze the project structure, README, and codebase to understand what this project does, then create an appropriate website that showcases or documents this project.
 
 Repository URL: ${repoUrl}`;
-                                
+
                                 setWebsitePrompt(githubPrompt);
                                 alert(`✅ GitHub repository "${owner}/${cleanRepo}" has been imported! The prompt has been auto-populated with repository context. You can now generate a website based on this repository.`);
                               } else {
@@ -1075,7 +1081,7 @@ Repository URL: ${repoUrl}`;
 
         {/* CTA SECTION */}
         <section className="relative overflow-hidden py-20">
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-indigo-600/20 via-fuchsia-500/20 to-emerald-400/20" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-emerald-400 opacity-20" />
           <div className={`${sectionClass} ${cardClass} flex flex-col items-center gap-6 py-12 text-center`}>
             <h3 className="text-3xl font-bold">{t.cta.title}</h3>
             <p className="max-w-2xl text-lg text-white/80">
