@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { supabase } from '../lib/supabase';
 import AuthModal from '../components/AuthModal';
+import CreditBalance from '../components/CreditBalance'; // Import CreditBalance component
 
 const gradientText =
   "bg-gradient-to-r from-[#60A5FA] via-[#A78BFA] to-[#34D399] bg-clip-text text-transparent";
@@ -779,9 +780,7 @@ export default function AdorrableLanding() {
               <div className="h-8 w-16 bg-white/10 rounded animate-pulse" />
             ) : user ? (
               <div className="flex items-center gap-3">
-                <span className="text-sm text-white/70">
-                  {userProfile?.credits || 0} {t.navbar.credits}
-                </span>
+                <CreditBalance /> {/* Display credit balance */}
                 <span className="text-sm text-white/90">
                   {user.email}
                 </span>
