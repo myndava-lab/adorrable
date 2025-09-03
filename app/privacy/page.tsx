@@ -140,15 +140,14 @@ export default function PrivacyPolicy() {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">11. Changes to This Policy</h2>
               <p className="mb-4">
-                We may update this privacy policy from time to time. We will notify you of any material 
-                changes by posting the new policy on this page and updating the "Last updated" date.
+                We may update this Privacy Policy from time to time. We&apos;ll notify you of any changes by posting the new Privacy Policy on this page.
               </p>
             </section>
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">12. Contact Us</h2>
               <p className="mb-4">
-                If you have any questions about this Privacy Policy, please contact us at:
+                If you have any questions about this Privacy Policy, please contact us at &quot;privacy@adorrable.dev&quot;.
               </p>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p><strong>Email:</strong> privacy@adorrable.dev</p>
