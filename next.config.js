@@ -2,12 +2,23 @@ const path = require('path');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    domains: ['abckmjcxrlgikepbqucz.supabase.co']
-  },
-  webpack: (config) => {
-    config.cache = false; // stop PackFileCacheStrategy .pack.gz writes
+  webpack: (config, { dev }) => {
+    // Disable PackFileCacheStrategy (prevents .pack.gz ENOENT & stale imports)
+    config.cache = false;
+
+    // Optional: quiet infra warnings about cache packs
+    if (config.infrastructureLogging) {
+      config.infrastructureLogging.level = 'error';
+    }
     return config;
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
   },
 
   // Optimize compiler settings

@@ -1,0 +1,119 @@
+Likely causes of the build failing (in this situation)
+
+When stale-cache issues are gone, the remaining build failures are almost always:
+
+Missing env vars at build time (e.g., NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, OpenAI key, etc.).
+
+TypeScript/ESLint build-blockers.
+
+Edge runtime code using Node APIs (crypto, fs) or vice-versa.
+
+Images domain config missing.
+
+Let’s confirm which one it is and unblock immediately.
+
+1) Get the first failing error line
+
+Run this single command and paste the first error if it still fails:
+
+NODE_OPTIONS="--trace-warnings" npx next build --no-cache 2>&1 | tee build.log
+
+
+If it says ENV undefined, go to step 2.
+
+If it says Type error or ESLint, go to step 3.
+
+If it says Edge runtime or module not found, go to step 4.
+
+2) Ensure env vars are available at build
+
+Create .env.local (or Replit Secrets) with safe values (don’t leave blank):
+
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=ey... (anon key)
+SUPABASE_SERVICE_ROLE_KEY= (server-only; not required for build if unused)
+NEXT_PUBLIC_SITE_URL=http://localhost:3001
+OPENAI_API_KEY=sk-...           # if your code references it during build
+
+
+⚠️ Any env referenced in client code must start with NEXT_PUBLIC_.
+
+Then:
+
+npx next build --no-cache
+
+3) Temporarily relax TypeScript/ESLint to get past blockers
+
+Add these once to confirm it’s not types/lint; revert later.
+
+next.config.js
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  webpack: (config) => {
+    config.cache = false; // keep cache off
+    return config;
+  },
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
+  images: {
+    remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }],
+  },
+};
+module.exports = nextConfig;
+
+
+tsconfig.json (if still noisy)
+
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "noEmit": true
+  }
+}
+
+
+Then:
+
+npx next build --no-cache
+
+
+If it now builds, we know the failure was types/lint—remove those ignores and fix the reported files one by one later.
+
+4) Edge/Node runtime mismatch quick fix
+
+If the error mentions edge runtime or Node APIs:
+
+At the top of any API route using Node libs or the service-role client, add:
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+
+Keep middleware.ts minimal (no Supabase imports).
+
+Avoid fs, crypto, etc. in client components.
+
+5) Sanity checks (one-liners)
+
+Confirm deprecated package is truly gone:
+
+npm ls @supabase/auth-helpers-nextjs || echo "OK: not installed"
+
+
+Confirm only one middleware:
+
+ls -la middleware.ts pages/_middleware.ts app/**/middleware.ts 2>/dev/null
+
+
+(There should be only the root middleware.ts.)
+
+TL;DR actions
+
+Run the trace build command to see the first real error.
+
+Ensure envs exist at build time.
+
+If needed, temporarily ignore types/lint to pass build.
+
+Add runtime="nodejs" to server routes that use Node APIs.
