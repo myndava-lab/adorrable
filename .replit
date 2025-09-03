@@ -58,6 +58,10 @@ externalPort = 6800
 localPort = 3010
 externalPort = 8000
 
+[[ports]]
+localPort = 5000
+externalPort = 8008
+
 [agent]
 expertMode = true
 integrations = ["javascript_database==1.0.0"]
