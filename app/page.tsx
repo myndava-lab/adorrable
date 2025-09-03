@@ -574,7 +574,7 @@ export default function AdorrableLanding() {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [prompt, setPrompt] = useState("");
+  const [websitePrompt, setWebsitePrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [attachedImages, setAttachedImages] = useState<File[]>([]);
 
@@ -659,7 +659,7 @@ export default function AdorrableLanding() {
       return;
     }
 
-    if (!prompt.trim()) {
+    if (!websitePrompt.trim()) {
       alert(t.errors.promptRequired || 'Please enter a description of your website');
       return;
     }
@@ -696,7 +696,7 @@ export default function AdorrableLanding() {
           'Authorization': `Bearer ${session.data.session.access_token}`
         },
         body: JSON.stringify({
-          prompt: prompt.trim(),
+          prompt: websitePrompt.trim(),
           language: lang,
           images: attachedImages,
           culturalConfig: {
@@ -716,7 +716,7 @@ export default function AdorrableLanding() {
         await fetchUserProfile(user.id);
 
         // Clear the prompt and attached images
-        setPrompt('');
+        setWebsitePrompt('');
         setAttachedImages([]);
 
         // You can add logic here to display the generated website
@@ -843,8 +843,8 @@ export default function AdorrableLanding() {
                   <textarea
                     className="w-full bg-transparent text-lg text-white placeholder:text-white/50 focus:outline-none resize-none leading-relaxed"
                     placeholder={user ? t.hero.placeholder : (currentPrompt + (charIndex === EXAMPLE_PROMPTS[lang][promptIndex]?.length ? "" : "|"))}
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
+                    value={websitePrompt}
+                    onChange={(e) => setWebsitePrompt(e.target.value)}
                     rows={4}
                   />
                   <div className="flex flex-col gap-3 flex-shrink-0 mt-1">
@@ -869,7 +869,7 @@ export default function AdorrableLanding() {
                     </button>
                     <button 
                       onClick={() => {
-                        const repoUrl = prompt('Enter GitHub repository URL:');
+                        const repoUrl = window.prompt('Enter GitHub repository URL:');
                         if (repoUrl) {
                           if (repoUrl.includes('github.com')) {
                             alert(`GitHub import from ${repoUrl} - Integration coming soon!`);
@@ -902,7 +902,7 @@ export default function AdorrableLanding() {
                     ))}
                     <button 
                       onClick={handleGenerateWebsite}
-                      disabled={isGenerating || !prompt.trim()}
+                      disabled={isGenerating || !websitePrompt.trim()}
                       className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/90 px-8 py-4 text-lg font-semibold text-black transition hover:bg-white whitespace-nowrap shadow-lg ml-4 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isGenerating ? t.hero.generating : t.hero.generateButton} 
