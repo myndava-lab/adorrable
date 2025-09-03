@@ -1,0 +1,85 @@
+🔹 Suggested General Template JSON (general_free.json)
+{
+  "meta": {
+    "title": "Your Business Website",
+    "payments": "generic"
+  },
+  "styles": {
+    "primary": "#2563EB",
+    "accent": "#FACC15",
+    "font_head": "Inter",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Welcome to Your Business",
+      "sub": "A modern, professional website built with Adorrable.dev",
+      "cta": { "label": "Get Started Today", "href": "#start" }
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "Professional Design", "desc": "Clean, modern layouts that work for any industry." },
+        { "title": "Easy Customization", "desc": "Update text, images, and sections to fit your needs." },
+        { "title": "Mobile Ready", "desc": "Optimized for phones, tablets, and desktops." }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "This website template gave me a great start!", "author": "Happy User" }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Free Plan", "price": "$0", "features": ["Basic template", "Quick setup", "Mobile responsive"] },
+        { "name": "Pro Plan", "price": "$19/mo", "features": ["Advanced templates", "Export & hosting", "Priority support"] }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        { "q": "Can I use this for any business?", "a": "Yes, this general template is flexible and adaptable." },
+        { "q": "Is it really free?", "a": "Yes, the general template is free for all users." }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Start Building"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "About", "href": "#" },
+        { "label": "Contact", "href": "#" },
+        { "label": "Privacy", "href": "#" }
+      ]
+    }
+  ]
+}
+
+🔹 How to Integrate
+
+Place this file in /data/templates/general_free.json.
+
+Import in your template loader (lib/templates.ts):
+
+import generalFree from "@/data/templates/general_free.json";
+export const catalog = [generalFree, restaurant_ng, fashion_ng, /* … */];
+
+
+In your resolver (/api/template/resolve), default free users to general_free.json if:
+
+No region match found, or
+
+User’s subscription_tier = free.
+
+🔹 Why This Works
+
+Guarantees every user gets a usable site on first try.
+
+Reduces AI call costs (fallback to prebuilt JSON).
+
+Encourages upgrade: pro/paid users unlock the full industry/region-specific catalog.
