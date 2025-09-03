@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const language = searchParams.get("language");
     const limit = parseInt(searchParams.get("limit") || "50");
+    const freeMode = searchParams.get("free") === "true"; // For browsing without auth
 
     const files = await readdir(templatesDir);
     let templates = [];
@@ -28,7 +29,25 @@ export async function GET(req: NextRequest) {
         try {
           const filepath = path.join(templatesDir, filename);
           const data = await readFile(filepath, "utf8");
-          templates.push(JSON.parse(data));
+          const template = JSON.parse(data);
+          
+          // In free mode, only show preview info, not full code
+          if (freeMode) {
+            templates.push({
+              id: template.id,
+              title: template.title,
+              description: template.description,
+              language: template.language,
+              category: template.category,
+              tags: template.tags,
+              preview: template.preview,
+              createdAt: template.createdAt,
+              // Don't include the full code for free users
+              codePreview: template.code ? template.code.substring(0, 500) + "..." : ""
+            });
+          } else {
+            templates.push(template);
+          }
         } catch (error) {
           console.error(`Error reading template ${filename}:`, error);
         }
@@ -53,6 +72,7 @@ export async function GET(req: NextRequest) {
       success: true,
       templates: templates,
       count: templates.length,
+      freeMode: freeMode
     });
   } catch (error: any) {
     console.error("Error fetching templates:", error);
