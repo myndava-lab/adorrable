@@ -28,8 +28,15 @@ export async function GET() {
 
     if (error) {
       console.error('Error fetching beta stats:', error)
+      // Return default stats if function doesn't exist
       return NextResponse.json(
-        { error: 'Failed to fetch beta statistics' },
+        {
+          total_users: 0,
+          active_users: 0,
+          total_credits_used: 0,
+          avg_credits_per_user: 0,
+          beta_slots_remaining: 100
+        },
         { status: 500 }
       )
     }
@@ -37,8 +44,15 @@ export async function GET() {
     return NextResponse.json(betaStats)
   } catch (error) {
     console.error('Beta stats API error:', error)
+    // Return default stats on any error
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        total_users: 0,
+        active_users: 0,
+        total_credits_used: 0,
+        avg_credits_per_user: 0,
+        beta_slots_remaining: 100
+      },
       { status: 500 }
     )
   }
