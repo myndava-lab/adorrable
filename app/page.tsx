@@ -868,13 +868,33 @@ export default function AdorrableLanding() {
                       <Paperclip className="h-5 w-5" />
                     </button>
                     <button 
-                      onClick={() => {
-                        const repoUrl = window.prompt('Enter GitHub repository URL:');
+                      onClick={async () => {
+                        const repoUrl = window.prompt('Enter GitHub repository URL (e.g., https://github.com/username/repo):');
                         if (repoUrl) {
                           if (repoUrl.includes('github.com')) {
-                            alert(`GitHub import from ${repoUrl} - Integration coming soon!`);
+                            try {
+                              // Extract owner and repo from URL
+                              const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+                              if (match) {
+                                const [, owner, repo] = match;
+                                const cleanRepo = repo.replace('.git', '');
+                                
+                                // Auto-populate the prompt with GitHub context
+                                const githubPrompt = `Create a website based on the GitHub repository: ${owner}/${cleanRepo}. 
+Analyze the project structure, README, and codebase to understand what this project does, then create an appropriate website that showcases or documents this project.
+
+Repository URL: ${repoUrl}`;
+                                
+                                setWebsitePrompt(githubPrompt);
+                                alert(`✅ GitHub repository "${owner}/${cleanRepo}" has been imported! The prompt has been auto-populated with repository context. You can now generate a website based on this repository.`);
+                              } else {
+                                alert('Invalid GitHub URL format. Please use: https://github.com/username/repository');
+                              }
+                            } catch (error) {
+                              alert('Error processing GitHub URL. Please check the format and try again.');
+                            }
                           } else {
-                            alert('Please enter a valid GitHub repository URL');
+                            alert('Please enter a valid GitHub repository URL (must contain github.com)');
                           }
                         }
                       }}
