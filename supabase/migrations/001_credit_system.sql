@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   full_name TEXT,
   credits INTEGER DEFAULT 4 NOT NULL,  -- 4 welcome credits
   subscription_tier TEXT DEFAULT 'free' CHECK (subscription_tier IN ('free', 'pro', 'enterprise')),
+  payment_tier TEXT DEFAULT 'free' CHECK (payment_tier IN ('free', 'paid')), -- Track if user paid to bypass beta limit
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -166,7 +167,8 @@ CREATE OR REPLACE FUNCTION get_beta_stats()
 RETURNS JSON AS $$
 DECLARE
   max_users INTEGER;
-  current_users INTEGER;
+  current_free_users INTEGER;
+  total_users INTEGER;
   waiting_count INTEGER;
   result JSON;
 BEGIN
@@ -175,10 +177,14 @@ BEGIN
   FROM system_config 
   WHERE key = 'max_beta_users';
   
-  -- Get current active users (with credits > 0 or created in last 30 days)
-  SELECT COUNT(*) INTO current_users 
+  -- Get current free users only (paid users don't count towards limit)
+  SELECT COUNT(*) INTO current_free_users 
   FROM profiles 
-  WHERE credits > 0 OR created_at > NOW() - INTERVAL '30 days';
+  WHERE payment_tier = 'free' AND (credits > 0 OR created_at > NOW() - INTERVAL '30 days');
+  
+  -- Get total users for stats
+  SELECT COUNT(*) INTO total_users 
+  FROM profiles;
   
   -- Get waiting list count
   SELECT COUNT(*) INTO waiting_count 
@@ -186,10 +192,11 @@ BEGIN
   
   SELECT json_build_object(
     'max_users', COALESCE(max_users, 100),
-    'current_users', COALESCE(current_users, 0),
-    'spots_remaining', GREATEST(0, COALESCE(max_users, 100) - COALESCE(current_users, 0)),
+    'current_free_users', COALESCE(current_free_users, 0),
+    'total_users', COALESCE(total_users, 0),
+    'spots_remaining', GREATEST(0, COALESCE(max_users, 100) - COALESCE(current_free_users, 0)),
     'waiting_list_count', COALESCE(waiting_count, 0),
-    'is_beta_full', COALESCE(current_users, 0) >= COALESCE(max_users, 100)
+    'is_beta_full', COALESCE(current_free_users, 0) >= COALESCE(max_users, 100)
   ) INTO result;
   
   RETURN result;
@@ -211,13 +218,18 @@ CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles
 CREATE TRIGGER update_price_config_updated_at BEFORE UPDATE ON price_config
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Function to check if we can accept new beta users
-CREATE OR REPLACE FUNCTION can_accept_beta_user()
+-- Function to check if we can accept new beta users (free users only)
+CREATE OR REPLACE FUNCTION can_accept_beta_user(p_payment_tier TEXT DEFAULT 'free')
 RETURNS BOOLEAN AS $$
 DECLARE
   max_users INTEGER;
-  current_users INTEGER;
+  current_free_users INTEGER;
 BEGIN
+  -- Paid users always bypass the limit
+  IF p_payment_tier = 'paid' THEN
+    RETURN TRUE;
+  END IF;
+  
   -- Get max beta users from config
   SELECT value::INTEGER INTO max_users 
   FROM system_config 
@@ -227,12 +239,12 @@ BEGIN
     max_users := 100; -- Default fallback
   END IF;
   
-  -- Count current active users
-  SELECT COUNT(*) INTO current_users 
+  -- Count current free users only
+  SELECT COUNT(*) INTO current_free_users 
   FROM profiles 
-  WHERE created_at IS NOT NULL;
+  WHERE payment_tier = 'free' AND created_at IS NOT NULL;
   
-  RETURN current_users < max_users;
+  RETURN current_free_users < max_users;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -241,17 +253,22 @@ CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 DECLARE
   can_join BOOLEAN;
+  user_payment_tier TEXT;
 BEGIN
+  -- Get payment tier from user metadata (default to free)
+  user_payment_tier := COALESCE(NEW.raw_user_meta_data->>'payment_tier', 'free');
+  
   -- Check if we can accept this user
-  SELECT can_accept_beta_user() INTO can_join;
+  SELECT can_accept_beta_user(user_payment_tier) INTO can_join;
   
   IF can_join THEN
     -- Create profile with welcome credits
-    INSERT INTO profiles (id, email, credits)
+    INSERT INTO profiles (id, email, credits, payment_tier)
     VALUES (
       NEW.id,
       NEW.email,
-      4  -- 4 welcome credits
+      CASE WHEN user_payment_tier = 'paid' THEN 50 ELSE 4 END,  -- Paid users get more credits
+      user_payment_tier
     );
     
     -- Log the welcome credits
@@ -265,11 +282,12 @@ BEGIN
   ELSE
     -- User exceeds beta limit, they should be on waiting list
     -- We still create the profile but with 0 credits and waiting status
-    INSERT INTO profiles (id, email, credits)
+    INSERT INTO profiles (id, email, credits, payment_tier)
     VALUES (
       NEW.id,
       NEW.email,
-      0  -- No credits for waiting list users
+      0,  -- No credits for waiting list users
+      user_payment_tier
     );
     
     -- Log them as waiting list

@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react'
 
 interface BetaStats {
   max_users: number
-  current_users: number
+  current_free_users: number
+  total_users: number
   spots_remaining: number
   waiting_list_count: number
   is_beta_full: boolean
@@ -62,15 +63,21 @@ export default function BetaManagement() {
         <h1 className="text-3xl font-bold mb-8">Beta User Management</h1>
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500">Active Beta Users</h3>
-            <p className="text-3xl font-bold text-blue-600">{stats?.current_users || 0}</p>
-            <p className="text-sm text-gray-600">of {stats?.max_users || 100} max</p>
+            <h3 className="text-sm font-medium text-gray-500">Free Beta Users</h3>
+            <p className="text-3xl font-bold text-blue-600">{stats?.current_free_users || 0}</p>
+            <p className="text-sm text-gray-600">of {stats?.max_users || 100} free limit</p>
           </div>
 
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500">Spots Remaining</h3>
+            <h3 className="text-sm font-medium text-gray-500">Total Users</h3>
+            <p className="text-3xl font-bold text-purple-600">{stats?.total_users || 0}</p>
+            <p className="text-sm text-gray-600">free + paid</p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-sm font-medium text-gray-500">Free Spots Left</h3>
             <p className={`text-3xl font-bold ${(stats?.spots_remaining || 0) > 10 ? 'text-green-600' : 'text-red-600'}`}>
               {stats?.spots_remaining || 0}
             </p>
@@ -96,13 +103,13 @@ export default function BetaManagement() {
           <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
             <div 
               className="bg-gradient-to-r from-blue-600 to-purple-600 h-4 rounded-full transition-all duration-300"
-              style={{ width: `${((stats?.current_users || 0) / (stats?.max_users || 100)) * 100}%` }}
+              style={{ width: `${((stats?.current_free_users || 0) / (stats?.max_users || 100)) * 100}%` }}
             ></div>
           </div>
           <div className="flex justify-between text-sm text-gray-600">
-            <span>{stats?.current_users || 0} users</span>
-            <span>{((stats?.current_users || 0) / (stats?.max_users || 100) * 100).toFixed(1)}% full</span>
-            <span>{stats?.max_users || 100} max</span>
+            <span>{stats?.current_free_users || 0} free users</span>
+            <span>{((stats?.current_free_users || 0) / (stats?.max_users || 100) * 100).toFixed(1)}% of free limit</span>
+            <span>{stats?.max_users || 100} free max</span>
           </div>
         </div>
 

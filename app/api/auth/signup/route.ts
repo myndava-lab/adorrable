@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, fullName } = await request.json()
+    const { email, password, fullName, paymentTier = 'free' } = await request.json()
 
     if (!email || !password) {
       return NextResponse.json(
@@ -45,8 +45,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // If beta is full, add to waiting list instead
-    if (betaStats?.is_beta_full) {
+    // Check if beta is full for free users only
+    // Paid users can bypass the 100 user limit
+    if (betaStats?.is_beta_full && paymentTier === 'free') {
       const { error: waitingListError } = await supabase
         .rpc('add_to_waiting_list', {
           p_email: email,
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: false,
         waitingList: true,
-        message: `🎉 You're on the waiting list! We've reached our beta limit of ${betaStats.max_users} users. You're #${betaStats.waiting_list_count + 1} in line. We'll email you when a spot opens up!`,
+        message: `🎉 You're on the waiting list! We've reached our beta limit of ${betaStats.max_users} free users. You're #${betaStats.waiting_list_count + 1} in line. We'll email you when a spot opens up! Or upgrade to Premium to skip the line.`,
         stats: betaStats
       })
     }
@@ -75,7 +76,8 @@ export async function POST(request: NextRequest) {
       password,
       options: {
         data: {
-          full_name: fullName || ''
+          full_name: fullName || '',
+          payment_tier: paymentTier
         }
       }
     })
@@ -107,14 +109,17 @@ export async function POST(request: NextRequest) {
       console.error('Profile verification error:', profileError)
     }
 
+    const welcomeCredits = paymentTier === 'paid' ? 50 : 4;
+    const userType = paymentTier === 'paid' ? 'Premium' : 'Free';
+    
     return NextResponse.json({
       success: true,
       user: authData.user,
       profile: profile,
       betaStats,
       message: authData.user.email_confirmed_at 
-        ? `🎉 Welcome to Adorrable Beta! You're user #${betaStats.current_users + 1} of ${betaStats.max_users}. You received 4 welcome credits.` 
-        : `Please check your email to confirm your account. You're beta user #${betaStats.current_users + 1} of ${betaStats.max_users} and will receive 4 welcome credits upon confirmation.`
+        ? `🎉 Welcome to Adorrable Beta as a ${userType} user! You received ${welcomeCredits} welcome credits.` 
+        : `Please check your email to confirm your account. You'll receive ${welcomeCredits} welcome credits as a ${userType} user upon confirmation.`
     })
 
   } catch (error) {
