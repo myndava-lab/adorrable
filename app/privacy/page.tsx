@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -12,7 +11,7 @@ export default function PrivacyPolicy() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white shadow-sm rounded-lg p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Privacy Policy</h1>
-          
+
           <div className="prose prose-gray max-w-none">
             <p className="text-sm text-gray-600 mb-6">
               <strong>Last updated:</strong> {new Date().toLocaleDateString()}
@@ -47,7 +46,10 @@ export default function PrivacyPolicy() {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">3. Information Sharing</h2>
               <p className="mb-4">
-                We do not sell your personal information. We may share your information only in these limited circumstances:
+                We don&apos;t sell, trade, or otherwise transfer your personal information to third parties without your consent, except as described in this policy.
+              </p>
+              <p className="mb-4">
+                We may share your information in the following situations: &ldquo;Service Providers&rdquo; who assist us in operating our website and conducting our business, &ldquo;Legal Requirements&rdquo; when required by law or to protect our rights.
               </p>
               <ul className="list-disc pl-6 mb-4">
                 <li><strong>Service Providers:</strong> With trusted third-party services (Supabase, OpenAI, payment processors)</li>
