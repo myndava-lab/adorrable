@@ -55,10 +55,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setError('')
 
     try {
+      const redirectUrl = typeof window !== 'undefined'
+        ? `${window.location.origin}/auth/callback`
+        : `${process.env.NEXT_PUBLIC_APP_URL || 'https://adorrable.dev'}/auth/callback`
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: redirectUrl
         }
       })
       if (error) throw error
@@ -73,10 +77,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setError('')
 
     try {
+      const redirectUrl = typeof window !== 'undefined'
+        ? `${window.location.origin}/auth/callback`
+        : `${process.env.NEXT_PUBLIC_APP_URL || 'https://adorrable.dev'}/auth/callback`
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'linkedin_oidc',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: redirectUrl
         }
       })
       if (error) throw error

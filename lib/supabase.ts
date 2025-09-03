@@ -18,11 +18,21 @@ if (!supabaseUrl || !supabaseAnonKey) {
   }
 }
 
+// Get the current origin for redirects
+const getRedirectUrl = () => {
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/auth/callback`
+  }
+  return `${process.env.NEXT_PUBLIC_APP_URL || 'https://adorrable.dev'}/auth/callback`
+}
+
 // Create client instance
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    redirectTo: getRedirectUrl(),
+    flowType: 'pkce'
   }
 })
