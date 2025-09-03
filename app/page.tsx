@@ -538,7 +538,7 @@ function PriceCard({
         ))}
       </ul>
       <button 
-        onClick={() => !user ? setIsAuthModalOpen(true) : alert('Payment integration coming soon!')}
+        onClick={() => !userProfile ? setIsAuthModalOpen(true) : alert('Payment integration coming soon!')}
         className="mt-6 w-full rounded-xl bg-white/90 px-4 py-2 text-sm font-semibold text-black transition hover:bg-white"
       >
         {cta}

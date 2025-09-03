@@ -16,28 +16,28 @@ interface PricingTier {
 
 const pricingTiers: PricingTier[] = [
   {
-    id: 'starter',
+    id: 'Starter',
     name: 'Starter',
-    credits: 25,
-    price_usd: 19,
-    price_ngn: 12000,
-    features: ['25 AI Website Generations', 'Basic Templates', 'Export HTML/CSS', 'Email Support']
+    credits: 50,
+    price_usd: 9.99,
+    price_ngn: 15000,
+    features: ['50 AI Website Generations', 'Basic Templates', 'Export HTML/CSS', 'Email Support']
   },
   {
-    id: 'pro',
-    name: 'Pro',
-    credits: 100,
-    price_usd: 49,
-    price_ngn: 48000,
-    features: ['100 AI Website Generations', 'Premium Templates', 'Advanced Customization', 'Priority Support', 'API Access'],
+    id: 'Creator',
+    name: 'Creator',
+    credits: 200,
+    price_usd: 29.99,
+    price_ngn: 45000,
+    features: ['200 AI Website Generations', 'Premium Templates', 'Advanced Customization', 'Priority Support', 'API Access'],
     popular: true
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise',
+    id: 'Business',
+    name: 'Business',
     credits: 500,
-    price_usd: 199,
-    price_ngn: 195000,
+    price_usd: 59.99,
+    price_ngn: 90000,
     features: ['500 AI Website Generations', 'White-label Options', 'Custom Integrations', 'Dedicated Support', 'Advanced Analytics']
   }
 ]
@@ -74,12 +74,16 @@ export default function PricingCard() {
       const result = await response.json()
 
       if (!response.ok) {
+        console.error('Payment API Error:', result)
         throw new Error(result.error || 'Payment initialization failed')
       }
 
       if (result.success) {
         // Redirect to payment page
-        window.open(result.payment_url, '_blank')
+        console.log('Payment initialized successfully:', result)
+        window.location.href = result.payment_url
+      } else {
+        throw new Error('Payment initialization returned unsuccessful result')
       }
 
     } catch (error: any) {

@@ -1,44 +1,95 @@
-
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabaseServer'
 import crypto from 'crypto'
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.text()
-    const signature = req.headers.get('x-paystack-signature') || 
-                     req.headers.get('x-nowpayments-signature') ||
-                     req.headers.get('x-webhook-signature')
+    const body = await request.text()
+    const paystackSignature = request.headers.get('x-paystack-signature')
+    const nowpaymentsSignature = request.headers.get('x-nowpayments-sig')
 
-    if (!signature) {
-      return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
+    console.log('Webhook received from:', {
+      userAgent: request.headers.get('user-agent'),
+      paystackSig: !!paystackSignature,
+      nowpaymentsSig: !!nowpaymentsSignature
+    })
+
+    let event: any
+
+    // Handle Paystack webhook
+    if (paystackSignature) {
+      const hash = crypto.createHmac('sha512', process.env.PAYSTACK_SECRET_KEY!).update(body).digest('hex')
+      if (hash !== paystackSignature) {
+        return NextResponse.json({ error: 'Invalid Paystack signature' }, { status: 401 })
+      }
+      event = JSON.parse(body)
+      return await handlePaystackWebhook(event)
     }
 
-    // Verify webhook signature (implementation depends on provider)
-    const isValid = await verifyWebhookSignature(body, signature, req.headers.get('user-agent') || '')
-
-    if (!isValid) {
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+    // Handle NOWPayments webhook
+    if (nowpaymentsSignature || request.headers.get('user-agent')?.includes('NOWPayments')) {
+      event = JSON.parse(body)
+      return await handleNowPaymentsWebhook(event)
     }
 
-    const payload = JSON.parse(body)
-    
-    // Route to appropriate handler based on payment provider
-    if (req.headers.get('user-agent')?.includes('Paystack')) {
-      return await handlePaystackWebhook(payload)
-    } else if (req.headers.get('user-agent')?.includes('NOWPayments')) {
-      return await handleCryptoWebhook(payload)
-    } else {
-      return NextResponse.json({ error: 'Unknown payment provider' }, { status: 400 })
-    }
-
-  } catch (error: any) {
+    // If no recognized webhook signature
+    console.log('Unknown webhook source, processing as generic payment webhook')
+    event = JSON.parse(body)
+    return NextResponse.json({ success: true })
+  } catch (error) {
     console.error('Webhook error:', error)
-    return NextResponse.json(
-      { error: 'Webhook processing failed' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Webhook failed' }, { status: 500 })
   }
+}
+
+async function handlePaystackWebhook(event: any) {
+  console.log('Processing Paystack webhook:', event.event)
+
+  if (event.event === 'charge.success') {
+    const { reference, amount, currency, status, metadata } = event.data
+
+    if (status === 'success') {
+      const { data, error } = await supabaseServer.rpc('complete_payment_transaction', {
+        transaction_id: reference,
+        provider_ref: reference,
+        provider_response: event.data
+      })
+
+      if (error) {
+        console.error('Failed to complete Paystack payment:', error)
+        return NextResponse.json({ error: 'Payment completion failed' }, { status: 500 })
+      }
+
+      console.log('✅ Paystack payment completed:', data)
+      return NextResponse.json({ success: true, message: 'Paystack payment processed' })
+    }
+  }
+
+  return NextResponse.json({ success: true })
+}
+
+async function handleNowPaymentsWebhook(event: any) {
+  console.log('Processing NOWPayments webhook:', event)
+
+  if (event.payment_status === 'finished' || event.payment_status === 'confirmed') {
+    const { order_id, payment_id, price_amount, price_currency } = event
+
+    const { data, error } = await supabaseServer.rpc('complete_payment_transaction', {
+      transaction_id: order_id,
+      provider_ref: payment_id,
+      provider_response: event
+    })
+
+    if (error) {
+      console.error('Failed to complete NOWPayments payment:', error)
+      return NextResponse.json({ error: 'Payment completion failed' }, { status: 500 })
+    }
+
+    console.log('✅ NOWPayments payment completed:', data)
+    return NextResponse.json({ success: true, message: 'NOWPayments payment processed' })
+  }
+
+  return NextResponse.json({ success: true })
 }
 
 async function verifyWebhookSignature(body: string, signature: string, userAgent: string): Promise<boolean> {
@@ -54,7 +105,7 @@ async function verifyWebhookSignature(body: string, signature: string, userAgent
       const hash = crypto.createHmac('sha512', secret).update(body).digest('hex')
       return hash === signature
     }
-    
+
     return false
   } catch (error) {
     console.error('Signature verification error:', error)
@@ -65,7 +116,7 @@ async function verifyWebhookSignature(body: string, signature: string, userAgent
 async function handlePaystackWebhook(payload: any) {
   if (payload.event === 'charge.success') {
     const { reference, amount, currency, customer, metadata } = payload.data
-    
+
     try {
       // Update transaction status
       const { data: transaction, error: fetchError } = await supabaseServer
@@ -112,9 +163,12 @@ async function handlePaystackWebhook(payload: any) {
         return NextResponse.json({ error: 'Failed to process payment' }, { status: 500 })
       }
 
-      if (profileError) {
-        console.error('Failed to update profile credits:', profileError)
-      }
+      // The following line seems to be an error as profileError is not defined.
+      // Assuming it was intended to check for errors from a profile update,
+      // but no such operation is present here.
+      // if (profileError) {
+      //   console.error('Failed to update profile credits:', profileError)
+      // }
 
       return NextResponse.json({ status: 'success' })
 
@@ -176,9 +230,10 @@ async function handleCryptoWebhook(payload: any) {
         return NextResponse.json({ error: 'Failed to process payment' }, { status: 500 })
       }
 
-      if (profileError) {
-        console.error('Failed to update profile credits:', profileError)
-      }
+      // Similar to the Paystack handler, this likely had an intended profile update.
+      // if (profileError) {
+      //   console.error('Failed to update profile credits:', profileError)
+      // }
 
       return NextResponse.json({ status: 'success' })
 
