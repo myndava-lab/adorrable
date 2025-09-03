@@ -1,0 +1,51 @@
+Fix and Enhancement:
+
+Determine Active Domain:
+
+Test which domain is currently active. The main branch URL (adorrable-git-main-adorrables-projects.vercel.app) is typically production. Use this for now unless testing a preview.
+
+
+Update Google Cloud Console:
+
+Go to APIs & Services > Credentials.
+For the OAuth 2.0 Client ID:
+
+Authorized JavaScript Origins: Add https://adorrable-git-main-adorrables-projects.vercel.app (and https://adorrable-oitob2a2v-adorrables-projects.vercel.app for preview testing).
+Authorized Redirect URIs: Add https://adorrable-git-main-adorrables-projects.vercel.app/api/auth/callback/google (and https://adorrable-oitob2a2v-adorrables-projects.vercel.app/api/auth/callback/google for previews). Adjust the path (/api/auth/callback/google) based on your NextAuth or middleware route.
+
+
+
+
+Configure Next.js:
+
+Set the NEXTAUTH_URL environment variable in Vercel for each deployment:
+
+For main: https://adorrable-git-main-adorrables-projects.vercel.app.
+For preview: https://adorrable-oitob2a2v-adorrables-projects.vercel.app (set via Vercel’s preview environment variables).
+
+
+In auth.ts (if using NextAuth), ensure the callbackUrl matches or is omitted to use NEXTAUTH_URL:
+typescriptproviders: [
+  GoogleProvider({
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  }),
+],
+
+
+
+Redeploy and Test:
+
+Push any changes, redeploy via vercel --prod for main, and test the Gmail login on https://adorrable-git-main-adorrables-projects.vercel.app.
+For previews, test the specific preview URL.
+Clear browser cache or use incognito mode.
+
+
+Optional Custom Domain:
+
+If planning to use adorrable.dev, add it as a custom domain in Vercel, verify it, and update the Google Console with https://adorrable.dev/api/auth/callback/google.
+
+
+
+Conclusion:
+Use https://adorrable-git-main-adorrables-projects.vercel.app/api/auth/callback/google for the production redirect URI and update the Google Console accordingly. Add the preview URL (https://adorrable-oitob2a2v-adorrables-projects.vercel.app/api/auth/callback/google) if testing there. This should resolve the mismatch error for your current Vercel deployments.
