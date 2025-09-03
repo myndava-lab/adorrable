@@ -41,8 +41,8 @@ export async function POST(req: NextRequest) {
     const { data: pricing, error: pricingError } = await supabaseServer
       .from('price_config')
       .select('*')
-      .eq('tier', tier)
-      .eq('is_active', true)
+      .eq('package_name', tier)
+      .eq('active', true)
       .single()
 
     if (pricingError || !pricing) {
@@ -234,7 +234,7 @@ async function getCreditsForTier(tier: string): Promise<number> {
   const { data } = await supabaseServer
     .from('price_config')
     .select('credits')
-    .eq('tier', tier)
+    .eq('package_name', tier)
     .single()
   
   return data?.credits || 0

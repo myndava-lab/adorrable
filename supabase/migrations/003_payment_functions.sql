@@ -257,3 +257,56 @@ AS $$
   FROM profiles p
   WHERE p.id = user_id;
 $$;
+-- Function to complete payment transaction and grant credits
+CREATE OR REPLACE FUNCTION complete_payment_transaction(
+  transaction_id TEXT,
+  provider_ref TEXT,
+  provider_response JSONB
+) RETURNS TABLE(success BOOLEAN, credits_granted INTEGER) AS $$
+DECLARE
+  tx_record payment_transactions;
+  credit_success BOOLEAN;
+BEGIN
+  -- Get transaction record
+  SELECT * INTO tx_record FROM payment_transactions WHERE id = transaction_id::UUID;
+  
+  IF NOT FOUND THEN
+    RETURN QUERY SELECT FALSE, 0;
+    RETURN;
+  END IF;
+  
+  -- Update transaction status
+  UPDATE payment_transactions 
+  SET status = 'completed',
+      provider_reference = provider_ref,
+      provider_response = provider_response,
+      updated_at = NOW()
+  WHERE id = transaction_id::UUID;
+  
+  -- Grant credits
+  SELECT grant_credits_and_log(
+    tx_record.profile_id,
+    tx_record.credits_granted,
+    'Payment completed - ' || tx_record.package_name,
+    transaction_id
+  ) INTO credit_success;
+  
+  RETURN QUERY SELECT credit_success, tx_record.credits_granted;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to cancel payment transaction
+CREATE OR REPLACE FUNCTION cancel_payment_transaction(
+  transaction_id TEXT,
+  reason TEXT
+) RETURNS BOOLEAN AS $$
+BEGIN
+  UPDATE payment_transactions 
+  SET status = 'failed',
+      provider_response = jsonb_build_object('cancellation_reason', reason),
+      updated_at = NOW()
+  WHERE id = transaction_id::UUID;
+  
+  RETURN FOUND;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

@@ -93,33 +93,24 @@ async function handlePaystackWebhook(payload: any) {
         return NextResponse.json({ error: 'Failed to update transaction' }, { status: 500 })
       }
 
-      // Grant credits to user
-      const { error: creditError } = await supabaseServer
-        .from('credit_transactions')
-        .insert({
-          profile_id: transaction.profile_id,
-          amount: transaction.credits_granted,
-          type: 'purchase',
-          description: `Payment successful - ${transaction.package_name} package`,
-          reference_id: transaction.id,
-          metadata: {
-            provider: 'paystack',
-            amount: amount / 100,
-            currency: currency,
-            reference: reference
-          }
-        })
+      // Grant credits to user using the database function
+      const { data: creditResult, error: creditError } = await supabaseServer.rpc('grant_credits_and_log', {
+        p_user_id: transaction.profile_id,
+        p_amount: transaction.credits_granted,
+        p_reason: `Payment successful - ${transaction.package_name} package`,
+        p_transaction_id: transaction.id,
+        p_metadata: {
+          provider: 'paystack',
+          amount: amount / 100,
+          currency: currency,
+          reference: reference
+        }
+      })
 
-      if (creditError) {
+      if (creditError || !creditResult) {
         console.error('Failed to grant credits:', creditError)
         return NextResponse.json({ error: 'Failed to process payment' }, { status: 500 })
       }
-
-      // Update user profile credits
-      const { error: profileError } = await supabaseServer.rpc('increment_user_credits', {
-        user_id: transaction.profile_id,
-        credit_amount: transaction.credits_granted
-      })
 
       if (profileError) {
         console.error('Failed to update profile credits:', profileError)
@@ -165,34 +156,25 @@ async function handleCryptoWebhook(payload: any) {
         return NextResponse.json({ error: 'Failed to update transaction' }, { status: 500 })
       }
 
-      // Grant credits to user
-      const { error: creditError } = await supabaseServer
-        .from('credit_transactions')
-        .insert({
-          profile_id: transaction.profile_id,
-          amount: transaction.credits_granted,
-          type: 'purchase',
-          description: `Crypto payment confirmed - ${transaction.package_name} package`,
-          reference_id: transaction.id,
-          metadata: {
-            provider: 'nowpayments',
-            payment_id: payload.payment_id,
-            crypto_amount: payload.pay_amount,
-            crypto_currency: payload.pay_currency,
-            hash: payload.outcome?.hash
-          }
-        })
+      // Grant credits to user using the database function
+      const { data: creditResult, error: creditError } = await supabaseServer.rpc('grant_credits_and_log', {
+        p_user_id: transaction.profile_id,
+        p_amount: transaction.credits_granted,
+        p_reason: `Crypto payment confirmed - ${transaction.package_name} package`,
+        p_transaction_id: transaction.id,
+        p_metadata: {
+          provider: 'nowpayments',
+          payment_id: payload.payment_id,
+          crypto_amount: payload.pay_amount,
+          crypto_currency: payload.pay_currency,
+          hash: payload.outcome?.hash
+        }
+      })
 
-      if (creditError) {
+      if (creditError || !creditResult) {
         console.error('Failed to grant crypto credits:', creditError)
         return NextResponse.json({ error: 'Failed to process payment' }, { status: 500 })
       }
-
-      // Update user profile credits
-      const { error: profileError } = await supabaseServer.rpc('increment_user_credits', {
-        user_id: transaction.profile_id,
-        credit_amount: transaction.credits_granted
-      })
 
       if (profileError) {
         console.error('Failed to update profile credits:', profileError)

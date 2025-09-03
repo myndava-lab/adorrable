@@ -27,6 +27,9 @@ export const supabaseAdmin = supabaseUrl && supabaseServiceKey
     })
   : null
 
+// Export supabaseAdmin as supabaseServer for backward compatibility
+export const supabaseServer = supabaseAdmin
+
 // Use the same singleton pattern for server-side client
 declare global {
   var __supabaseServer: ReturnType<typeof createClient> | undefined

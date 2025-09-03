@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, getUserProfile, deductCredits } from '@/lib/supabaseServer'
 import OpenAI from 'openai'
@@ -19,7 +18,7 @@ export async function POST(request: NextRequest) {
     const supabase = createServerSupabaseClient(request, response)
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -63,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     // Deduct credits
     const deductResult = await deductCredits(user.id, 1, 'Website generation')
-    
+
     if (!deductResult.success) {
       return NextResponse.json({ 
         error: 'Failed to deduct credits',
