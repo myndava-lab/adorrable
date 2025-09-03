@@ -71,31 +71,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-import { NextRequest, NextResponse } from 'next/server'
-
-export async function POST(req: NextRequest) {
-  try {
-    const formData = await req.formData()
-    const files = formData.getAll('images') as File[]
-
-    // Mock image processing - in production, upload to storage
-    const processedImages = files.map((file, index) => ({
-      id: `${Date.now()}-${index}`,
-      name: file.name,
-      url: `/api/images/placeholder/${Date.now()}-${index}`,
-      size: file.size
-    }))
-
-    return NextResponse.json({
-      success: true,
-      images: processedImages
-    })
-
-  } catch (error) {
-    console.error('Upload error:', error)
-    return NextResponse.json(
-      { success: false, message: 'Failed to upload images' },
-      { status: 500 }
-    )
-  }
-}
