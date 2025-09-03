@@ -51,7 +51,7 @@ export default function WaitingListPage() {
             Join the Beta Waiting List
           </h1>
           <p className="text-gray-600">
-            We've reached our beta limit of 100 users. Join the waiting list to get early access when spots open up!
+            We&apos;ve reached our beta limit of 100 users. Join the waiting list to get early access when spots open up!
           </p>
         </div>
 

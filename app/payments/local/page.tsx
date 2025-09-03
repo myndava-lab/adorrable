@@ -51,7 +51,7 @@ export default function LocalPayment() {
       <input type="file" accept="image/*,application/pdf" onChange={(e) => setReceipt(e.target.files?.[0] || null)} />
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <button onClick={submit} className="px-3 py-1 bg-black text-white rounded" disabled={!email || !plan || !receipt}>
-        I've Paid
+        I&apos;ve Paid
       </button>
     </div>
   );

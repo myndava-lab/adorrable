@@ -32,7 +32,7 @@ export default function TestDatabasePage() {
         <div className="mt-8 p-6 bg-blue-50 rounded-lg">
           <h2 className="text-xl font-semibold mb-3">Testing Instructions</h2>
           <ol className="list-decimal list-inside space-y-2 text-sm">
-            <li><strong>First, sign in:</strong> Go to the main page and click "Sign in with Google" or "Sign in with LinkedIn"</li>
+            <li><strong>First, sign in:</strong> Go to the main page and click &quot;Sign in with Google&quot; or &quot;Sign in with LinkedIn&quot;</li>
             <li>Then test database connection (no auth needed)</li>
             <li>Test credits API (requires authentication)</li>
             <li>Test pricing flow with mock purchase (requires authentication)</li>

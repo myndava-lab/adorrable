@@ -20,7 +20,7 @@ export default function Error({
           Something went wrong!
         </h2>
         <p className="text-gray-600 mb-6">
-          Don't worry, we're working on fixing this.
+          Don&apos;t worry, we&apos;re working on fixing this.
         </p>
         <button
           onClick={reset}
