@@ -2,6 +2,10 @@ const path = require('path');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Configure server for Replit environment
+  experimental: {
+    serverComponentsExternalPackages: []
+  },
   webpack: (config, { dev }) => {
     // Disable PackFileCacheStrategy (prevents .pack.gz ENOENT & stale imports)
     config.cache = false;
