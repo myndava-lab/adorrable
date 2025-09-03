@@ -162,8 +162,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Function to get beta user stats
-CREATE OR REPLACE FUNCTION get_beta_stats()
+-- Function to get beta user stats (must be accessible publicly)
+CREATE OR REPLACE FUNCTION public.get_beta_stats()
 RETURNS JSON AS $$
 DECLARE
   max_users INTEGER;
@@ -202,6 +202,10 @@ BEGIN
   RETURN result;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant execute permission on the function
+GRANT EXECUTE ON FUNCTION public.get_beta_stats() TO anon;
+GRANT EXECUTE ON FUNCTION public.get_beta_stats() TO authenticated;
 
 -- Triggers for updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
