@@ -37,6 +37,29 @@ CREATE TABLE IF NOT EXISTS price_config (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Waiting list table for beta overflow
+CREATE TABLE IF NOT EXISTS waiting_list (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  full_name TEXT,
+  joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  notified BOOLEAN DEFAULT FALSE,
+  metadata JSONB DEFAULT '{}'
+);
+
+-- System configuration table
+CREATE TABLE IF NOT EXISTS system_config (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Initialize system config with beta limits
+INSERT INTO system_config (key, value) VALUES
+  ('max_beta_users', '100'),
+  ('daily_signup_limit', '100')
+ON CONFLICT (key) DO NOTHING;
+
 -- Insert default pricing
 INSERT INTO price_config (package_name, credits, price_usd, price_ngn) VALUES
   ('Starter', 50, 9.99, 15000),
@@ -115,6 +138,64 @@ CREATE POLICY "Users can view own credit logs" ON credit_logs FOR SELECT USING (
 -- Price config policies
 CREATE POLICY "Anyone can view active pricing" ON price_config FOR SELECT USING (active = true);
 
+-- Waiting list policies
+ALTER TABLE waiting_list ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own waiting list entry" ON waiting_list FOR SELECT USING (email = auth.jwt()->>'email');
+
+-- System config policies (admin only)
+ALTER TABLE system_config ENABLE ROW LEVEL SECURITY;
+
+-- Functions to manage waiting list
+CREATE OR REPLACE FUNCTION add_to_waiting_list(
+  p_email TEXT,
+  p_full_name TEXT DEFAULT NULL
+) RETURNS UUID AS $$
+DECLARE
+  entry_id UUID;
+BEGIN
+  INSERT INTO waiting_list (email, full_name, metadata)
+  VALUES (p_email, p_full_name, jsonb_build_object('added_date', NOW()))
+  RETURNING id INTO entry_id;
+  
+  RETURN entry_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to get beta user stats
+CREATE OR REPLACE FUNCTION get_beta_stats()
+RETURNS JSON AS $$
+DECLARE
+  max_users INTEGER;
+  current_users INTEGER;
+  waiting_count INTEGER;
+  result JSON;
+BEGIN
+  -- Get max users
+  SELECT value::INTEGER INTO max_users 
+  FROM system_config 
+  WHERE key = 'max_beta_users';
+  
+  -- Get current active users (with credits > 0 or created in last 30 days)
+  SELECT COUNT(*) INTO current_users 
+  FROM profiles 
+  WHERE credits > 0 OR created_at > NOW() - INTERVAL '30 days';
+  
+  -- Get waiting list count
+  SELECT COUNT(*) INTO waiting_count 
+  FROM waiting_list;
+  
+  SELECT json_build_object(
+    'max_users', COALESCE(max_users, 100),
+    'current_users', COALESCE(current_users, 0),
+    'spots_remaining', GREATEST(0, COALESCE(max_users, 100) - COALESCE(current_users, 0)),
+    'waiting_list_count', COALESCE(waiting_count, 0),
+    'is_beta_full', COALESCE(current_users, 0) >= COALESCE(max_users, 100)
+  ) INTO result;
+  
+  RETURN result;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- Triggers for updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -130,25 +211,76 @@ CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles
 CREATE TRIGGER update_price_config_updated_at BEFORE UPDATE ON price_config
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Function to handle new user signup
+-- Function to check if we can accept new beta users
+CREATE OR REPLACE FUNCTION can_accept_beta_user()
+RETURNS BOOLEAN AS $$
+DECLARE
+  max_users INTEGER;
+  current_users INTEGER;
+BEGIN
+  -- Get max beta users from config
+  SELECT value::INTEGER INTO max_users 
+  FROM system_config 
+  WHERE key = 'max_beta_users';
+  
+  IF max_users IS NULL THEN
+    max_users := 100; -- Default fallback
+  END IF;
+  
+  -- Count current active users
+  SELECT COUNT(*) INTO current_users 
+  FROM profiles 
+  WHERE created_at IS NOT NULL;
+  
+  RETURN current_users < max_users;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to handle new user signup with beta limits
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  can_join BOOLEAN;
 BEGIN
-  INSERT INTO profiles (id, email, credits)
-  VALUES (
-    NEW.id,
-    NEW.email,
-    4  -- 4 welcome credits
-  );
+  -- Check if we can accept this user
+  SELECT can_accept_beta_user() INTO can_join;
   
-  -- Log the welcome credits
-  INSERT INTO credit_logs (user_id, amount, reason, metadata)
-  VALUES (
-    NEW.id,
-    4,
-    'Welcome credits - new user signup',
-    jsonb_build_object('signup_date', NOW())
-  );
+  IF can_join THEN
+    -- Create profile with welcome credits
+    INSERT INTO profiles (id, email, credits)
+    VALUES (
+      NEW.id,
+      NEW.email,
+      4  -- 4 welcome credits
+    );
+    
+    -- Log the welcome credits
+    INSERT INTO credit_logs (user_id, amount, reason, metadata)
+    VALUES (
+      NEW.id,
+      4,
+      'Welcome credits - new user signup',
+      jsonb_build_object('signup_date', NOW(), 'beta_user', true)
+    );
+  ELSE
+    -- User exceeds beta limit, they should be on waiting list
+    -- We still create the profile but with 0 credits and waiting status
+    INSERT INTO profiles (id, email, credits)
+    VALUES (
+      NEW.id,
+      NEW.email,
+      0  -- No credits for waiting list users
+    );
+    
+    -- Log them as waiting list
+    INSERT INTO credit_logs (user_id, amount, reason, metadata)
+    VALUES (
+      NEW.id,
+      0,
+      'Waiting list - beta limit reached',
+      jsonb_build_object('signup_date', NOW(), 'waiting_list', true)
+    );
+  END IF;
   
   RETURN NEW;
 END;

@@ -3,7 +3,17 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+let requestCount = 0
+const startDate = new Date().toISOString().split('T')[0]
+
 export async function middleware(request: NextRequest) {
+  // Increment counter for monitoring
+  requestCount++
+  
+  // Log every 100 requests to monitor usage (stay under 100k monthly limit)
+  if (requestCount % 100 === 0) {
+    console.log(`📊 Requests today (${startDate}): ${requestCount}`)
+  }
   let supabaseResponse = NextResponse.next({
     request,
   })

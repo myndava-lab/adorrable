@@ -17,6 +17,42 @@ export async function POST(request: NextRequest) {
     const cookieStore = cookies()
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
+    // Check beta limits first
+    const { data: betaStats, error: statsError } = await supabase
+      .rpc('get_beta_stats')
+
+    if (statsError) {
+      console.error('Error checking beta stats:', statsError)
+      return NextResponse.json(
+        { error: 'System temporarily unavailable' },
+        { status: 503 }
+      )
+    }
+
+    // If beta is full, add to waiting list instead
+    if (betaStats?.is_beta_full) {
+      const { error: waitingListError } = await supabase
+        .rpc('add_to_waiting_list', {
+          p_email: email,
+          p_full_name: fullName || null
+        })
+
+      if (waitingListError) {
+        console.error('Error adding to waiting list:', waitingListError)
+        return NextResponse.json(
+          { error: 'Failed to join waiting list' },
+          { status: 500 }
+        )
+      }
+
+      return NextResponse.json({
+        success: false,
+        waitingList: true,
+        message: `🎉 You're on the waiting list! We've reached our beta limit of ${betaStats.max_users} users. You're #${betaStats.waiting_list_count + 1} in line. We'll email you when a spot opens up!`,
+        stats: betaStats
+      })
+    }
+
     // Sign up the user
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
@@ -59,9 +95,10 @@ export async function POST(request: NextRequest) {
       success: true,
       user: authData.user,
       profile: profile,
+      betaStats,
       message: authData.user.email_confirmed_at 
-        ? 'Account created successfully! You have received 4 welcome credits.' 
-        : 'Please check your email to confirm your account. You will receive 4 welcome credits upon confirmation.'
+        ? `🎉 Welcome to Adorrable Beta! You're user #${betaStats.current_users + 1} of ${betaStats.max_users}. You received 4 welcome credits.` 
+        : `Please check your email to confirm your account. You're beta user #${betaStats.current_users + 1} of ${betaStats.max_users} and will receive 4 welcome credits upon confirmation.`
     })
 
   } catch (error) {

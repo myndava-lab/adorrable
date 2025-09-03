@@ -17,6 +17,8 @@ import {
 import { supabase } from '../lib/supabase';
 import AuthModal from '../components/AuthModal';
 import CreditBalance from '../components/CreditBalance'; // Import CreditBalance component
+import BetaStatus from '../components/BetaStatus'; // Import BetaStatus component
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'; // This import is not used in this client component, but present in the original changes snippet.
 
 const gradientText =
   "bg-gradient-to-r from-[#60A5FA] via-[#A78BFA] to-[#34D399] bg-clip-text text-transparent";
@@ -812,6 +814,7 @@ export default function AdorrableLanding() {
       </header>
 
       <main>
+        <BetaStatus /> {/* Added BetaStatus component here */}
         {/* HERO SECTION */}
         <section className={`${sectionClass} relative pt-20 pb-24`}>
           {/* Background effects */}
