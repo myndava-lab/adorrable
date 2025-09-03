@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   email TEXT NOT NULL,
   full_name TEXT,
-  credits INTEGER DEFAULT 0 NOT NULL,
+  credits INTEGER DEFAULT 4 NOT NULL,  -- 4 welcome credits
   subscription_tier TEXT DEFAULT 'free' CHECK (subscription_tier IN ('free', 'pro', 'enterprise')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -129,3 +129,32 @@ CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles
 
 CREATE TRIGGER update_price_config_updated_at BEFORE UPDATE ON price_config
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Function to handle new user signup
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO profiles (id, email, credits)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    4  -- 4 welcome credits
+  );
+  
+  -- Log the welcome credits
+  INSERT INTO credit_logs (user_id, amount, reason, metadata)
+  VALUES (
+    NEW.id,
+    4,
+    'Welcome credits - new user signup',
+    jsonb_build_object('signup_date', NOW())
+  );
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to automatically create profile with welcome credits
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();

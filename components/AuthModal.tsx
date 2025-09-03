@@ -25,20 +25,33 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error: authError } = await supabase.auth.signInWithPassword({
           email,
           password
         })
-        if (error) throw error
+        if (authError) throw authError
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { error: authError, data } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback`
           }
         })
-        if (error) throw error
+        if (authError) {
+          console.error('Auth error:', authError)
+          setError(authError.message)
+          return
+        }
+
+        if (data.user) {
+          console.log('✅ Auth successful')
+          if (!isLogin) {
+            // Show welcome credits message for new signups
+            alert('🎉 Welcome to Adorrable! You have received 4 free credits to get started.')
+          }
+          onSuccess()
+        }
       }
 
       onSuccess?.()
@@ -59,13 +72,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         ? `${window.location.origin}/auth/callback`
         : `${process.env.NEXT_PUBLIC_APP_URL || 'https://adorrable.dev'}/auth/callback`
 
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectUrl
         }
       })
-      if (error) throw error
+      if (authError) throw authError
     } catch (error: any) {
       setError(error.message)
       setLoading(false)
@@ -81,13 +94,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         ? `${window.location.origin}/auth/callback`
         : `${process.env.NEXT_PUBLIC_APP_URL || 'https://adorrable.dev'}/auth/callback`
 
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: 'linkedin_oidc',
         options: {
           redirectTo: redirectUrl
         }
       })
-      if (error) throw error
+      if (authError) throw authError
     } catch (error: any) {
       setError(error.message)
       setLoading(false)

@@ -736,6 +736,10 @@ export default function AdorrableLanding() {
 
   const handleAuthSuccess = () => {
     setIsAuthModalOpen(false);
+    // Refresh user profile to get updated credits
+    if (user) {
+      fetchUserProfile(user.id);
+    }
   };
 
   return (

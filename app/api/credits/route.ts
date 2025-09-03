@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, getUserProfile, grantCredits, deductCredits } from '@/lib/supabaseServer'
 
@@ -10,7 +9,7 @@ export async function GET(request: NextRequest) {
     // Check if this is a test request
     const url = new URL(request.url)
     const isTest = url.searchParams.get('test') === 'true'
-    
+
     if (isTest) {
       return NextResponse.json({ 
         message: 'Credits API is working',
@@ -21,14 +20,55 @@ export async function GET(request: NextRequest) {
     }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const profile = await getUserProfile(user.id)
-    
-    if (!profile) {
+    // Get user profile
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, email, credits, subscription_tier, created_at')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError) {
+      // If profile doesn't exist, try to create it with welcome credits
+      if (profileError.code === 'PGRST116') {
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: user.email || '',
+            credits: 4,  // 4 welcome credits
+            full_name: user.user_metadata?.full_name || null
+          })
+          .select('id, email, credits, subscription_tier, created_at')
+          .single()
+
+        if (createError) {
+          console.error('Profile creation error:', createError)
+          return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
+        }
+
+        // Log the welcome credits
+        await supabase
+          .from('credit_logs')
+          .insert({
+            user_id: user.id,
+            amount: 4,
+            reason: 'Welcome credits - new user signup',
+            metadata: { signup_date: new Date().toISOString() }
+          })
+
+        return NextResponse.json({
+          success: true,
+          profile: newProfile,
+          message: 'Welcome! You have received 4 free credits.'
+        })
+      }
+
+      console.error('Profile fetch error:', profileError)
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
 
@@ -52,7 +92,7 @@ export async function POST(request: NextRequest) {
     const supabase = createServerSupabaseClient(request, response)
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
