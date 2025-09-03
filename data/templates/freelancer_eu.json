@@ -1,0 +1,64 @@
+
+{
+  "meta": {
+    "title": "Freelance Professional",
+    "payments": "stripe"
+  },
+  "styles": {
+    "primary": "#0F172A",
+    "accent": "#F59E0B",
+    "font_head": "Playfair Display",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Digital Solutions Across Europe",
+      "sub": "Experienced freelance consultant serving clients across the EU. Specializing in digital transformation and strategic consulting.",
+      "cta": { "label": "View Portfolio", "href": "#portfolio" }
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "EU-Wide Services", "desc": "Working with clients across all European Union countries" },
+        { "title": "Multi-lingual", "desc": "Fluent in English, German, French, and Spanish" },
+        { "title": "GDPR Expertise", "desc": "Specialized in data protection and compliance consulting" }
+      ]
+    },
+    {
+      "type": "gallery",
+      "items": [
+        { "title": "Digital Strategy", "desc": "Helped 50+ EU companies modernize their operations" },
+        { "title": "GDPR Compliance", "desc": "Guided startups through data protection requirements" },
+        { "title": "Market Expansion", "desc": "Supported US companies entering European markets" },
+        { "title": "Process Optimization", "desc": "Streamlined workflows for multinational corporations" }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Professional expertise and deep understanding of European markets. Excellent work!", "author": "Henrik Larsson, Stockholm" },
+        { "quote": "Helped us navigate GDPR compliance smoothly. Highly recommended consultant.", "author": "Isabella Romano, Milan" }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Consultation", "price": "€125/hour", "features": ["Strategy session", "Expert advice", "Written recommendations"] },
+        { "name": "Project Work", "price": "€3,500+", "features": ["Complete solutions", "Implementation support", "Follow-up reviews"] }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Book Consultation"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Services", "href": "#" },
+        { "label": "About", "href": "#" },
+        { "label": "Contact: hello@freelancer.eu", "href": "mailto:hello@freelancer.eu" }
+      ]
+    }
+  ]
+}

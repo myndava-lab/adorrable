@@ -1,0 +1,64 @@
+
+{
+  "meta": {
+    "title": "Modern E-commerce Store",
+    "payments": "stripe"
+  },
+  "styles": {
+    "primary": "#1F2937",
+    "accent": "#3B82F6",
+    "font_head": "Inter",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Shop the Latest Trends",
+      "sub": "Discover our curated collection of premium products with free shipping on orders over $50.",
+      "cta": { "label": "Shop Now", "href": "#products" }
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "Free Shipping", "desc": "Free shipping on orders over $50 across the US" },
+        { "title": "30-Day Returns", "desc": "Easy returns and exchanges within 30 days" },
+        { "title": "Secure Checkout", "desc": "SSL encryption and secure payment processing" }
+      ]
+    },
+    {
+      "type": "gallery",
+      "items": [
+        { "title": "Electronics", "desc": "Latest gadgets and accessories" },
+        { "title": "Fashion", "desc": "Trendy clothing and accessories" },
+        { "title": "Home & Garden", "desc": "Stylish decor and outdoor essentials" },
+        { "title": "Sports & Fitness", "desc": "Gear for active lifestyles" }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Fast shipping and excellent customer service. Will definitely order again!", "author": "Sarah M." },
+        { "quote": "Great product quality and easy returns process. Highly recommend!", "author": "Mike R." }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Basic Plan", "price": "$9.99/mo", "features": ["Access to sales", "Email support", "Basic warranty"] },
+        { "name": "Premium Plan", "price": "$19.99/mo", "features": ["Exclusive deals", "Priority support", "Extended warranty", "Free express shipping"] }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Start Shopping - Secure Checkout"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Products", "href": "#" },
+        { "label": "Returns", "href": "#" },
+        { "label": "Support: 1-800-SHOP-NOW", "href": "tel:18007467669" }
+      ]
+    }
+  ]
+}

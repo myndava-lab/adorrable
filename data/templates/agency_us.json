@@ -1,0 +1,56 @@
+
+{
+  "meta": {
+    "title": "Digital Marketing Agency",
+    "payments": "stripe"
+  },
+  "styles": {
+    "primary": "#7C3AED",
+    "accent": "#10B981",
+    "font_head": "Inter",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Grow Your Business Online",
+      "sub": "We help businesses achieve measurable growth through strategic digital marketing and cutting-edge technology.",
+      "cta": { "label": "Get Free Consultation", "href": "#contact" }
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "SEO & Content Marketing", "desc": "Drive organic traffic with data-driven SEO strategies" },
+        { "title": "Paid Advertising", "desc": "Maximize ROI with Google Ads and social media campaigns" },
+        { "title": "Web Development", "desc": "Build high-converting websites and landing pages" }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Increased our online revenue by 300% in just 6 months. Incredible results!", "author": "Mark T., E-commerce CEO" },
+        { "quote": "Professional team with real expertise. They transformed our digital presence.", "author": "Lisa R., SaaS Founder" }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Starter", "price": "$2,500/mo", "features": ["SEO optimization", "Content creation", "Monthly reporting"] },
+        { "name": "Growth", "price": "$5,000/mo", "features": ["Everything in Starter", "Paid advertising", "Conversion optimization"] },
+        { "name": "Enterprise", "price": "$10,000/mo", "features": ["Everything in Growth", "Custom development", "Dedicated team"] }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Schedule Strategy Call"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Services", "href": "#" },
+        { "label": "Case Studies", "href": "#" },
+        { "label": "Call: 1-800-GROW-BIZ", "href": "tel:18004769249" }
+      ]
+    }
+  ]
+}

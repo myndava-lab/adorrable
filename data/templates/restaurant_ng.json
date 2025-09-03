@@ -1,0 +1,57 @@
+
+{
+  "meta": {
+    "title": "Delicious Nigerian Cuisine",
+    "payments": "paystack"
+  },
+  "styles": {
+    "primary": "#16A34A",
+    "accent": "#F59E0B",
+    "font_head": "Playfair Display",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Authentic Nigerian Flavors",
+      "sub": "Experience the rich taste of home-cooked Nigerian meals, prepared with love and traditional recipes.",
+      "cta": { "label": "Order Now", "href": "#menu" }
+    },
+    {
+      "type": "menu",
+      "items": [
+        { "name": "Jollof Rice", "price": "₦2,500", "desc": "Perfectly spiced rice with choice of chicken or beef" },
+        { "name": "Pounded Yam & Egusi", "price": "₦3,000", "desc": "Traditional pounded yam served with rich egusi soup" },
+        { "name": "Pepper Soup", "price": "₦2,000", "desc": "Spicy catfish pepper soup with traditional spices" },
+        { "name": "Suya Platter", "price": "₦1,800", "desc": "Grilled beef with suya spice and fresh vegetables" }
+      ]
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "Fresh Ingredients", "desc": "We source the finest local ingredients for authentic taste" },
+        { "title": "Home Delivery", "desc": "Fast delivery across Lagos, Abuja, and Port Harcourt" },
+        { "title": "Catering Services", "desc": "Perfect for parties, weddings, and corporate events" }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Best jollof rice in Lagos! Tastes just like mama's cooking.", "author": "Adunni O." },
+        { "quote": "Their suya is absolutely divine. Perfect spice blend!", "author": "Chike A." }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Place Order - Pay with Card or Transfer"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Menu", "href": "#menu" },
+        { "label": "Delivery", "href": "#delivery" },
+        { "label": "Contact: 0803-FOOD-NOW", "href": "tel:08033663669" }
+      ]
+    }
+  ]
+}

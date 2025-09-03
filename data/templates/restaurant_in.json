@@ -1,0 +1,57 @@
+
+{
+  "meta": {
+    "title": "Authentic Indian Cuisine",
+    "payments": "razorpay"
+  },
+  "styles": {
+    "primary": "#DC2626",
+    "accent": "#F59E0B",
+    "font_head": "Playfair Display",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Taste of Traditional India",
+      "sub": "Experience authentic Indian flavors with our traditional recipes passed down through generations. Fresh ingredients, aromatic spices.",
+      "cta": { "label": "Order Online", "href": "#menu" }
+    },
+    {
+      "type": "menu",
+      "items": [
+        { "name": "Butter Chicken", "price": "₹320", "desc": "Creamy tomato curry with tender chicken pieces" },
+        { "name": "Paneer Tikka Masala", "price": "₹280", "desc": "Grilled cottage cheese in rich spiced gravy" },
+        { "name": "Biryani Special", "price": "₹350", "desc": "Aromatic basmati rice with choice of chicken or mutton" },
+        { "name": "Dal Makhani", "price": "₹220", "desc": "Slow-cooked black lentils with butter and cream" }
+      ]
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "Pure Vegetarian Options", "desc": "Extensive menu for vegetarian and Jain dietary preferences" },
+        { "title": "Home Delivery", "desc": "Fresh, hot food delivered across Mumbai, Delhi, Bangalore" },
+        { "title": "Catering Services", "desc": "Perfect for weddings, parties, and corporate events" }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Best North Indian food in the city! Reminds me of home cooking.", "author": "Amit Sharma" },
+        { "quote": "Their biryanis are legendary. Must try the mutton biryani!", "author": "Fatima Khan" }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Order Now - Pay Online or COD"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Menu", "href": "#menu" },
+        { "label": "Catering", "href": "#catering" },
+        { "label": "WhatsApp: +91-9876-FOOD", "href": "https://wa.me/919876366363" }
+      ]
+    }
+  ]
+}

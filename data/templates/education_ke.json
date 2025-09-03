@@ -1,0 +1,63 @@
+
+{
+  "meta": {
+    "title": "Excellence Academy",
+    "payments": "mpesa"
+  },
+  "styles": {
+    "primary": "#1E40AF",
+    "accent": "#F59E0B",
+    "font_head": "Merriweather",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Nurturing Tomorrow's Leaders",
+      "sub": "Quality education from nursery to secondary school. Preparing students for success in the 21st century.",
+      "cta": { "label": "Enroll Your Child", "href": "#enroll" }
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "8-4-4 Curriculum", "desc": "Following Kenyan curriculum with international standards" },
+        { "title": "Qualified Teachers", "desc": "Experienced educators with teaching degrees and training" },
+        { "title": "Modern Facilities", "desc": "Computer lab, science lab, library, and sports facilities" }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Nursery", "price": "KSh 25,000/term", "features": ["Play-based learning", "Qualified teachers", "Meals included"] },
+        { "name": "Primary", "price": "KSh 35,000/term", "features": ["Full curriculum", "Co-curricular activities", "Library access"] },
+        { "name": "Secondary", "price": "KSh 45,000/term", "features": ["Science labs", "Career guidance", "University prep"] }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "My daughter has thrived here. Excellent teachers and supportive environment!", "author": "Mary K., Parent" },
+        { "quote": "Great preparation for KCPE. My son scored 400+ marks!", "author": "Peter N., Parent" }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        { "q": "What are your admission requirements?", "a": "Birth certificate, immunization records, and previous school report." },
+        { "q": "Do you offer boarding facilities?", "a": "Yes, we have boarding for Classes 4-8 with full supervision." }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Apply Now - Pay Fees via M-Pesa"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Admissions", "href": "#" },
+        { "label": "Curriculum", "href": "#" },
+        { "label": "Call: 0700-SCHOOL", "href": "tel:0700724665" }
+      ]
+    }
+  ]
+}

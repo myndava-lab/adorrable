@@ -2,6 +2,51 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient, getUserProfile, deductCredits } from '@/lib/supabaseServer'
 import OpenAI from 'openai'
 
+// Helper functions for prompt analysis
+function extractRegion(prompt: string): string | null {
+  const regionKeywords = {
+    'ng': ['nigeria', 'nigerian', 'lagos', 'abuja', 'naira', 'paystack'],
+    'ke': ['kenya', 'kenyan', 'nairobi', 'mombasa', 'shilling', 'mpesa'],
+    'in': ['india', 'indian', 'mumbai', 'delhi', 'rupee', 'razorpay'],
+    'us': ['usa', 'america', 'american', 'dollar', 'stripe'],
+    'eu': ['europe', 'european', 'euro', 'gdpr'],
+    'as': ['asia', 'asian', 'singapore', 'malaysia', 'alipay']
+  }
+  
+  const lowerPrompt = prompt.toLowerCase()
+  for (const [region, keywords] of Object.entries(regionKeywords)) {
+    if (keywords.some(keyword => lowerPrompt.includes(keyword))) {
+      return region
+    }
+  }
+  return null
+}
+
+function extractIndustry(prompt: string): string | null {
+  const industryKeywords = {
+    'restaurant': ['restaurant', 'food', 'dining', 'cafe', 'kitchen', 'menu'],
+    'fashion': ['fashion', 'clothing', 'boutique', 'style', 'apparel'],
+    'realestate': ['property', 'real estate', 'homes', 'apartments', 'housing'],
+    'ecommerce': ['shop', 'store', 'ecommerce', 'retail', 'products'],
+    'portfolio': ['portfolio', 'creative', 'designer', 'artist'],
+    'agency': ['agency', 'marketing', 'advertising', 'consulting'],
+    'clinic': ['clinic', 'hospital', 'medical', 'health', 'doctor'],
+    'education': ['school', 'education', 'academy', 'learning'],
+    'consultancy': ['consulting', 'consultancy', 'advisory', 'strategy'],
+    'saas': ['saas', 'software', 'platform', 'app'],
+    'freelancer': ['freelance', 'freelancer', 'consultant'],
+    'hospitality': ['hotel', 'resort', 'hospitality', 'spa']
+  }
+  
+  const lowerPrompt = prompt.toLowerCase()
+  for (const [industry, keywords] of Object.entries(industryKeywords)) {
+    if (keywords.some(keyword => lowerPrompt.includes(keyword))) {
+      return industry
+    }
+  }
+  return null
+}
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 })
@@ -39,18 +84,71 @@ export async function POST(request: NextRequest) {
       }, { status: 402 })
     }
 
-    // Generate AI response
-    const systemPrompt = `You are a professional web developer. Generate a complete, modern, responsive website based on the user's request. The website should be built with HTML, CSS, and JavaScript. Include proper semantic HTML structure, modern CSS styling, and interactive JavaScript functionality where appropriate. Make it visually appealing and professional. Language preference: ${language}`
+    // Try to find matching template first
+    const { findTemplate, getCulturalPaymentMethod, templateCatalog } = await import('@/lib/templates')
+    
+    // Extract region and industry from prompt (simple keyword matching)
+    const region = extractRegion(prompt) || 'global'
+    const industry = extractIndustry(prompt) || 'general'
+    
+    // Find best matching template
+    const matchedTemplate = findTemplate(region, industry, profile.subscription_tier)
+    
+    let generatedContent: string;
+    
+    if (matchedTemplate && matchedTemplate.id !== 'general_free') {
+      // Use template-based generation
+      const paymentMethod = getCulturalPaymentMethod(region)
+      
+      const templatePrompt = `You are an expert conversion copywriter & front-end developer.
+Goal: Create a culturally-aware website using the provided template structure.
+Requirements:
+- Respect region: ${region} (design, tone, cultural nuances)
+- Language: ${language}. If ${language} is pidgin or swahili, keep copy authentic but professional
+- Payments must reflect region: ${paymentMethod}
+- Keep copy concise, CTA-forward, no lorem ipsum
+- User request: "${prompt}"
+- Template structure: ${JSON.stringify(matchedTemplate.data, null, 2)}
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt }
-      ],
-      max_tokens: 2000,
-      temperature: 0.7
-    })
+Customize the template content to match the user's specific request while maintaining the cultural context and structure. Return complete HTML with embedded CSS using the template's color scheme and fonts.`
+
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: templatePrompt }
+        ],
+        max_tokens: 3000,
+        temperature: 0.6
+      })
+      
+      generatedContent = completion.choices[0]?.message?.content || ''
+    } else {
+      // Fallback to general AI generation
+      const systemPrompt = `You are an expert conversion copywriter & front-end developer.
+Goal: Create a professional, culturally-aware website.
+Requirements:
+- Respect cultural context and regional preferences
+- Language: ${language}
+- Create modern, responsive HTML with embedded CSS
+- Include proper semantic structure
+- Make it visually appealing and conversion-focused
+- No lorem ipsum - use realistic, relevant content
+- User request: "${prompt}"
+
+Generate complete HTML with embedded CSS and minimal JavaScript if needed.`
+
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt }
+        ],
+        max_tokens: 2500,
+        temperature: 0.7
+      })
+      
+      generatedContent = completion.choices[0]?.message?.content || ''
+    }
 
     const generatedContent = completion.choices[0]?.message?.content
 
@@ -74,7 +172,10 @@ export async function POST(request: NextRequest) {
       success: true,
       content: generatedContent,
       creditsRemaining: deductResult.newCredits,
-      tokensUsed: completion.usage?.total_tokens || 0
+      tokensUsed: completion?.usage?.total_tokens || 0,
+      templateUsed: matchedTemplate?.id || 'ai_generated',
+      region: region,
+      industry: industry
     })
 
   } catch (error) {

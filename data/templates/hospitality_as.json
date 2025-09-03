@@ -1,0 +1,65 @@
+
+{
+  "meta": {
+    "title": "Luxury Resort & Spa",
+    "payments": "stripe"
+  },
+  "styles": {
+    "primary": "#065F46",
+    "accent": "#F59E0B",
+    "font_head": "Cormorant Garamond",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Paradise in Southeast Asia",
+      "sub": "Experience luxury hospitality in the heart of tropical Asia. World-class spa, fine dining, and pristine beaches await.",
+      "cta": { "label": "Book Your Stay", "href": "#booking" }
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "Luxury Accommodations", "desc": "Ocean-view suites with private balconies and modern amenities" },
+        { "title": "World-Class Spa", "desc": "Traditional Asian treatments with modern wellness techniques" },
+        { "title": "Fine Dining", "desc": "Multiple restaurants featuring Asian fusion and international cuisine" }
+      ]
+    },
+    {
+      "type": "gallery",
+      "items": [
+        { "title": "Ocean View Suites", "desc": "Spacious rooms with panoramic sea views" },
+        { "title": "Infinity Pool", "desc": "Stunning pool overlooking the tropical coastline" },
+        { "title": "Spa Pavilion", "desc": "Tranquil spa treatments in traditional Asian style" },
+        { "title": "Beach Activities", "desc": "Diving, snorkeling, and water sports" }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Absolutely stunning resort! The spa treatments were divine and staff exceptional.", "author": "Sarah K., Australia" },
+        { "quote": "Perfect honeymoon destination. Beautiful location and world-class service.", "author": "James & Emma, UK" }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Garden Villa", "price": "$200/night", "features": ["Garden view", "King bed", "Complimentary breakfast"] },
+        { "name": "Ocean Suite", "price": "$350/night", "features": ["Ocean view", "Private balcony", "Butler service"] },
+        { "name": "Presidential Villa", "price": "$800/night", "features": ["Private beach", "Personal chef", "Spa services"] }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Reserve Now - Best Rate Guarantee"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Rooms", "href": "#" },
+        { "label": "Dining", "href": "#" },
+        { "label": "Call: +66-RESORT-BOOK", "href": "tel:+66737678266" }
+      ]
+    }
+  ]
+}

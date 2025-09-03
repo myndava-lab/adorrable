@@ -1,0 +1,64 @@
+
+{
+  "meta": {
+    "title": "Afro Fashion Boutique",
+    "payments": "paystack"
+  },
+  "styles": {
+    "primary": "#DC2626",
+    "accent": "#FCD34D",
+    "font_head": "Cormorant Garamond",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Celebrate African Elegance",
+      "sub": "Discover stunning Ankara, Aso-ebi, and contemporary African fashion. Made for the modern African woman.",
+      "cta": { "label": "Shop Collection", "href": "#shop" }
+    },
+    {
+      "type": "gallery",
+      "items": [
+        { "title": "Ankara Dresses", "desc": "Vibrant prints for every occasion" },
+        { "title": "Aso-ebi Styles", "desc": "Perfect for weddings and parties" },
+        { "title": "Gele & Accessories", "desc": "Complete your traditional look" },
+        { "title": "Modern Fusion", "desc": "African prints meet contemporary style" }
+      ]
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "Custom Tailoring", "desc": "Perfect fit guaranteed with our expert tailors" },
+        { "title": "Premium Fabrics", "desc": "High-quality Ankara, silk, and lace materials" },
+        { "title": "Nationwide Shipping", "desc": "We deliver to all 36 states in Nigeria" }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Their Aso-ebi game is on point! I get compliments everywhere.", "author": "Funmi S." },
+        { "quote": "Beautiful designs and excellent craftsmanship. Highly recommended!", "author": "Zainab M." }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Ready-to-Wear", "price": "₦15,000+", "features": ["Pre-made designs", "Standard sizes", "Quick delivery"] },
+        { "name": "Custom Design", "price": "₦25,000+", "features": ["Bespoke tailoring", "Personal consultation", "Premium fabrics"] }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Order Now - Pay Online or On Delivery"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Collections", "href": "#" },
+        { "label": "Size Guide", "href": "#" },
+        { "label": "WhatsApp: 0901-FASHION", "href": "https://wa.me/2349013274466" }
+      ]
+    }
+  ]
+}

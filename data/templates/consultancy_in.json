@@ -1,0 +1,63 @@
+
+{
+  "meta": {
+    "title": "Business Consultancy Services",
+    "payments": "razorpay"
+  },
+  "styles": {
+    "primary": "#1E40AF",
+    "accent": "#F97316",
+    "font_head": "Merriweather",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Transform Your Business",
+      "sub": "Strategic consulting services to help Indian businesses scale, optimize operations, and achieve sustainable growth.",
+      "cta": { "label": "Schedule Consultation", "href": "#consult" }
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "Business Strategy", "desc": "Market analysis and growth planning for Indian markets" },
+        { "title": "Digital Transformation", "desc": "Modernize operations with technology solutions" },
+        { "title": "Compliance & Legal", "desc": "GST, company law, and regulatory compliance support" }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Startup Package", "price": "₹25,000", "features": ["Business plan", "Market research", "Compliance setup"] },
+        { "name": "Growth Package", "price": "₹75,000", "features": ["Strategy consulting", "Process optimization", "Team training"] },
+        { "name": "Enterprise", "price": "₹2,00,000+", "features": ["Complete transformation", "Dedicated team", "Ongoing support"] }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Their market insights helped us expand across 5 states. Revenue grew 3x!", "author": "Rajesh Gupta, CEO" },
+        { "quote": "Professional team with deep understanding of Indian business landscape.", "author": "Priya Sharma, Founder" }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        { "q": "Do you help with GST registration?", "a": "Yes, we provide complete GST registration and compliance support." },
+        { "q": "Can you help expand to international markets?", "a": "Absolutely! We specialize in global expansion strategies." }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Book Free Consultation"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Services", "href": "#" },
+        { "label": "Case Studies", "href": "#" },
+        { "label": "Call: +91-9876-CONSULT", "href": "tel:+919876266785" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+
+{
+  "meta": {
+    "title": "SaaS Platform",
+    "payments": "stripe"
+  },
+  "styles": {
+    "primary": "#6366F1",
+    "accent": "#10B981",
+    "font_head": "Inter",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Streamline Your Workflow",
+      "sub": "GDPR-compliant SaaS solution designed for European businesses. Boost productivity with our intuitive platform.",
+      "cta": { "label": "Start Free Trial", "href": "#trial" }
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "GDPR Compliant", "desc": "Full compliance with European data protection regulations" },
+        { "title": "Multi-language Support", "desc": "Available in English, German, French, Spanish, Italian" },
+        { "title": "EU Data Centers", "desc": "Your data stays in Europe with 99.9% uptime guarantee" }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Starter", "price": "€29/month", "features": ["Up to 10 users", "Basic features", "Email support"] },
+        { "name": "Professional", "price": "€79/month", "features": ["Up to 50 users", "Advanced features", "Priority support"] },
+        { "name": "Enterprise", "price": "€199/month", "features": ["Unlimited users", "Custom features", "Dedicated support"] }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Perfect solution for our German operations. GDPR compliance made easy!", "author": "Klaus Weber, CTO" },
+        { "quote": "Excellent support team and reliable platform. Highly recommended for EU businesses.", "author": "Marie Dubois, Operations Director" }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        { "q": "Is your platform GDPR compliant?", "a": "Yes, we are fully GDPR compliant with data processing agreements available." },
+        { "q": "Where is our data stored?", "a": "All data is stored in EU data centers in Germany and Ireland." }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Start 14-Day Free Trial"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Features", "href": "#" },
+        { "label": "Privacy Policy", "href": "#" },
+        { "label": "Support: +49-30-SAAS-HELP", "href": "tel:+493072274357" }
+      ]
+    }
+  ]
+}

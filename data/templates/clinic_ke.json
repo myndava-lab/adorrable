@@ -1,0 +1,63 @@
+
+{
+  "meta": {
+    "title": "Modern Healthcare Clinic",
+    "payments": "mpesa"
+  },
+  "styles": {
+    "primary": "#059669",
+    "accent": "#3B82F6",
+    "font_head": "Inter",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Quality Healthcare for All",
+      "sub": "Providing comprehensive medical services in Nairobi, Mombasa, and Kisumu. Your health, our priority.",
+      "cta": { "label": "Book Appointment", "href": "#book" }
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "General Consultation", "desc": "Experienced doctors available for all health concerns" },
+        { "title": "Specialized Care", "desc": "Cardiology, pediatrics, gynecology, and more" },
+        { "title": "Emergency Services", "desc": "24/7 emergency care and ambulance services" }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Consultation", "price": "KSh 2,000", "features": ["General checkup", "Basic tests", "Prescription"] },
+        { "name": "Comprehensive", "price": "KSh 5,000", "features": ["Full body checkup", "Lab tests", "Specialist consultation"] },
+        { "name": "Health Package", "price": "KSh 15,000", "features": ["Annual checkups", "Vaccinations", "Health monitoring"] }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Excellent doctors and modern facilities. Saved my life during emergency!", "author": "Grace W." },
+        { "quote": "Professional staff and affordable prices. Best clinic in Nairobi.", "author": "John M." }
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        { "q": "Do you accept NHIF?", "a": "Yes, we accept NHIF and most insurance covers." },
+        { "q": "Can I pay via M-Pesa?", "a": "Absolutely! We accept M-Pesa, cash, and card payments." }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Book Appointment - Pay via M-Pesa"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Services", "href": "#" },
+        { "label": "Doctors", "href": "#" },
+        { "label": "Emergency: 0722-CLINIC", "href": "tel:0722254642" }
+      ]
+    }
+  ]
+}

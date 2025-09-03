@@ -1,0 +1,57 @@
+
+{
+  "meta": {
+    "title": "Prime Properties Nigeria",
+    "payments": "paystack"
+  },
+  "styles": {
+    "primary": "#0F172A",
+    "accent": "#D97706",
+    "font_head": "Merriweather",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Your Dream Home Awaits",
+      "sub": "Discover premium properties in Lagos, Abuja, and Port Harcourt. From luxury apartments to family homes.",
+      "cta": { "label": "Browse Properties", "href": "#properties" }
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "Prime Locations", "desc": "Properties in Ikoyi, Victoria Island, Lekki, and Maitama" },
+        { "title": "Flexible Payment", "desc": "Mortgage options and payment plans available" },
+        { "title": "Legal Support", "desc": "Complete documentation and C of O assistance" }
+      ]
+    },
+    {
+      "type": "gallery",
+      "items": [
+        { "title": "3BR Apartments - Lekki", "desc": "₦45M - ₦65M | Modern amenities, 24hr security" },
+        { "title": "4BR Duplexes - Magodo", "desc": "₦35M - ₦50M | Gated estate, family-friendly" },
+        { "title": "Luxury Penthouses - VI", "desc": "₦120M+ | Waterfront views, premium finishes" },
+        { "title": "Land for Sale - Epe", "desc": "₦2M per plot | With C of O, ready to build" }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Professional service from start to finish. Got my C of O in 6 months!", "author": "Mr. Emeka O." },
+        { "quote": "Found my dream home in Lekki. The payment plan made it affordable.", "author": "Mrs. Kemi A." }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Schedule Property Viewing"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Properties", "href": "#" },
+        { "label": "Mortgage", "href": "#" },
+        { "label": "Call: 0803-HOMES-NG", "href": "tel:08034663764" }
+      ]
+    }
+  ]
+}

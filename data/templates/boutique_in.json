@@ -1,0 +1,64 @@
+
+{
+  "meta": {
+    "title": "Designer Boutique Collection",
+    "payments": "razorpay"
+  },
+  "styles": {
+    "primary": "#BE185D",
+    "accent": "#F59E0B",
+    "font_head": "Cormorant Garamond",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Elegance Redefined",
+      "sub": "Discover exquisite Indian ethnic wear, designer sarees, lehengas, and contemporary fusion fashion for the modern Indian woman.",
+      "cta": { "label": "Explore Collection", "href": "#collection" }
+    },
+    {
+      "type": "gallery",
+      "items": [
+        { "title": "Designer Sarees", "desc": "Silk, georgette, and contemporary designer collections" },
+        { "title": "Bridal Lehengas", "desc": "Stunning wedding wear with intricate embroidery" },
+        { "title": "Fusion Wear", "desc": "Indo-western outfits for modern occasions" },
+        { "title": "Accessories", "desc": "Jewelry, bags, and footwear to complete your look" }
+      ]
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "Custom Tailoring", "desc": "Perfect fit with our expert master tailors" },
+        { "title": "Designer Collections", "desc": "Exclusive pieces from renowned Indian designers" },
+        { "title": "Bridal Consultation", "desc": "Personal styling for your special day" }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Found my perfect wedding lehenga here! Exceptional craftsmanship.", "author": "Kavya Reddy" },
+        { "quote": "Beautiful collections and excellent service. Highly recommended!", "author": "Deepika Mehta" }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Ready Collection", "price": "₹5,000+", "features": ["Designer pieces", "Standard sizes", "Quick delivery"] },
+        { "name": "Custom Design", "price": "₹15,000+", "features": ["Bespoke creation", "Personal consultation", "Premium fabrics"] }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Shop Now - Free Shipping Above ₹2000"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Collections", "href": "#" },
+        { "label": "Bridal", "href": "#" },
+        { "label": "Call: +91-9876-STYLE", "href": "tel:+919876789533" }
+      ]
+    }
+  ]
+}

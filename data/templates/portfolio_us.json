@@ -1,0 +1,64 @@
+
+{
+  "meta": {
+    "title": "Creative Portfolio",
+    "payments": "stripe"
+  },
+  "styles": {
+    "primary": "#111827",
+    "accent": "#F59E0B",
+    "font_head": "Playfair Display",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Creating Digital Experiences",
+      "sub": "I'm a creative designer and developer specializing in user-centered digital solutions.",
+      "cta": { "label": "View My Work", "href": "#portfolio" }
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "UI/UX Design", "desc": "Creating intuitive and beautiful user experiences" },
+        { "title": "Web Development", "desc": "Building responsive and performant websites" },
+        { "title": "Brand Identity", "desc": "Developing cohesive visual brand systems" }
+      ]
+    },
+    {
+      "type": "gallery",
+      "items": [
+        { "title": "E-commerce Platform", "desc": "Complete redesign boosting conversion by 40%" },
+        { "title": "Mobile App Design", "desc": "iOS app with 4.9 star rating and 100K+ downloads" },
+        { "title": "Brand Redesign", "desc": "Modern identity for tech startup securing $2M funding" },
+        { "title": "SaaS Dashboard", "desc": "Complex data visualization made simple and elegant" }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Exceptional design sense and technical skills. Delivered beyond expectations!", "author": "Jennifer K., CEO" },
+        { "quote": "Professional, creative, and deadline-driven. Would hire again!", "author": "David L., CTO" }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Design Consultation", "price": "$150/hr", "features": ["Strategy session", "Design audit", "Recommendations"] },
+        { "name": "Full Project", "price": "Starting at $5,000", "features": ["Complete design", "Development", "Testing & launch"] }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Let's Work Together"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Portfolio", "href": "#" },
+        { "label": "About", "href": "#" },
+        { "label": "Contact: hello@portfolio.com", "href": "mailto:hello@portfolio.com" }
+      ]
+    }
+  ]
+}

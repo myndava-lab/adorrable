@@ -1,0 +1,64 @@
+
+{
+  "meta": {
+    "title": "Asian Market E-commerce",
+    "payments": "alipay"
+  },
+  "styles": {
+    "primary": "#DC2626",
+    "accent": "#F59E0B",
+    "font_head": "Inter",
+    "font_body": "Inter"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "headline": "Premium Asian Products",
+      "sub": "Discover authentic Asian goods, electronics, fashion, and specialty items. Fast shipping across Asia-Pacific region.",
+      "cta": { "label": "Shop Collection", "href": "#products" }
+    },
+    {
+      "type": "features",
+      "items": [
+        { "title": "Regional Shipping", "desc": "Fast delivery across Singapore, Malaysia, Thailand, Philippines" },
+        { "title": "Multiple Payments", "desc": "Accept Alipay, WeChat Pay, GrabPay, and local methods" },
+        { "title": "Local Support", "desc": "Customer service in English, Mandarin, Malay, and Thai" }
+      ]
+    },
+    {
+      "type": "gallery",
+      "items": [
+        { "title": "Electronics", "desc": "Latest smartphones, laptops, and gadgets" },
+        { "title": "Asian Fashion", "desc": "Trendy K-beauty, J-fashion, and streetwear" },
+        { "title": "Food & Snacks", "desc": "Authentic Asian snacks and specialty ingredients" },
+        { "title": "Home & Living", "desc": "Modern Asian-inspired home decor" }
+      ]
+    },
+    {
+      "type": "testimonials",
+      "items": [
+        { "quote": "Great selection of Asian products! Fast delivery to Singapore.", "author": "Wei Ming L." },
+        { "quote": "Authentic K-beauty products at great prices. Love shopping here!", "author": "Siti N." }
+      ]
+    },
+    {
+      "type": "pricing",
+      "plans": [
+        { "name": "Standard", "price": "Free", "features": ["Regular shipping", "Basic support", "Return policy"] },
+        { "name": "Premium", "price": "$19/month", "features": ["Express shipping", "Priority support", "Exclusive deals"] }
+      ]
+    },
+    {
+      "type": "cta",
+      "button": "Start Shopping - Multiple Payment Options"
+    },
+    {
+      "type": "footer",
+      "links": [
+        { "label": "Products", "href": "#" },
+        { "label": "Shipping", "href": "#" },
+        { "label": "WhatsApp: +65-ASIA-SHOP", "href": "https://wa.me/6527427467" }
+      ]
+    }
+  ]
+}
