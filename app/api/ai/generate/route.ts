@@ -150,8 +150,6 @@ Generate complete HTML with embedded CSS and minimal JavaScript if needed.`
       generatedContent = completion.choices[0]?.message?.content || ''
     }
 
-    const generatedContent = completion.choices[0]?.message?.content
-
     if (!generatedContent) {
       return NextResponse.json({ 
         error: 'Failed to generate content' 
